@@ -15,6 +15,10 @@ __pycache__/
 !.env.example
 coverage/
 *.log
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 .DS_Store
 Thumbs.db
 .vscode/
