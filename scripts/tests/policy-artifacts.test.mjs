@@ -101,6 +101,12 @@ test("batch fixture retains legal-basis groups per resource", () => {
   assert.equal(decisions[0].decision, "allow");
   assert.deepEqual(decisions[1], c.expected);
 });
+test("a child legal basis cannot widen its parent group", () => {
+  const c = vectors.cases.find(c => c.id === "legal-basis-child-cannot-widen-parent");
+  const decisions = c.input.resources.map(matrixExpectation);
+  assert.deepEqual(decisions[0], c.expected);
+  assert.equal(decisions[1].decision, "allow");
+});
 test("trust registry and topology tables do not assert engine isolation", () => {
   assert.deepEqual(enforcement.levels.map(l => l.level), [0, 1, 2, 3, 4, 5]);
   assert.equal(enforcement.signatureDefaults.priority, 50);

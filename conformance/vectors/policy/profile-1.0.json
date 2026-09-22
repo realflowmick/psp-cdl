@@ -8,7 +8,7 @@
     "Synthetic fixture inputs only; these are not trusted API request bodies.",
     "Except where tested, provenance, signature verification, binding, time freshness, capability completeness and topology B mediation have already passed.",
     "Checks, grants, parameters and context represent authenticated host facts; callers cannot self-assert them.",
-    "Each evaluate input represents one originating resource policy. evaluate-batch requires every resource decision to allow."
+    "Each evaluate input represents one resource/origin unit and at most one originating declaration occurrence legal-basis group. evaluate-batch requires every unit decision to allow."
   ],
   "cases": [
     {
@@ -7545,6 +7545,50 @@
       },
       "ruleIds": [],
       "note": "Expected profile behavior; implementation execution is pending."
+    },
+    {
+      "id": "legal-basis-child-cannot-widen-parent",
+      "operation": "evaluate-batch",
+      "input": {
+        "resources": [
+          {
+            "classes": [],
+            "covenants": [
+              "lawful-basis-consent"
+            ],
+            "capabilities": [
+              "verifies-contract-active"
+            ],
+            "checks": {
+              "lawful-basis-contract": "satisfied"
+            },
+            "parameters": {},
+            "context": {}
+          },
+          {
+            "classes": [],
+            "covenants": [
+              "lawful-basis-contract"
+            ],
+            "capabilities": [
+              "verifies-contract-active"
+            ],
+            "checks": {
+              "lawful-basis-contract": "satisfied"
+            },
+            "parameters": {},
+            "context": {}
+          }
+        ]
+      },
+      "expected": {
+        "decision": "deny",
+        "reasonCodes": [
+          "LEGAL_BASIS_UNSATISFIED"
+        ]
+      },
+      "ruleIds": [],
+      "note": "Two origins on the same data: inherited consent and child contract remain conjunctive. Adding a child basis cannot bypass the parent without an authorized negation."
     },
     {
       "id": "checks-cannot-replace-capabilities",
