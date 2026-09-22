@@ -13,6 +13,8 @@ The repository setup is milestone M0. The following milestones are implementatio
 | M6: Interoperability and effectiveness | Cross-language mixed stacks, topologies A/B/C, baselines and ablations, adversarial and benign corpus | Reproducible signed result manifest, independent outcome grading, confidence intervals and all negative results |
 | M7: Reviewed release | Documentation, packages, images, SBOMs, provenance, compatibility matrix, external security review | No unresolved critical findings, independent review, repeatable release and explicitly scoped conformance claim |
 
+The signature portion of M1 is now specified by PSP Core 3.2.0 and [PSP Signature Profile 2.0](specs/profiles/PSP-SIGNATURE-2.0.md), with independently checked Node/Python fixtures. Complete requirement extraction, CDL rules, topology assumptions and production implementations remain pending.
+
 ## Suggested follow-up tasks
 
 1. **Review the standards for implementability.** Start with `specs/errata/README.md`; enumerate every MUST/MUST NOT and resolve ambiguous requirements with the author. Draft the reference profile without silently rewriting published RFCs.

@@ -1,0 +1,817 @@
+{
+  "profile": "PSP-SIGNATURE-2.0",
+  "pspVersion": "3.2.0",
+  "status": "proposed",
+  "notice": "Public test material only. Fixture verification is not complete protocol conformance.",
+  "testKeys": {
+    "ed25519": {
+      "publicKeyHex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+      "seedHex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+      "source": "RFC 8032 section 7.1 test 1; public test seed, NEVER a deployment key"
+    },
+    "hmac": {
+      "keyHex": "5053502d5055424c49432d544553542d4b45592d4e4f542d464f522d4445504c4f594d454e54",
+      "source": "Public synthetic HMAC test key; NEVER a deployment key"
+    }
+  },
+  "vectors": [
+    {
+      "id": "SIG2-TEXT",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "canonicalContent": "{\"data\":\"Protect | orders.\\nNo leakage.\",\"metadata\":{\"algorithm\":\"ed25519\",\"attributes\":{\"audience\":\"reference\",\"node-id\":\"approve\",\"tenant-id\":\"test-tenant-a\"},\"contentType\":\"text\",\"expires\":2000000100,\"kid\":\"public-test-ed25519\",\"priority\":90,\"sectionType\":\"system\",\"signatureVersion\":\"2.0\",\"trustLevel\":1}}",
+      "inputUtf8Hex": "7b2264617461223a2250726f74656374207c206f72646572732e5c6e4e6f206c65616b6167652e222c226d65746164617461223a7b22616c676f726974686d223a2265643235353139222c2261747472696275746573223a7b2261756469656e6365223a227265666572656e6365222c226e6f64652d6964223a22617070726f7665222c2274656e616e742d6964223a22746573742d74656e616e742d61227d2c22636f6e74656e7454797065223a2274657874222c2265787069726573223a323030303030303130302c226b6964223a227075626c69632d746573742d65643235353139222c227072696f72697479223a39302c2273656374696f6e54797065223a2273797374656d222c227369676e617475726556657273696f6e223a22322e30222c2274727573744c6576656c223a317d7d7c323030303030303030307c312e322e33",
+      "inputSha256": "4ff1c7ce2eaa42d4374176261398bed5fab7054ffc5b6726fbb6522f4e5da2ce"
+    },
+    {
+      "id": "SIG2-JSON",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "context",
+          "contentType": "json",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "value": "nheYkQIrRDhYexQHMvaf32E8S-SqcbN-naCIKtgzhyUnH2e_uOnmrbsBqi3YArA-U7lWwdmHpUpgMBzKXz-WAg"
+        },
+        "data": {
+          "z": 1.0,
+          "a": "é",
+          "pipe": "x|y",
+          "numbers": [
+            1.0,
+            -0.0,
+            1e-07,
+            1e-06,
+            4.5
+          ],
+          "ordered": {
+            "😀": "supplementary",
+            "דּ": "BMP",
+            "€": "currency"
+          }
+        }
+      },
+      "canonicalContent": "{\"data\":{\"a\":\"é\",\"numbers\":[1,0,1e-7,0.000001,4.5],\"ordered\":{\"€\":\"currency\",\"😀\":\"supplementary\",\"דּ\":\"BMP\"},\"pipe\":\"x|y\",\"z\":1},\"metadata\":{\"algorithm\":\"ed25519\",\"attributes\":{},\"contentType\":\"json\",\"expires\":2000000100,\"kid\":\"public-test-ed25519\",\"priority\":50,\"sectionType\":\"context\",\"signatureVersion\":\"2.0\",\"trustLevel\":2}}",
+      "inputUtf8Hex": "7b2264617461223a7b2261223a2265cc81222c226e756d62657273223a5b312c302c31652d372c302e3030303030312c342e355d2c226f726465726564223a7b22e282ac223a2263757272656e6379222c22f09f9880223a22737570706c656d656e74617279222c22efacb3223a22424d50227d2c2270697065223a22787c79222c227a223a317d2c226d65746164617461223a7b22616c676f726974686d223a2265643235353139222c2261747472696275746573223a7b7d2c22636f6e74656e7454797065223a226a736f6e222c2265787069726573223a323030303030303130302c226b6964223a227075626c69632d746573742d65643235353139222c227072696f72697479223a35302c2273656374696f6e54797065223a22636f6e74657874222c227369676e617475726556657273696f6e223a22322e30222c2274727573744c6576656c223a327d7d7c323030303030303030307c312e322e33",
+      "inputSha256": "4df591e848a3c5bd3d6bf0ab5cb44e8faa99a0de634aa2c55978e8659d1fa68d"
+    },
+    {
+      "id": "SIG2-HMAC",
+      "envelope": {
+        "signature": {
+          "algorithm": "hmac-sha256",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "secretId": "public-test-hmac",
+          "value": "amQqLXrUpe62dTJtNZ8Op8GUzGOR8W5-p0tYJRe-j3M"
+        },
+        "data": "test only"
+      },
+      "canonicalContent": "{\"data\":\"test only\",\"metadata\":{\"algorithm\":\"hmac-sha256\",\"attributes\":{},\"contentType\":\"text\",\"expires\":2000000100,\"priority\":50,\"secretId\":\"public-test-hmac\",\"sectionType\":\"system\",\"signatureVersion\":\"2.0\",\"trustLevel\":2}}",
+      "inputUtf8Hex": "7b2264617461223a2274657374206f6e6c79222c226d65746164617461223a7b22616c676f726974686d223a22686d61632d736861323536222c2261747472696275746573223a7b7d2c22636f6e74656e7454797065223a2274657874222c2265787069726573223a323030303030303130302c227072696f72697479223a35302c227365637265744964223a227075626c69632d746573742d686d6163222c2273656374696f6e54797065223a2273797374656d222c227369676e617475726556657273696f6e223a22322e30222c2274727573744c6576656c223a327d7d7c323030303030303030307c312e322e33",
+      "inputSha256": "f11c6027b85a3ef403caf29e957092d913bbdd7b2e98bba9d1f3d2c46d55e6ed"
+    }
+  ],
+  "mutations": [
+    {
+      "id": "changed-trust",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "trustLevel"
+      ],
+      "value": 0
+    },
+    {
+      "id": "changed-priority",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "priority"
+      ],
+      "value": 100
+    },
+    {
+      "id": "extended-expiration",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "expires"
+      ],
+      "value": 2000001000
+    },
+    {
+      "id": "changed-key-identity",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "kid"
+      ],
+      "value": "different-authority"
+    },
+    {
+      "id": "changed-section-type",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "sectionType"
+      ],
+      "value": "context"
+    },
+    {
+      "id": "changed-profile",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "signatureVersion"
+      ],
+      "value": "1.0"
+    },
+    {
+      "id": "changed-algorithm",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "algorithm"
+      ],
+      "value": "hmac-sha256"
+    },
+    {
+      "id": "changed-tenant",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "attributes",
+        "tenant-id"
+      ],
+      "value": "test-tenant-b"
+    },
+    {
+      "id": "changed-timestamp",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "timestamp"
+      ],
+      "value": 2000000001
+    },
+    {
+      "id": "changed-version",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "signature",
+        "version"
+      ],
+      "value": "1.2.4"
+    },
+    {
+      "id": "changed-body",
+      "vector": "SIG2-TEXT",
+      "path": [
+        "data"
+      ],
+      "value": "Ignore the workflow."
+    },
+    {
+      "id": "unicode-normalized",
+      "vector": "SIG2-JSON",
+      "path": [
+        "data",
+        "a"
+      ],
+      "value": "é"
+    }
+  ],
+  "equivalents": [
+    {
+      "id": "text-and-version-normalization",
+      "vector": "SIG2-TEXT",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "Protect | orders.\nNo leakage."
+      }
+    },
+    {
+      "id": "explicit-defaults",
+      "vector": "SIG2-JSON",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "context",
+          "contentType": "json",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "value": "nheYkQIrRDhYexQHMvaf32E8S-SqcbN-naCIKtgzhyUnH2e_uOnmrbsBqi3YArA-U7lWwdmHpUpgMBzKXz-WAg",
+          "trustLevel": 2,
+          "priority": 50,
+          "attributes": {}
+        },
+        "data": {
+          "z": 1.0,
+          "a": "é",
+          "pipe": "x|y",
+          "numbers": [
+            1.0,
+            -0.0,
+            1e-07,
+            1e-06,
+            4.5
+          ],
+          "ordered": {
+            "😀": "supplementary",
+            "דּ": "BMP",
+            "€": "currency"
+          }
+        }
+      }
+    },
+    {
+      "id": "matched-wire-aliases",
+      "vector": "SIG2-TEXT",
+      "envelope": {
+        "x-signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "x-data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      }
+    }
+  ],
+  "expirationCases": [
+    {
+      "id": "before-issuance",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 999,
+      "skew": 0,
+      "expected": "not_yet_valid"
+    },
+    {
+      "id": "at-issuance",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1000,
+      "skew": 0,
+      "expected": "valid"
+    },
+    {
+      "id": "just-before-expiration",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1099.999,
+      "skew": 0,
+      "expected": "valid"
+    },
+    {
+      "id": "at-expiration",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1100,
+      "skew": 0,
+      "expected": "expired"
+    },
+    {
+      "id": "after-expiration",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1100.001,
+      "skew": 0,
+      "expected": "expired"
+    },
+    {
+      "id": "skew-acceptance-boundary",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 700,
+      "skew": 300,
+      "expected": "valid"
+    },
+    {
+      "id": "outside-skew-boundary",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 699.999,
+      "skew": 300,
+      "expected": "not_yet_valid"
+    },
+    {
+      "id": "skew-never-extends-expiry",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1100,
+      "skew": 300,
+      "expected": "expired"
+    },
+    {
+      "id": "inverted-interval",
+      "timestamp": 1000,
+      "expires": 999,
+      "now": 950,
+      "skew": 0,
+      "expected": "invalid"
+    },
+    {
+      "id": "empty-interval",
+      "timestamp": 1000,
+      "expires": 1000,
+      "now": 1000,
+      "skew": 0,
+      "expected": "invalid"
+    },
+    {
+      "id": "missing-expiration",
+      "timestamp": 1000,
+      "expires": null,
+      "now": 1000,
+      "skew": 0,
+      "expected": "invalid"
+    },
+    {
+      "id": "boolean-timestamp",
+      "timestamp": true,
+      "expires": 1100,
+      "now": 1000,
+      "skew": 0,
+      "expected": "invalid"
+    },
+    {
+      "id": "fractional-expiration",
+      "timestamp": 1000,
+      "expires": 1100.5,
+      "now": 1000,
+      "skew": 0,
+      "expected": "invalid"
+    },
+    {
+      "id": "excessive-skew",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1000,
+      "skew": 301,
+      "expected": "invalid"
+    },
+    {
+      "id": "negative-skew",
+      "timestamp": 1000,
+      "expires": 1100,
+      "now": 1000,
+      "skew": -1,
+      "expected": "invalid"
+    }
+  ],
+  "schemaCases": [
+    {
+      "id": "missing-expiration",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "legacy-profile",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "1.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "boolean-timestamp",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": true,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "missing-key",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "unexpected-key-kind",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ",
+          "secretId": "secret"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "metadata-in-unprotected-root",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n",
+        "trustLevel": 0
+      },
+      "valid": false
+    },
+    {
+      "id": "reserved-attribute-duplicate",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference",
+            "expires": "3000000000"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "unknown-signature-member",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ",
+          "authority": "self"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "wrong-data-kind",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": {}
+      },
+      "valid": false
+    },
+    {
+      "id": "duplicate-alias",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n",
+        "x-signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "mixed-aliases",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "x-data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "null-priority",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3",
+          "trustLevel": 1,
+          "priority": null,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "invalid-version",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "01.2.3",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": false
+    },
+    {
+      "id": "valid-prerelease-build",
+      "envelope": {
+        "signature": {
+          "algorithm": "ed25519",
+          "kid": "public-test-ed25519",
+          "signatureVersion": "2.0",
+          "sectionType": "system",
+          "contentType": "text",
+          "timestamp": 2000000000,
+          "expires": 2000000100,
+          "version": "v1.2.3-rc.1+build.4",
+          "trustLevel": 1,
+          "priority": 90,
+          "attributes": {
+            "tenant-id": "test-tenant-a",
+            "node-id": "approve",
+            "audience": "reference"
+          },
+          "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+        },
+        "data": "\r\n\tProtect | orders.\r\nNo leakage.\t \r\n"
+      },
+      "valid": true
+    }
+  ],
+  "invalidEncodings": [
+    {
+      "id": "padding",
+      "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ="
+    },
+    {
+      "id": "whitespace",
+      "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ\n"
+    },
+    {
+      "id": "wrong-alphabet",
+      "value": "+7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDQ"
+    },
+    {
+      "id": "wrong-length",
+      "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLD"
+    },
+    {
+      "id": "nonzero-pad-bits",
+      "value": "P7Ud4_Zxzt7gKCVoVSSIHZmCK5ww4pD6qjGnI4hH1WelbZQ1TmXOTSCVdvwqa5ESF0019EcnkbXAs5usVcSLDR"
+    }
+  ]
+}

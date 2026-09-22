@@ -11,10 +11,12 @@ Open standards and reference implementations for protecting LLM workflows, spons
 
 | Document | Version | Status |
 | --- | --- | --- |
-| [PSP Core](specs/psp/RFC-PSP-CORE-v3_1_1.md) | 3.1.1 | Proposed Standard |
+| [PSP Core](specs/psp/RFC-PSP-CORE-v3_2_0.md) | 3.2.0 | Proposed Standard |
 | [CDL](specs/cdl/RFC-CDL-v1_5.md) | 1.5 | Proposed Standard |
 
-Read the [open specification issues](specs/errata/README.md) before implementing cryptography or claiming interoperability. RFC-PSP-API is referenced by PSP but was not supplied; local API contracts will be drafts until reviewed. These are project RFCs, not IETF or IANA approvals.
+The [3.1.1 baseline](specs/psp/RFC-PSP-CORE-v3_1_1.md) remains archived. The [signature profile](specs/profiles/PSP-SIGNATURE-2.0.md) resolves the initial signing ambiguities and has executable cross-language byte/crypto vectors; full protocol implementations are still pending.
+
+Read the [remaining specification issues](specs/errata/README.md) before implementing cryptography or claiming interoperability. RFC-PSP-API is referenced by PSP but was not supplied; local API contracts will be drafts until reviewed. These are project RFCs, not IETF or IANA approvals.
 
 ## Repository map
 

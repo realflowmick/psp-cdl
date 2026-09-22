@@ -7,34 +7,30 @@
       "spec": "psp",
       "section": "17.3;17.4",
       "title": "Signed bytes and verification parity",
-      "blockedBy": [
-        "PSP-E001",
-        "PSP-E002"
-      ],
+      "blockedBy": [],
       "component": "core",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "PSP-SIGNATURE-2.0"
     },
     {
       "id": "PSP-SIG-002",
       "spec": "psp",
       "section": "17.4",
       "title": "Expiration boundary",
-      "blockedBy": [
-        "PSP-E003"
-      ],
+      "blockedBy": [],
       "component": "core",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "PSP-SIGNATURE-2.0"
     },
     {
       "id": "PSP-JSON-001",
       "spec": "psp",
       "section": "17.8",
       "title": "Canonical JSON interoperability",
-      "blockedBy": [
-        "PSP-E004"
-      ],
+      "blockedBy": [],
       "component": "core",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "PSP-SIGNATURE-2.0"
     },
     {
       "id": "PSP-PARSE-001",
