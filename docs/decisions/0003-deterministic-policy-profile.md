@@ -1,0 +1,13 @@
+# ADR 0003: Deterministic CDL decisions and scoped enforcement claims
+
+Status: accepted author-directed profile decision; proposed standards, not implementation certification.
+
+The originating author authorized the next roadmap step: resolve remaining policy ambiguities and add shared decision vectors. Publish CDL Deterministic Policy Profile 1.0 and PSP Trust and Enforcement Profile 1.0 without editing the archived CDL 1.5 or PSP 3.2.0 baselines. The new profiles explicitly override the affected interpretations only for adopters; record profile selection and table digest in deployment configuration.
+
+Use finite matching tables instead of runtime semantic guesses. Unknown terms fail closed. Inheritance runs root to leaf with provenance; removing a restriction needs grants covering every originating authority. Capabilities accumulate, while positive assurances require operation-bound evidence. Resolve matrix AND/OR choices explicitly, keep legal-basis alternatives scoped to each originating declaration occurrence, and require all relevant jurisdictions and role restrictions to match. A child cannot broaden its parent's legal-basis alternatives without authorized negation. No-collect blocks ingestion despite the baseline's conflicting transient-processing example.
+
+Trust has six levels. Signature validity does not confer authority, and prompt construction does not establish model-internal attention isolation. Topology claims identify actual enforcement coverage, and do not assume statistically independent defenses. Complete mediation, truthful discovery and installed obligation controls remain deployment requirements.
+
+The tables map every Appendix B.2/B.3 row to explicit rules or finite expansions. Other CDL terms are visibly unsupported until separately specified. Shared cases include both useful allows and refusals for unknown terms, unauthorized negation, contradictory sources, unsatisfied safeguards, mismatched roles/jurisdictions and missing mediation. CI audits schema, references and matrix coverage; it does not execute a production policy engine.
+
+Compatibility cost: previously permissive policies can now reject. Migration requires reviewed policy, scoped grants, complete inventories and check integrations. Do not add a permissive fallback. The originating author's instruction to proceed authorizes this concrete profile decision and PR workflow under the solo-maintainer bootstrap. This author-directed proposed profile proceeds before the ordinary public-comment waiting period, as with ADR 0002; public review remains open. There has been no independent maintainer or security review. Full RFC requirement extraction and the API contract remain separate work.

@@ -30,6 +30,8 @@ The diagram is the target mediated deployment. None of these network paths is ac
 
 The language packages share JSON contracts and vectors, not cryptographic implementations. Keep deterministic parsing/policy code separate from I/O and from probabilistic threat assessment. Use maintained cryptographic libraries rather than custom primitives.
 
+The initial policy contract is [CDL Deterministic Policy Profile 1.0](../specs/profiles/CDL-DETERMINISTIC-1.0.md), paired with [PSP Trust and Enforcement Profile 1.0](../specs/profiles/PSP-TRUST-1.0.md). Retain each restriction's originating authority and bind every decision to the checked operation. Capability union never supplies proof that a safeguard executed; trusted check adapters and enforced obligations belong behind the service authentication boundary.
+
 ## Enforcement model
 
 Map Topology A to semantic-only experiments; Topology B to an authoritative chat-host/LLMProxy dispatch loop; Topology C additionally mediates MCP and enforces output covenants at servers. Declare all enabled enforcement points in each run. Layers that share a library, signing authority, or configuration may have correlated failures; do not assume statistical independence.

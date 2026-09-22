@@ -13,7 +13,9 @@ The repository setup is milestone M0. The following milestones are implementatio
 | M6: Interoperability and effectiveness | Cross-language mixed stacks, topologies A/B/C, baselines and ablations, adversarial and benign corpus | Reproducible signed result manifest, independent outcome grading, confidence intervals and all negative results |
 | M7: Reviewed release | Documentation, packages, images, SBOMs, provenance, compatibility matrix, external security review | No unresolved critical findings, independent review, repeatable release and explicitly scoped conformance claim |
 
-The signature portion of M1 is now specified by PSP Core 3.2.0 and [PSP Signature Profile 2.0](specs/profiles/PSP-SIGNATURE-2.0.md), with independently checked Node/Python fixtures. Complete requirement extraction, CDL rules, topology assumptions and production implementations remain pending.
+The signature portion of M1 is specified by PSP Core 3.2.0 and [PSP Signature Profile 2.0](specs/profiles/PSP-SIGNATURE-2.0.md), with independently checked Node/Python fixtures. [CDL Deterministic Policy Profile 1.0](specs/profiles/CDL-DETERMINISTIC-1.0.md) and [PSP Trust and Enforcement Profile 1.0](specs/profiles/PSP-TRUST-1.0.md) now specify CDL inheritance, finite policy tables, trust and topology assumptions. Every CDL Appendix B.2/B.3 row is mapped; policy-vector execution against production adapters remains unimplemented. M1 still needs full RFC requirement extraction and parser-contract review; no complete conformance claim is available.
+
+The next implementation slice is the portable core: explicit profile selection, bounded PSP/CDL parsing, signature/key/time validation and the deterministic policy evaluator. Build TypeScript and Python adapters that consume the shared signature and policy corpora, retaining provenance and operation bindings. Keep service execution and effectiveness claims gated on later milestones.
 
 ## Suggested follow-up tasks
 
