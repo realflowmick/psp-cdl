@@ -1,0 +1,821 @@
+{
+  "profile": "PSP-PERSISTENCE-0.1",
+  "license": "CC0-1.0",
+  "actor": {
+    "tenantId": "tenant-a",
+    "subjectId": "owner"
+  },
+  "epoch": "test-epoch",
+  "now": 100,
+  "steps": [
+    {
+      "id": "node",
+      "command": {
+        "action": "putNode",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "definition": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "nested": {
+            "a": [
+              null,
+              true,
+              1.25
+            ]
+          }
+        }
+      },
+      "expect": {
+        "nodeId": "entry",
+        "definition": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "nested": {
+            "a": [
+              null,
+              true,
+              1.25
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "node-retry",
+      "command": {
+        "action": "putNode",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "definition": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "nested": {
+            "a": [
+              null,
+              true,
+              1.25
+            ]
+          }
+        }
+      },
+      "expect": {
+        "$ref": "node"
+      }
+    },
+    {
+      "id": "immutable-node",
+      "command": {
+        "action": "putNode",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "definition": {
+          "changed": true
+        }
+      },
+      "error": "NODE_CONFLICT"
+    },
+    {
+      "id": "missing-node",
+      "command": {
+        "action": "getNode",
+        "nodeId": "missing",
+        "nodeVersion": "1"
+      },
+      "error": "NOT_FOUND"
+    },
+    {
+      "id": "tenant-node",
+      "command": {
+        "action": "getNode",
+        "nodeId": "entry",
+        "nodeVersion": "1"
+      },
+      "error": "NOT_FOUND",
+      "actor": {
+        "tenantId": "tenant-b",
+        "subjectId": "owner"
+      }
+    },
+    {
+      "id": "denied-create",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "error": "PERSISTENCE_DENIED",
+      "allow": false
+    },
+    {
+      "id": "session",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "version": 1,
+        "status": "running",
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "create-retry",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "$ref": "session"
+      }
+    },
+    {
+      "id": "request-reuse",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "different": true
+        }
+      },
+      "error": "IDEMPOTENCY_CONFLICT"
+    },
+    {
+      "id": "extra-authority",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        },
+        "tenantId": "tenant-b"
+      },
+      "error": "INVALID_COMMAND"
+    },
+    {
+      "id": "prototype-action",
+      "command": {
+        "action": "toString"
+      },
+      "error": "INVALID_COMMAND"
+    },
+    {
+      "id": "wrong-tenant",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "error": "NOT_FOUND",
+      "actor": {
+        "tenantId": "tenant-b",
+        "subjectId": "owner"
+      }
+    },
+    {
+      "id": "wrong-owner",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "error": "NOT_FOUND",
+      "actor": {
+        "tenantId": "tenant-a",
+        "subjectId": "other"
+      }
+    },
+    {
+      "id": "invalid-actor",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "error": "INVALID_STATE",
+      "actor": {
+        "tenantId": "tenant-a",
+        "subjectId": "owner",
+        "approved": true
+      }
+    },
+    {
+      "id": "update-denied",
+      "command": {
+        "action": "updateSession",
+        "requestId": "update-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 1,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "error": "PERSISTENCE_DENIED",
+      "allow": false
+    },
+    {
+      "id": "unchanged",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "expect": {
+        "$ref": "session"
+      }
+    },
+    {
+      "id": "updated",
+      "command": {
+        "action": "updateSession",
+        "requestId": "update-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 1,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "expect": {
+        "version": 2,
+        "status": "running",
+        "policyVersion": "p2",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      }
+    },
+    {
+      "id": "stale-update",
+      "command": {
+        "action": "updateSession",
+        "requestId": "stale",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 1,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "error": "STATE_CONFLICT"
+    },
+    {
+      "id": "old-acknowledgement",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "$ref": "session"
+      }
+    },
+    {
+      "id": "update-retry",
+      "command": {
+        "action": "updateSession",
+        "requestId": "update-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 1,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "expect": {
+        "$ref": "updated"
+      }
+    },
+    {
+      "id": "long-checkpoint",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 2,
+        "expiresAt": 201
+      },
+      "error": "INVALID_EXPIRY"
+    },
+    {
+      "id": "expired-checkpoint",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 2,
+        "expiresAt": 100
+      },
+      "error": "EXPIRED"
+    },
+    {
+      "id": "checkpoint",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 2,
+        "expiresAt": 150
+      },
+      "expect": {
+        "sessionVersion": 3,
+        "expiresAt": 150
+      }
+    },
+    {
+      "id": "restart",
+      "control": "restart"
+    },
+    {
+      "id": "checkpoint-retry",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 2,
+        "expiresAt": 150
+      },
+      "expect": {
+        "$ref": "checkpoint"
+      }
+    },
+    {
+      "id": "waiting",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "expect": {
+        "version": 3,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "bypass-checkpoint",
+      "command": {
+        "action": "updateSession",
+        "requestId": "bypass",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 3,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "error": "INVALID_TRANSITION"
+    },
+    {
+      "id": "wrong-token",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "state": {
+          "approved": true
+        }
+      },
+      "error": "INVALID_TOKEN"
+    },
+    {
+      "id": "wrong-checkpoint-owner",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "error": "NOT_FOUND",
+      "actor": {
+        "tenantId": "tenant-a",
+        "subjectId": "other"
+      }
+    },
+    {
+      "id": "resume-denied",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "error": "PERSISTENCE_DENIED",
+      "allow": false
+    },
+    {
+      "id": "still-waiting",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "expect": {
+        "$ref": "waiting"
+      }
+    },
+    {
+      "id": "resumed",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "expect": {
+        "version": 4,
+        "status": "running",
+        "state": {
+          "approved": true
+        }
+      }
+    },
+    {
+      "id": "restart-consumed",
+      "control": "restart"
+    },
+    {
+      "id": "resume-retry",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "expect": {
+        "$ref": "resumed"
+      }
+    },
+    {
+      "id": "replay",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "replay",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "error": "CHECKPOINT_CONSUMED"
+    },
+    {
+      "id": "changed-retry",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "resume-1",
+        "checkpointId": {
+          "$ref": "checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": false
+        }
+      },
+      "error": "IDEMPOTENCY_CONFLICT"
+    },
+    {
+      "id": "completed",
+      "command": {
+        "action": "updateSession",
+        "requestId": "complete",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 4,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "completed",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "expect": {
+        "version": 5,
+        "status": "completed"
+      }
+    },
+    {
+      "id": "terminal",
+      "command": {
+        "action": "updateSession",
+        "requestId": "terminal",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 5,
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p2",
+        "status": "running",
+        "state": {
+          "result": "é 🧪",
+          "negativeZero": 0,
+          "decimal": 0.1
+        }
+      },
+      "error": "INVALID_TRANSITION"
+    },
+    {
+      "id": "expiring-session",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-2",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "version": 1
+      }
+    },
+    {
+      "id": "expiring-checkpoint",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-2",
+        "sessionId": {
+          "$ref": "expiring-session.sessionId"
+        },
+        "expectedVersion": 1,
+        "expiresAt": 150
+      },
+      "expect": {
+        "sessionVersion": 2
+      }
+    },
+    {
+      "id": "expiry-clock",
+      "control": "clock",
+      "value": 150
+    },
+    {
+      "id": "checkpoint-expiry-boundary",
+      "command": {
+        "action": "resumeCheckpoint",
+        "requestId": "expire",
+        "checkpointId": {
+          "$ref": "expiring-checkpoint.checkpointId"
+        },
+        "resumeToken": {
+          "$ref": "expiring-checkpoint.resumeToken"
+        },
+        "state": {
+          "approved": true
+        }
+      },
+      "error": "EXPIRED"
+    },
+    {
+      "id": "expired-receipt",
+      "command": {
+        "action": "createCheckpoint",
+        "requestId": "checkpoint-1",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        },
+        "expectedVersion": 2,
+        "expiresAt": 150
+      },
+      "error": "EXPIRED"
+    },
+    {
+      "id": "session-expiry-clock",
+      "control": "clock",
+      "value": 200
+    },
+    {
+      "id": "session-expiry-boundary",
+      "command": {
+        "action": "getSession",
+        "sessionId": {
+          "$ref": "session.sessionId"
+        }
+      },
+      "error": "EXPIRED"
+    },
+    {
+      "id": "create-expired-retry",
+      "command": {
+        "action": "createSession",
+        "requestId": "create-1",
+        "nodeId": "entry",
+        "nodeVersion": "1",
+        "policyVersion": "p1",
+        "expiresAt": 200,
+        "state": {
+          "markup": "${psp type=context}café 🧪${/psp}",
+          "document": {
+            "kind": "document",
+            "profile": "PSP-CODEC-1.0",
+            "children": [
+              {
+                "kind": "text",
+                "value": "hello 🧪"
+              }
+            ]
+          }
+        }
+      },
+      "error": "EXPIRED"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # Reusable library API
 
+For durable workflow state, see the [persistence API and storage options](persistence.md). Its replaceable store uses these core JSON codecs and leaves parsing independent of database I/O.
+
 The experimental TypeScript and Python packages implement the same [codec profile](../specs/profiles/PSP-CODEC-1.0.md), [signature profile](../specs/profiles/PSP-SIGNATURE-2.0.md) and [finite CDL profile](../specs/profiles/CDL-DETERMINISTIC-1.0.md). Their runtime does not read this repository or call a service. Use them directly from proxies, MCP servers, applications or model integration tooling. They do not implement an inference engine or workflow executor.
 
 ## Document round trips

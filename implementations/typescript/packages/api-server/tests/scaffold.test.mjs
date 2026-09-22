@@ -5,7 +5,7 @@ import { manifest, requireImplementation } from '../dist/index.js';
 
 test('api-server advertises only scoped service features', () => {
   assert.equal(manifest.status, 'experimental');
-  assert.deepEqual(manifest.implementedFeatures, ["authenticated-security-service-0.1", "http-security-adapter"]);
+  assert.deepEqual(manifest.implementedFeatures, ["authenticated-security-service-0.1", "http-security-adapter", "workflow-persistence-0.1", "sqlite-atomic-backend"]);
 });
 test('api-server rejects an unimplemented operation', () => {
   assert.throws(requireImplementation, { code: 'NOT_IMPLEMENTED' });

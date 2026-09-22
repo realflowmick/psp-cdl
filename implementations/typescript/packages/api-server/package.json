@@ -15,6 +15,14 @@
     "./http": {
       "types": "./dist/http.d.ts",
       "import": "./dist/http.js"
+    },
+    "./persistence": {
+      "types": "./dist/persistence.d.ts",
+      "import": "./dist/persistence.js"
+    },
+    "./sqlite": {
+      "types": "./dist/sqlite.d.ts",
+      "import": "./dist/sqlite.js"
     }
   },
   "files": [
@@ -23,7 +31,7 @@
     "NOTICE"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PSP Persistence 0.1 trusted-host commands",
+  "description": "CC0-1.0. Not a public request contract or authorization. Core portable JSON and aggregate 1 MiB limits also apply.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "nodeId",
+        "nodeVersion",
+        "definition"
+      ],
+      "properties": {
+        "action": {
+          "const": "putNode"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "nodeVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "definition": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "nodeId",
+        "nodeVersion"
+      ],
+      "properties": {
+        "action": {
+          "const": "getNode"
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "nodeVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "requestId",
+        "nodeId",
+        "nodeVersion",
+        "policyVersion",
+        "expiresAt",
+        "state"
+      ],
+      "properties": {
+        "action": {
+          "const": "createSession"
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "nodeVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "expiresAt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "state": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "sessionId"
+      ],
+      "properties": {
+        "action": {
+          "const": "getSession"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "requestId",
+        "sessionId",
+        "expectedVersion",
+        "nodeId",
+        "nodeVersion",
+        "policyVersion",
+        "status",
+        "state"
+      ],
+      "properties": {
+        "action": {
+          "const": "updateSession"
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "nodeVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "status": {
+          "enum": [
+            "running",
+            "completed"
+          ]
+        },
+        "state": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "requestId",
+        "sessionId",
+        "expectedVersion",
+        "expiresAt"
+      ],
+      "properties": {
+        "action": {
+          "const": "createCheckpoint"
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "expiresAt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "requestId",
+        "checkpointId",
+        "resumeToken",
+        "state"
+      ],
+      "properties": {
+        "action": {
+          "const": "resumeCheckpoint"
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "checkpointId": {
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "resumeToken": {
+          "type": "string",
+          "minLength": 80,
+          "maxLength": 80
+        },
+        "state": {
+          "type": "object"
+        }
+      }
+    }
+  ]
+}

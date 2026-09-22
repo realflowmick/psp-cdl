@@ -45,11 +45,21 @@ import {SecurityService} from '@psp-cdl/api-server';
 import {createHttpServer} from '@psp-cdl/api-server/http';
 import {McpServer} from '@psp-cdl/mcp-server';
 import {serveStdio} from '@psp-cdl/mcp-server/stdio';
+import {WorkflowStore} from '@psp-cdl/api-server/persistence';
+import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 for(const pkg of ['core','cdl','test-harness','api-server','mcp-server']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
 const service=new SecurityService({authenticate:()=>null,resolve:()=>{throw new Error('must not resolve');},now:()=>1});
 await assert.rejects(()=>service.invoke('evaluate',{operation_id:'op'},'invalid'),{code:'UNAUTHENTICATED'});
 assert.equal((await new McpServer(service,()=> 'invalid').handle('{"jsonrpc":"2.0","id":1,"method":"ping"}')).error.message,'UNAUTHENTICATED');
 assert.equal(typeof createHttpServer,'function');assert.equal(typeof serveStdio,'function');
+const backend=new SqliteBackend(resolve('consumer.sqlite'),'package-test',()=>1);
+try {
+  const store=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true}); // Synthetic data only.
+  const actor={tenantId:'synthetic-tenant',subjectId:'synthetic-subject'};
+  await store.execute(actor,{action:'putNode',nodeId:'entry',nodeVersion:'1',definition:{text:'🧪'}});
+  const session=await store.execute(actor,{action:'createSession',requestId:'create',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{text:'🧪'}});
+  assert.deepEqual(await store.execute(actor,{action:'getSession',sessionId:session.sessionId}),session);
+} finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
 const document=core.documentFromJson(core.documentToJson(core.parseMarkup(source)));
 assert.equal(core.serializeMarkup(document),source);
@@ -77,6 +87,8 @@ import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 from psp_cdl_api_server.http import create_wsgi_app
 from psp_cdl_mcp_server.stdio import serve_stdio
+from psp_cdl_api_server.persistence import WorkflowStore
+from psp_cdl_api_server.sqlite import SqliteBackend
 for module in (core,crypto,cdl,harness,api,mcp):
     assert Path(module.__file__).resolve().is_relative_to(target), module.__file__
 source='${psp type=context}hello 🧪${/psp}'
@@ -96,6 +108,15 @@ class Host:
 service=api.SecurityService(Host())
 assert mcp.McpServer(service,lambda:'invalid').handle('{"jsonrpc":"2.0","id":1,"method":"ping"}')['error']['message']=='UNAUTHENTICATED'
 assert callable(create_wsgi_app(service)) and callable(serve_stdio)
+backend=SqliteBackend(str(Path('python-consumer.sqlite').resolve()),'package-test',lambda:1)
+try:
+    store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True)  # Synthetic data only.
+    actor={'tenantId':'synthetic-tenant','subjectId':'synthetic-subject'}
+    store.execute(actor,{'action':'putNode','nodeId':'entry','nodeVersion':'1','definition':{'text':'🧪'}})
+    session=store.execute(actor,{'action':'createSession','requestId':'create','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{'text':'🧪'}})
+    assert store.execute(actor,{'action':'getSession','sessionId':session['sessionId']})==session
+finally:
+    backend.close()
 '''
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
 print('Five npm tarballs and five Python wheels passed isolated consumer checks; no packages published.')
