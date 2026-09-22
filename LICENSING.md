@@ -5,10 +5,11 @@ At the originating author's direction, the PSP and CDL specifications in this re
 | Paths | License |
 | --- | --- |
 | `specs/**`, `schemas/**`, `conformance/requirements.json`, `conformance/policy/**`, `conformance/vectors/**` | CC0-1.0 |
+| `implementations/typescript/packages/cdl/src/tables.ts`, `implementations/python/packages/cdl/src/psp_cdl_cdl/_tables.py` (packaged copies of normative tables) | CC0-1.0 |
 | All other original repository files | Apache-2.0 |
 | Third-party material | Its original license; preserve applicable notices |
 
-The full texts are [CC0](LICENSES/CC0-1.0.txt) and [Apache-2.0](LICENSE). Package names are provisional and package publication is disabled during scaffolding.
+The full texts are [CC0](LICENSES/CC0-1.0.txt) and [Apache-2.0](LICENSE). Package names are provisional and package publication remains disabled until the reviewed release milestone.
 
 ## Import record
 

@@ -22,3 +22,7 @@ Short fixture keys (`classes`, `covenants`, `capabilities`) stand for the corres
 Node checks schemas, references, source-row coverage and restricted matrix algebra. Python independently checks artifact decoding, exact digest, coverage and result order. Normalization, inheritance and trust vectors are expectations for future production adapters; current artifact checks do not establish their runtime correctness. No production proxy or policy engine is being executed.
 
 Dedicated to the public domain under CC0 1.0 Universal; see [license](../../LICENSES/CC0-1.0.txt).
+
+## Current library execution
+
+The historical artifact-only description above records the corpus at adoption. Both reusable libraries now execute all 315 cases through the explicit `--profiles` harness mode; runtime results are separate from the unchanged corpus authoring marker. The [library guide](../../docs/library-api.md) describes origin-preserving policy APIs and their authenticated-host preconditions. No proxy dispatch or service execution is implied.

@@ -6,6 +6,8 @@
 
 [PSP Trust and Enforcement Profile 1.0](PSP-TRUST-1.0.md) resolves the six-level taxonomy and separates proxy controls from inference-engine isolation. It defines minimum topology and actual mediation requirements without assuming independent failure modes.
 
-These profiles are proposed standards adopted at the author's direction, with [a recorded decision](../../docs/decisions/0003-deterministic-policy-profile.md). They override the named baseline interpretations only when explicitly selected. Full PSP parser contracts, service contracts, full RFC requirement extraction and production conformance adapters remain pending. Fixture audits do not imply complete protocol or service conformance.
+These profiles are proposed standards adopted at the author's direction, with [a recorded decision](../../docs/decisions/0003-deterministic-policy-profile.md). They override the named baseline interpretations only when explicitly selected. Full RFC grammar coverage, service contracts, full RFC requirement extraction and production service conformance adapters remain pending. Fixture audits do not imply complete protocol or service conformance.
 
 See [the decision record](../../docs/decisions/0002-signature-profile.md), [the archived baseline](../psp/RFC-PSP-CORE-v3_1_1.md), and [the specification process](../PROCESS.md).
+
+[PSP Codec Profile 1.0](PSP-CODEC-1.0.md) now specifies the bounded markup/tree/JSON grammar, exact-source preservation and signed nested-document transport implemented by the reusable libraries. [ADR 0004](../../docs/decisions/0004-reusable-libraries.md) records adoption and compatibility limits. Executable library profile adapters now exist; service adapters and complete RFC grammar/requirement coverage remain pending.

@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Shared conformance adapters and effectiveness-study execution. Implementation begins in M6."""
+"""Executable library profile adapters; full workflow conformance remains pending."""
 from copy import deepcopy
 
 _MANIFEST = {
     "id": "test-harness",
-    "status": "scaffold",
+    "status": "experimental",
     "specifications": {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": []
+    "implementedFeatures": ["library-profile-adapters"]
 }
 
 
@@ -24,4 +24,6 @@ class NotImplementedFeatureError(NotImplementedError):
 
 def require_implementation() -> None:
     """Fail before any operation or side effect."""
-    raise NotImplementedFeatureError("test-harness is a scaffold; no security operation was executed.")
+    raise NotImplementedFeatureError("Use profile adapters; complete workflow conformance is not implemented.")
+
+from .profiles import execute_policy_case, run_policy_vectors, run_codec_vectors, run_signature_vectors, profile_report

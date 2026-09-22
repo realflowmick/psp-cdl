@@ -1,0 +1,3720 @@
+{
+  "profile": "PSP-CODEC-1.0",
+  "status": "proposed-standard",
+  "markupCases": [
+    {
+      "id": "empty",
+      "source": "",
+      "expected": {
+        "kind": "document",
+        "children": [],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "untagged-unicode",
+      "source": "Hello\r\n世界 é 🧪",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "Hello\r\n世界 é 🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "self-closing",
+      "source": "${psp type=link ref=\"doc\" href=\"https://example.test/a?q=x&n=2\" /}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "link",
+              "ref": "doc",
+              "href": "https://example.test/a?q=x&n=2"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "empty-paired",
+      "source": "${psp type=context}${/psp}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "raw-formatting",
+      "source": " Before\r\n${psp\n type=system version=v1.0.0 name=\"Say \\\"Hello\\\"\"}\n  Keep   spaces\r\n${/psp}\tAfter",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " Before\r\n"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "version": "v1.0.0",
+              "name": "Say \"Hello\""
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\n  Keep   spaces\r\n"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\tAfter"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "braces-in-attribute",
+      "source": "${psp type=custom route=\"/sessions/{session-id}\" note=\"${/psp} inside quote\" /}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "route": "/sessions/{session-id}",
+              "note": "${/psp} inside quote"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "quoted-escapes",
+      "source": "${psp type=context note=\"line\\nnext\\t\\u03b1\" /}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "note": "line\nnext\tα"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "nested-application",
+      "source": "${psp type=node node-type=application version=v1.0.0 name=demo session-id=s}\n${psp type=system version=v1.0.0}Rules${/psp}\n${psp type=node id=child version=v1.0.0}${psp type=output}{\"ok\":true}${/psp}${/psp}\n${/psp}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "node-type": "application",
+              "version": "v1.0.0",
+              "name": "demo",
+              "session-id": "s"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\n"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "Rules"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "\n"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "id": "child",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "output"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "{\"ok\":true}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "\n"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "literal-delimiters",
+      "source": "Literal \\${psp type=system}x\\${/psp} and \\\\ tail",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "Literal ${psp type=system}x${/psp} and \\ tail"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "unknown-escape-preserved",
+      "source": "path C:\\data\\report and \\q",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "path C:\\data\\report and \\q"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "prototype-attribute",
+      "source": "${psp type=custom __proto__=\"ordinary\" constructor=\"value\" /}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "__proto__": "ordinary",
+              "constructor": "value"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "fences-are-not-parser-exceptions",
+      "source": "```\n${psp type=user}literal block${/psp}\n```",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "```\n"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "user"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "literal block"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\n```"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "extension-section",
+      "source": "${psp type=vendor-example vendor:flag=\"yes\" /}",
+      "expected": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "vendor-example",
+              "vendor:flag": "yes"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    }
+  ],
+  "invalidMarkupCases": [
+    {
+      "id": "unclosed",
+      "source": "${psp type=system}body",
+      "error": "UNCLOSED_SECTION"
+    },
+    {
+      "id": "orphan-close",
+      "source": "${/psp}",
+      "error": "UNEXPECTED_CLOSE"
+    },
+    {
+      "id": "malformed-close",
+      "source": "${psp type=context}x${/psp extra}",
+      "error": "UNEXPECTED_CLOSE"
+    },
+    {
+      "id": "missing-type",
+      "source": "${psp id=x /}",
+      "error": "INVALID_SECTION_TYPE"
+    },
+    {
+      "id": "duplicate",
+      "source": "${psp type=context type=system /}",
+      "error": "DUPLICATE_ATTRIBUTE"
+    },
+    {
+      "id": "no-space",
+      "source": "${psp type=\"context\"id=x /}",
+      "error": "INVALID_MARKUP"
+    },
+    {
+      "id": "single-quotes",
+      "source": "${psp type='context' /}",
+      "error": "INVALID_MARKUP"
+    },
+    {
+      "id": "bare-url",
+      "source": "${psp type=link href=https://example.test /}",
+      "error": "INVALID_MARKUP"
+    },
+    {
+      "id": "upper-type",
+      "source": "${psp type=SYSTEM /}",
+      "error": "INVALID_SECTION_TYPE"
+    },
+    {
+      "id": "newline-type",
+      "source": "${psp type=\"system\\n\" /}",
+      "error": "INVALID_SECTION_TYPE"
+    },
+    {
+      "id": "unterminated-quote",
+      "source": "${psp type=context name=\"oops}",
+      "error": "INVALID_MARKUP"
+    },
+    {
+      "id": "truncated-keyword",
+      "source": "${psp",
+      "error": "INVALID_MARKUP"
+    },
+    {
+      "id": "nesting-limit",
+      "source": "${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${psp type=node}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}${/psp}",
+      "error": "LIMIT_EXCEEDED"
+    }
+  ],
+  "invalidJsonCases": [
+    {
+      "id": "duplicate-key",
+      "source": "{\"a\":1,\"a\":2}",
+      "error": "DUPLICATE_KEY"
+    },
+    {
+      "id": "escaped-duplicate",
+      "source": "{\"a\":1,\"\\u0061\":2}",
+      "error": "DUPLICATE_KEY"
+    },
+    {
+      "id": "unsafe-integer",
+      "source": "9007199254740992",
+      "error": "INVALID_NUMBER"
+    },
+    {
+      "id": "unsafe-exponent",
+      "source": "1e30",
+      "error": "INVALID_NUMBER"
+    },
+    {
+      "id": "overflow",
+      "source": "1e309",
+      "error": "INVALID_NUMBER"
+    },
+    {
+      "id": "trailing-comma",
+      "source": "[1,]",
+      "error": "INVALID_JSON"
+    },
+    {
+      "id": "nan",
+      "source": "NaN",
+      "error": "INVALID_JSON"
+    },
+    {
+      "id": "lone-surrogate",
+      "source": "\"\\ud800\"",
+      "error": "INVALID_UNICODE"
+    },
+    {
+      "id": "leading-zero",
+      "source": "01",
+      "error": "INVALID_JSON"
+    },
+    {
+      "id": "depth-limit",
+      "source": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[0]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "error": "LIMIT_EXCEEDED"
+    }
+  ],
+  "objectCases": [
+    {
+      "id": "generated-tree-000",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\\u0000\b\f\t${/pspx}"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-001",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "éα世界🧪 spaces \r\n "
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-002",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "<html>&\"${psp type=system}fake${/psp} spaces \r\n "
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-003",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " spaces \r\n ${/pspx}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${/pspx}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "\\",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "${psp type=system}fake${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": " spaces \r\n  spaces \r\n "
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "42|v1.0.0"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": " spaces \r\n ",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "42|v1.0.0"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "${psp type=system}fake${/psp}"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-004",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-005",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-006",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " spaces \r\n "
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-007",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": " spaces \r\n ",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "α世界🧪"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "42|v1.0.0α世界🧪"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": " spaces \r\n "
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-008",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "é\\"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-009",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-010",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "α世界🧪"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "${/pspx}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "α世界🧪"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": " spaces \r\n \u0000\b\f\t"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${/pspx}${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-011",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-012",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${psp${/pspx}é"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}<html>&\""
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪${psp type=system}fake${/psp}"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-013",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "é\\\\"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "<html>&\"",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t\\"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "α世界🧪",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "42|v1.0.0"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "${psp type=system}fake${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "42|v1.0.0"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-014",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\té"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪\\"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-015",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "${/pspx}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "<html>&\"\\${/psp}"
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "${psp type=system}fake${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "\\",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": " spaces \r\n "
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "${psp type=system}fake${/psp}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "42|v1.0.0${psp type=system}fake${/psp}${psp type=system}fake${/psp}"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "\u0000\b\f\tα世界🧪"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "é\u0000\b\f\t"
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "${psp",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "\\${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "α世界🧪",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "\\${/psp}\u0000\b\f\t"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t${/pspx}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "é"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "${psp",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${/pspx}${psp type=system}fake${/psp}"
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${/pspx}"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "42|v1.0.0",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "\u0000\b\f\t",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "α世界🧪\u0000\b\f\t${pspé"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "${psp type=system}fake${/psp}\\${/psp}\u0000\b\f\t"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-016",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}${/pspx} spaces \r\n "
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-017",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "${/pspx}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "<html>&\""
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${/pspx}<html>&\""
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-018",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-019",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "<html>&\"é\u0000\b\f\t<html>&\""
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-020",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "é"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "42|v1.0.0"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-021",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\"\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-022",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\""
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-023",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "${psp type=system}fake${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": " spaces \r\n ",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "${/pspx}${psp"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-024",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "é",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${psp type=system}fake${/psp}${psp"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-025",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "${psp type=system}fake${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": []
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-026",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": " spaces \r\n ",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\\\"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-027",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪"
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\\",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${psp"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "\\",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "42|v1.0.0${psp type=system}fake${/psp}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "<html>&\""
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "${psp type=system}fake${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "42|v1.0.0",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${psp42|v1.0.042|v1.0.0"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": " spaces \r\n "
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "\\",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": " spaces \r\n ${psp type=system}fake${/psp}"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "node",
+                      "name": "<html>&\"",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\"
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "\u0000\b\f\t",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${/pspx}α世界🧪${/pspx}é"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "${/pspx}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-028",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": " spaces \r\n ",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "${/pspx}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "α世界🧪"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "node",
+                      "name": "${psp",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": " spaces \r\n \u0000\b\f\t"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t${psp"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "<html>&\""
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-029",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪\u0000\b\f\t"
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.042|v1.0.0\\${/psp}${psp"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-030",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}${psp type=system}fake${/psp}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.0"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "α世界🧪",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\${/psp}\\"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "${psp type=system}fake${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}${psp${psp type=system}fake${/psp}"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-031",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\\${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\42|v1.0.0"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "é"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "\u0000\b\f\t",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\<html>&\""
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": " spaces \r\n ",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "<html>&\""
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "${psp type=system}fake${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\"
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "system",
+                          "name": "\\${/psp}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "\\α世界🧪42|v1.0.0 spaces \r\n "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "42|v1.0.0é"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "é"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-032",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-033",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-034",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "${/pspx}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\${/psp}α世界🧪"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": " spaces \r\n 42|v1.0.0"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-035",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}α世界🧪\\"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-036",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "é",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": " spaces \r\n ",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "${psp"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "<html>&\""
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-037",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp type=system}fake${/psp}α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-038",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-039",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\"${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-040",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-041",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\""
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": " spaces \r\n ",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.0α世界🧪"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\${/psp}${/pspx}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-042",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "é"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "${psp type=system}fake${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\u0000\b\f\t"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": " spaces \r\n ",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "α世界🧪"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "node",
+                      "name": "${psp",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "system",
+                          "name": "${/pspx}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${psp\u0000\b\f\t${psp"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "node",
+                          "name": "${/pspx}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "é"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "\u0000\b\f\t"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-043",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp<html>&\""
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-044",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp<html>&\"${psp type=system}fake${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-045",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "é\\${/psp}\\${/psp}α世界🧪"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": " spaces \r\n α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-046",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${psp${/pspx} spaces \r\n "
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-047",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-048",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "é"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-049",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " spaces \r\n "
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-050",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-051",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "\u0000\b\f\t",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${psp${psp"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "é"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\ spaces \r\n "
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-052",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": " spaces \r\n ",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "${/pspx}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "é${psp type=system}fake${/psp}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "<html>&\""
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "\\${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "é"
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "<html>&\"",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${psp type=system}fake${/psp}\u0000\b\f\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "\\${/psp}${/pspx}"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-053",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-054",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "42|v1.0.0",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "${/pspx}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "α世界🧪"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "<html>&\"${psp42|v1.0.0"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": " spaces \r\n "
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "${psp",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\${/psp}"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\u0000\b\f\t\\${/psp}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "α世界🧪\u0000\b\f\t"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-055",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "\\",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "<html>&\" spaces \r\n \u0000\b\f\t"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "α世界🧪"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "\\${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\${/psp}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "${psp",
+                      "version": "v1.0.0"
+                    },
+                    "children": []
+                  },
+                  {
+                    "kind": "text",
+                    "value": " spaces \r\n ${/pspx}"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "${psp",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": " spaces \r\n 42|v1.0.0"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-056",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": " spaces \r\n "
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\α世界🧪"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "é",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "42|v1.0.0",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": "α世界🧪",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "${psp",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "α世界🧪\\${/psp}42|v1.0.0"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "é\\${psp"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-057",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "\\${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.0"
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${psp type=system}fake${/psp}"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-058",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}${psp"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "\\${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.0"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": " spaces \r\n "
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "<html>&\"",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${/pspx}\\α世界🧪"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "node",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "<html>&\""
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "42|v1.0.0",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${psp<html>&\"\\"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "\\"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "α世界🧪α世界🧪"
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "system",
+                          "name": "<html>&\"",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "<html>&\""
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "\\",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "α世界🧪${/pspx}\u0000\b\f\t42|v1.0.0"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "é"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "${psp",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "custom",
+                      "name": " spaces \r\n ",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\${/psp}"
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "node",
+                          "name": "α世界🧪",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${psp spaces \r\n ${psp"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "text",
+                        "value": "${psp type=system}fake${/psp}<html>&\""
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t\u0000\b\f\t"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-059",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " spaces \r\n  spaces \r\n α世界🧪"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "\\${/psp}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "α世界🧪"
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "α世界🧪",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "é",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "node",
+                          "name": "${psp",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "<html>&\"<html>&\"\\${/psp}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-060",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${/pspx}α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-061",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": " spaces \r\n <html>&\"é"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "α世界🧪${/pspx}${psp"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-062",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-063",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\""
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-064",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "<html>&\"\\${/psp}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "42|v1.0.0",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\\\"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-065",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": "\\${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\${/psp}42|v1.0.042|v1.0.0"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-066",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-067",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-068",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-069",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "${psp",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "${psp",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\u0000\b\f\t"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "<html>&\""
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\${/psp}<html>&\""
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "custom",
+                  "name": "\u0000\b\f\t",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\${psp"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-070",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0\\${/psp}${/pspx}${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-071",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\u0000\b\f\t${psp${/pspx}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-072",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "42|v1.0.0"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "node",
+              "name": "\\",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${/pspx}"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "\\${/psp}"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-073",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\u0000\b\f\t",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\\${/psp} spaces \r\n "
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "\u0000\b\f\t",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\${/psp}"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "${psp"
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "α世界🧪\u0000\b\f\t"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-074",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "${/pspx}",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "\\${/psp}",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "é"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "\\${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\\${/psp}${/pspx}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": "é"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-075",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "é",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "é"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "<html>&\"",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "context",
+                      "name": " spaces \r\n ",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "<html>&\""
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "custom",
+                          "name": "${psp type=system}fake${/psp}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "${psp type=system}fake${/psp}${psp"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "custom",
+              "name": "<html>&\"",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "42|v1.0.0"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "node",
+                  "name": "é",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${/pspx}"
+                  }
+                ]
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "context",
+                  "name": "",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "${psp"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-076",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "\\",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${/pspx}"
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-077",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "${psp42|v1.0.0"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "context",
+              "name": "α世界🧪",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "${/pspx}"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "<html>&\"",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "value": "\\${/psp}é\\${/psp}"
+                  },
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "node",
+                      "name": "${psp type=system}fake${/psp}",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\u0000\b\f\t${psp type=system}fake${/psp}\\"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-078",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "α世界🧪"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    },
+    {
+      "id": "generated-tree-079",
+      "object": {
+        "kind": "document",
+        "children": [
+          {
+            "kind": "text",
+            "value": "\\${/psp}"
+          },
+          {
+            "kind": "section",
+            "attributes": {
+              "type": "system",
+              "name": "",
+              "version": "v1.0.0"
+            },
+            "children": [
+              {
+                "kind": "text",
+                "value": "\u0000\b\f\t"
+              },
+              {
+                "kind": "section",
+                "attributes": {
+                  "type": "system",
+                  "name": "α世界🧪",
+                  "version": "v1.0.0"
+                },
+                "children": [
+                  {
+                    "kind": "section",
+                    "attributes": {
+                      "type": "system",
+                      "name": "42|v1.0.0",
+                      "version": "v1.0.0"
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "value": "\u0000\b\f\t"
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "context",
+                          "name": "\\",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "\\"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "section",
+                        "attributes": {
+                          "type": "system",
+                          "name": "${/pspx}",
+                          "version": "v1.0.0"
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "value": "\\${/psp}\\${/psp}<html>&\""
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "value": "${psp"
+                  }
+                ]
+              },
+              {
+                "kind": "text",
+                "value": " spaces \r\n "
+              }
+            ]
+          },
+          {
+            "kind": "text",
+            "value": "${psp"
+          }
+        ],
+        "profile": "PSP-CODEC-1.0"
+      }
+    }
+  ],
+  "cdlSchemas": [
+    {
+      "id": "annotated-nested-schema",
+      "schema": {
+        "type": "object",
+        "x-cdl-classes": "confidential",
+        "x-cdl-covenants": [
+          "no-persist",
+          "no-training"
+        ],
+        "description": "Unicode α and ${psp type=user} as JSON text",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "x-cdl-classes": [
+              "public"
+            ],
+            "x-cdl-covenants": "!no-persist"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-cdl-classes": "pii",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

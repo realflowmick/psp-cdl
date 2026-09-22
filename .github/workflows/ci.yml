@@ -41,7 +41,7 @@ jobs:
       - run: uv sync --locked --all-packages --python ${{ matrix.python }}
       - run: uv run --locked python -m unittest discover -s implementations/python/tests -v
   parity:
-    name: Cross-language scaffold parity
+    name: Cross-language library parity
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -58,6 +58,8 @@ jobs:
       - run: npm run build
       - run: uv sync --locked --all-packages
       - run: uv run --locked python scripts/check-parity.py
+      - run: uv run --locked python scripts/generate-codec-vectors.py --check
+      - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks
     if: always()
