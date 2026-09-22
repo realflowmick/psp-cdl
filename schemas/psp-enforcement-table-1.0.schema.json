@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:psp:enforcement-table:1.0",
+  "title": "PSP trust and enforcement table 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "version",
+    "status",
+    "levels",
+    "unsignedDefaults",
+    "signatureDefaults",
+    "topologyOrder",
+    "minimumDeterministicTopology",
+    "requiredGates",
+    "trustReasonCodes"
+  ],
+  "properties": {
+    "profile": {
+      "const": "PSP-TRUST-1.0"
+    },
+    "version": {
+      "const": "1.0"
+    },
+    "status": {
+      "const": "proposed-standard"
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "level",
+          "name"
+        ],
+        "properties": {
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 6,
+      "maxItems": 6
+    },
+    "unsignedDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user",
+        "external"
+      ],
+      "properties": {
+        "user": {
+          "const": 4
+        },
+        "external": {
+          "const": 5
+        }
+      }
+    },
+    "signatureDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trustLevel",
+        "priority"
+      ],
+      "properties": {
+        "trustLevel": {
+          "const": 2
+        },
+        "priority": {
+          "const": 50
+        }
+      }
+    },
+    "topologyOrder": {
+      "const": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "minimumDeterministicTopology": {
+      "const": "B"
+    },
+    "requiredGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "A",
+        "B",
+        "C"
+      ],
+      "properties": {
+        "A": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "B": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "C": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "trustReasonCodes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  }
+}

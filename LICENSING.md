@@ -4,7 +4,7 @@ At the originating author's direction, the PSP and CDL specifications in this re
 
 | Paths | License |
 | --- | --- |
-| `specs/**`, `schemas/**`, `conformance/requirements.json`, `conformance/vectors/**` | CC0-1.0 |
+| `specs/**`, `schemas/**`, `conformance/requirements.json`, `conformance/policy/**`, `conformance/vectors/**` | CC0-1.0 |
 | All other original repository files | Apache-2.0 |
 | Third-party material | Its original license; preserve applicable notices |
 

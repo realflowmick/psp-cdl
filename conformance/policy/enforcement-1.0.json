@@ -1,0 +1,68 @@
+{
+  "profile": "PSP-TRUST-1.0",
+  "version": "1.0",
+  "status": "proposed-standard",
+  "levels": [
+    {
+      "level": 0,
+      "name": "platform"
+    },
+    {
+      "level": 1,
+      "name": "governance"
+    },
+    {
+      "level": 2,
+      "name": "session"
+    },
+    {
+      "level": 3,
+      "name": "context"
+    },
+    {
+      "level": 4,
+      "name": "user"
+    },
+    {
+      "level": 5,
+      "name": "external"
+    }
+  ],
+  "unsignedDefaults": {
+    "user": 4,
+    "external": 5
+  },
+  "signatureDefaults": {
+    "trustLevel": 2,
+    "priority": 50
+  },
+  "topologyOrder": [
+    "A",
+    "B",
+    "C"
+  ],
+  "minimumDeterministicTopology": "B",
+  "requiredGates": {
+    "A": [],
+    "B": [
+      "pre-inference",
+      "tool-dispatch",
+      "output-release",
+      "policy-binding",
+      "side-effects"
+    ],
+    "C": [
+      "pre-inference",
+      "tool-dispatch",
+      "output-release",
+      "policy-binding",
+      "side-effects",
+      "mcp-dispatch",
+      "server-output"
+    ]
+  },
+  "trustReasonCodes": [
+    "UNAUTHORIZED_TRUST",
+    "ENGINE_ISOLATION_UNSUPPORTED"
+  ]
+}

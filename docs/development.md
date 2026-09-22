@@ -19,3 +19,5 @@ For restricted environments, place uv and npm caches inside `.cache/` rather tha
 Before adding an SDK, pin the MCP protocol revision and supported transports in the implementation profile. The candidate baseline is [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25); SDK selection is a later reviewed change. Runtime support follows the [Node.js release schedule](https://nodejs.org/en/about/previous-releases).
 
 The signature profile fixture suite runs with npm run test:signatures and with the Python unittest suite. Both are included in CI. The pinned JCS/crypto packages are development dependencies; no scaffold component has been promoted to a production verifier.
+
+Policy artifact checks run with `npm run test:policy` and the Python unittest suite, also included in CI. They audit the profile tables and shared expectations; the small Node matrix algebra audit is test-only and omits all authenticated context handling. Do not import it into services. Implement independent production adapters in M2 and report actual policy-vector execution separately from artifact validation.

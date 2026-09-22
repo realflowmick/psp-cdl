@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:psp:cdl:policy-table:1.0",
+  "title": "CDL deterministic policy table 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "version",
+    "status",
+    "base",
+    "classes",
+    "capabilities",
+    "rules",
+    "implications",
+    "reasonStages",
+    "appendixCoverage"
+  ],
+  "properties": {
+    "profile": {
+      "const": "CDL-DETERMINISTIC-1.0"
+    },
+    "version": {
+      "const": "1.0"
+    },
+    "status": {
+      "const": "proposed-standard"
+    },
+    "base": {
+      "const": "CDL-1.5"
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "term"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(class|covenant):[a-z0-9-]+$"
+          },
+          "kind": {
+            "enum": [
+              "class",
+              "covenant"
+            ]
+          },
+          "term": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "conflictAny": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "requireAll": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "requireAny": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "check": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "checkWhenAny": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "parameter": {
+            "enum": [
+              "roles",
+              "jurisdictions"
+            ]
+          },
+          "group": {
+            "const": "article6"
+          },
+          "forbidProcessing": {
+            "const": true
+          },
+          "conflictUnless": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "any",
+              "unlessAny"
+            ],
+            "properties": {
+              "any": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              },
+              "unlessAny": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "implications": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "uniqueItems": true,
+        "minItems": 1
+      }
+    },
+    "reasonStages": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true,
+        "minItems": 1
+      }
+    },
+    "appendixCoverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "section",
+          "row",
+          "rules"
+        ],
+        "properties": {
+          "section": {
+            "enum": [
+              "B.2",
+              "B.3"
+            ]
+          },
+          "row": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "resolution": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

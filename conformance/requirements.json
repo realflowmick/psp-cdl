@@ -120,29 +120,28 @@
       "title": "String/array and case normalization",
       "blockedBy": [],
       "component": "cdl",
-      "status": "unimplemented"
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
     },
     {
       "id": "CDL-INHERIT-001",
       "spec": "cdl",
       "section": "6",
       "title": "Hierarchy, inheritance and negation",
-      "blockedBy": [
-        "CDL-E002"
-      ],
+      "blockedBy": [],
       "component": "cdl",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
     },
     {
       "id": "CDL-MATCH-001",
       "spec": "cdl",
       "section": "7;Appendix B",
       "title": "Conflict and satisfaction matrices",
-      "blockedBy": [
-        "CDL-E002"
-      ],
+      "blockedBy": [],
       "component": "cdl",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
     },
     {
       "id": "CDL-TRUST-001",
@@ -151,18 +150,18 @@
       "title": "Declaration integrity and capability honesty",
       "blockedBy": [],
       "component": "cdl",
-      "status": "unimplemented"
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
     },
     {
       "id": "CDL-TOPO-001",
       "spec": "cdl",
       "section": "7.6",
       "title": "Mediated enforcement coverage",
-      "blockedBy": [
-        "CDL-E001"
-      ],
+      "blockedBy": [],
       "component": "test-harness",
-      "status": "blocked"
+      "status": "unimplemented",
+      "profile": "PSP-TRUST-1.0"
     },
     {
       "id": "API-CONTRACT-001",
@@ -174,6 +173,136 @@
       ],
       "component": "api-server",
       "status": "blocked"
+    },
+    {
+      "id": "CDL-TOKEN-002",
+      "spec": "cdl",
+      "section": "Profile 2",
+      "title": "Finite vocabulary and fail-closed unsupported terms",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-LIMIT-001",
+      "spec": "cdl",
+      "section": "Profile 2;3",
+      "title": "Declaration and inheritance resource limits",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-NEGATE-001",
+      "spec": "cdl",
+      "section": "Profile 3",
+      "title": "Negation grants cover every originating authority and exact path",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-ORIGIN-001",
+      "spec": "cdl",
+      "section": "Profile 3;7;8",
+      "title": "Per-resource provenance and conjunctive composite operations",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-CAP-001",
+      "spec": "cdl",
+      "section": "Profile 1;4",
+      "title": "Complete capability union and directed implication closure",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-EVIDENCE-001",
+      "spec": "cdl",
+      "section": "Profile 1;5",
+      "title": "Scoped trusted evidence and installed obligation controls",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-ROLE-001",
+      "spec": "cdl",
+      "section": "Profile 6",
+      "title": "Exact authenticated role checks",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-JURISDICTION-001",
+      "spec": "cdl",
+      "section": "Profile 6",
+      "title": "All processing locations satisfy governing jurisdiction policy",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-BASIS-001",
+      "spec": "cdl",
+      "section": "Profile 7",
+      "title": "Declared legal-basis alternatives remain local to each policy",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "CDL-RESULT-001",
+      "spec": "cdl",
+      "section": "Profile 8",
+      "title": "Stable stage precedence and reason ordering",
+      "blockedBy": [],
+      "component": "cdl",
+      "status": "unimplemented",
+      "profile": "CDL-DETERMINISTIC-1.0"
+    },
+    {
+      "id": "PSP-TRUST-001",
+      "spec": "psp",
+      "section": "Profile 1",
+      "title": "Six levels authorized by provenance rather than self-assertion",
+      "blockedBy": [],
+      "component": "core",
+      "status": "unimplemented",
+      "profile": "PSP-TRUST-1.0"
+    },
+    {
+      "id": "PSP-ISOLATION-001",
+      "spec": "psp",
+      "section": "Profile 2",
+      "title": "Report inference-engine isolation as unsupported in proxy-only deployments",
+      "blockedBy": [],
+      "component": "core",
+      "status": "unimplemented",
+      "profile": "PSP-TRUST-1.0"
+    },
+    {
+      "id": "PSP-MEDIATION-001",
+      "spec": "psp",
+      "section": "Profile 3;4",
+      "title": "Operational gate coverage and downgrade rejection",
+      "blockedBy": [],
+      "component": "test-harness",
+      "status": "unimplemented",
+      "profile": "PSP-TRUST-1.0"
     }
   ]
 }
