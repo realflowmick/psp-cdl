@@ -24,7 +24,7 @@ def identifier(value):
     return type(value) is str and len(value)<=128 and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*",value) is not None
 
 def scope_for(operation):
-    return "security:verify" if operation=="verify" else "policy:evaluate"
+    return {"verify":"security:verify", "evaluate":"policy:evaluate", "createSession":"sessions:write", "getSession":"sessions:read", "updateSession":"sessions:write", "getNode":"nodes:read", "createCheckpoint":"checkpoints:write", "resumeCheckpoint":"checkpoints:resume"}.get(operation)
 
 def request_object(value, fields):
     try:
@@ -38,6 +38,7 @@ def request_object(value, fields):
     return value
 
 class SecurityService:
+    operations = ("verify", "evaluate")
     def __init__(self, host: ServiceHost):
         self.host=host
 
@@ -73,6 +74,8 @@ class SecurityService:
             ids.add(section["id"])
         try:
             snapshot=self.host.resolve(principal,value["operation_id"])
+        except ServiceError:
+            raise
         except Exception as exc:
             raise ServiceError("INTERNAL_ERROR",500) from exc
         if not snapshot or snapshot.get("tenantId")!=principal["tenantId"] or snapshot.get("subjectId")!=principal["subjectId"] or snapshot.get("operationId")!=value["operation_id"]:

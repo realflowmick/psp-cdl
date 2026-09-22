@@ -5,7 +5,7 @@ import { evaluateBatch, type PolicyInput } from "@psp-cdl/cdl";
 
 export const SERVICE_PROFILE = "PSP-SERVICE-0.1";
 export const MAX_REQUEST_BYTES = 1_048_576;
-export type Operation = "verify" | "evaluate";
+export type Operation = "verify" | "evaluate" | "createSession" | "getSession" | "updateSession" | "getNode" | "createCheckpoint" | "resumeCheckpoint";
 export interface Principal { tenantId:string; subjectId:string; scopes:string[] }
 export interface OperationSnapshot {
   tenantId:string; subjectId:string; operationId:string; policyVersion:string; expires:number;
@@ -20,7 +20,7 @@ export interface ServiceHost {
 export class ServiceError extends Error {
   constructor(public readonly code:string, public readonly status:number) { super(code); this.name="ServiceError"; }
 }
-export const scopeFor = (operation:Operation) => operation==="verify" ? "security:verify" : "policy:evaluate";
+export const scopeFor = (operation:Operation) => ({verify:"security:verify",evaluate:"policy:evaluate",createSession:"sessions:write",getSession:"sessions:read",updateSession:"sessions:write",getNode:"nodes:read",createCheckpoint:"checkpoints:write",resumeCheckpoint:"checkpoints:resume"})[operation];
 export function identifier(value:unknown):value is string {
   return typeof value==="string" && value.length<=128 && /^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(value) && !/[^A-Za-z0-9._:-]/.test(value);
 }
@@ -33,6 +33,7 @@ export function requestObject(value:unknown, fields:string[]):Record<string,unkn
 }
 /** Host callbacks are the authority boundary. No model-supplied facts are accepted. */
 export class SecurityService {
+  readonly operations:readonly Operation[] = ["verify","evaluate"];
   constructor(private readonly host:ServiceHost) {}
   async authenticate(token:unknown):Promise<Principal> {
     if(typeof token!=="string"||token.length<1||token.length>4096||/[^\x21-\x7e]/.test(token)) throw new ServiceError("UNAUTHENTICATED",401);
@@ -56,7 +57,7 @@ export class SecurityService {
       ids.add(s.id);
     }
     let snapshot:OperationSnapshot|null;
-    try { snapshot=await this.host.resolve(principal,input.operation_id as string); } catch { throw new ServiceError("INTERNAL_ERROR",500); }
+    try { snapshot=await this.host.resolve(principal,input.operation_id as string); } catch(e) { if(e instanceof ServiceError) throw e; throw new ServiceError("INTERNAL_ERROR",500); }
     if(!snapshot||snapshot.tenantId!==principal.tenantId||snapshot.subjectId!==principal.subjectId||snapshot.operationId!==input.operation_id) throw new ServiceError("NOT_FOUND",404);
     const now=this.host.now();
     if(!Number.isFinite(now)||Math.abs(now)>Number.MAX_SAFE_INTEGER||!Number.isSafeInteger(snapshot.expires)||snapshot.expires<0||!identifier(snapshot.policyVersion)) throw new ServiceError("INTERNAL_ERROR",500);

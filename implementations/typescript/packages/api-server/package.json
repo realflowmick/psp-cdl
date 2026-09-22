@@ -8,6 +8,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./workflow": {"types":"./dist/workflow.d.ts","import":"./dist/workflow.js"},
+    "./operations": {"types":"./dist/operations.d.ts","import":"./dist/operations.js"},
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"

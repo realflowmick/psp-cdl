@@ -11,7 +11,9 @@ export const manifest = Object.freeze({
     "authenticated-security-service-0.1",
     "http-security-adapter",
     "workflow-persistence-0.1",
-    "sqlite-atomic-backend"
+    "sqlite-atomic-backend",
+    "authenticated-workflow-service-0.1",
+    "session-operation-bindings"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);

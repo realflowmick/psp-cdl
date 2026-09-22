@@ -47,6 +47,9 @@ import {McpServer} from '@psp-cdl/mcp-server';
 import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {WorkflowStore} from '@psp-cdl/api-server/persistence';
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
+import {WorkflowService} from '@psp-cdl/api-server/workflow';
+import {SessionOperations} from '@psp-cdl/api-server/operations';
+assert.equal(typeof WorkflowService,'function');assert.equal(typeof SessionOperations,'function');
 for(const pkg of ['core','cdl','test-harness','api-server','mcp-server']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
 const service=new SecurityService({authenticate:()=>null,resolve:()=>{throw new Error('must not resolve');},now:()=>1});
 await assert.rejects(()=>service.invoke('evaluate',{operation_id:'op'},'invalid'),{code:'UNAUTHENTICATED'});
@@ -89,6 +92,9 @@ from psp_cdl_api_server.http import create_wsgi_app
 from psp_cdl_mcp_server.stdio import serve_stdio
 from psp_cdl_api_server.persistence import WorkflowStore
 from psp_cdl_api_server.sqlite import SqliteBackend
+from psp_cdl_api_server.workflow import WorkflowService
+from psp_cdl_api_server.operations import SessionOperations
+assert callable(WorkflowService) and callable(SessionOperations)
 for module in (core,crypto,cdl,harness,api,mcp):
     assert Path(module.__file__).resolve().is_relative_to(target), module.__file__
 source='${psp type=context}hello 🧪${/psp}'

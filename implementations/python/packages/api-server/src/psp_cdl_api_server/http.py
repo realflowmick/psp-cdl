@@ -5,7 +5,7 @@ from http import HTTPStatus
 from psp_cdl_core import canonical_json, parse_json
 from .service import MAX_REQUEST_BYTES, SecurityService, ServiceError
 
-ROUTES={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate"}
+ROUTES={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate", "/v1/sessions/create":"createSession", "/v1/sessions/get":"getSession", "/v1/sessions/update":"updateSession", "/v1/nodes/fetch":"getNode", "/v1/checkpoints/create":"createCheckpoint", "/v1/checkpoints/resume":"resumeCheckpoint"}
 
 def response(status,value):
     headers={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
@@ -27,12 +27,12 @@ def handle_http(service: SecurityService, request: dict):
             headers[name]=value
         auth=headers.get("authorization","")
         token=auth[7:] if re.fullmatch(r"Bearer [\x21-\x7e]+",auth,re.I) else None
-        service.authenticate(token)
+        principal=service.authenticate(token)
         if "origin" in headers:
             raise ServiceError("ORIGIN_REJECTED",403)
         if request["method"]!="POST":
             raise ServiceError("METHOD_NOT_ALLOWED",405)
-        if request["path"] not in ROUTES:
+        if request["path"] not in ROUTES or ROUTES[request["path"]] not in service.operations:
             raise ServiceError("NOT_FOUND",404)
         if not re.fullmatch(r"application/json(?:;\s*charset=utf-8)?",headers.get("content-type",""),re.I) or "content-encoding" in headers:
             raise ServiceError("UNSUPPORTED_MEDIA_TYPE",415)
@@ -42,7 +42,7 @@ def handle_http(service: SecurityService, request: dict):
             value=parse_json(request["body"].decode("utf-8",errors="strict"))
         except (ValueError,UnicodeError) as exc:
             raise ServiceError("INVALID_REQUEST",400) from exc
-        return response(200,service.invoke(ROUTES[request["path"]],value,token))
+        return response(200,service.invoke(ROUTES[request["path"]],value,token,principal))
     except Exception as exc:
         return error_response(exc)
 

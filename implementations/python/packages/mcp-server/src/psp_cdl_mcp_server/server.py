@@ -2,8 +2,9 @@
 from psp_cdl_core import canonical_json, parse_json
 from psp_cdl_api_server import MAX_REQUEST_BYTES, SecurityService, ServiceError, scope_for
 from .tools import TOOL_DEFINITIONS
+from .workflow_tools import WORKFLOW_TOOL_DEFINITIONS
 MCP_VERSION="2025-11-25"
-OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate"}
+OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate", "realflow.sessions.create":"createSession", "realflow.sessions.get":"getSession", "realflow.sessions.update":"updateSession", "realflow.nodes.fetch":"getNode", "realflow.checkpoints.create":"createCheckpoint", "realflow.checkpoints.resume":"resumeCheckpoint"}
 
 class McpServer:
     """One peer per instance; credentials come from the trusted process launcher."""
@@ -60,11 +61,11 @@ class McpServer:
                 if set(params)-{"_meta"}:
                     return fail(-32602,"Invalid params")
                 # Detach tool schemas so callers cannot alter future discovery.
-                tools=[t for t in TOOL_DEFINITIONS if scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
+                tools=[t for t in [*TOOL_DEFINITIONS, *WORKFLOW_TOOL_DEFINITIONS] if OPERATIONS[t["name"]] in self.service.operations and scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
                 return success({"tools":parse_json(canonical_json(tools))})
             if method!="tools/call":
                 return fail(-32601,"Method not found")
-            if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or params["name"] not in OPERATIONS or type(params.get("arguments")) is not dict:
+            if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or params["name"] not in OPERATIONS or OPERATIONS[params["name"]] not in self.service.operations or type(params.get("arguments")) is not dict:
                 return fail(-32602,"Invalid tool or arguments")
             try:
                 result=self.service.invoke(OPERATIONS[params["name"]],params["arguments"],token,principal)

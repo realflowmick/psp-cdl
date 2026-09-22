@@ -5,7 +5,9 @@ import { MAX_REQUEST_BYTES, SecurityService, ServiceError, type Operation } from
 
 export interface HttpRequest { method:string; path:string; headers:readonly (readonly [string,string])[]; body:Uint8Array }
 export interface HttpResponse { status:number; headers:Record<string,string>; body:string }
-const routes:Record<string,Operation>={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate"};
+const routes:Record<string,Operation>={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate",
+  "/v1/sessions/create":"createSession","/v1/sessions/get":"getSession","/v1/sessions/update":"updateSession",
+  "/v1/nodes/fetch":"getNode","/v1/checkpoints/create":"createCheckpoint","/v1/checkpoints/resume":"resumeCheckpoint"};
 export function errorResponse(error:unknown):HttpResponse {
   const e=error instanceof ServiceError?error:new ServiceError("INTERNAL_ERROR",500);
   return response(e.status,{error:{code:e.code}});
@@ -24,15 +26,15 @@ export async function handleHttp(service:SecurityService, request:HttpRequest):P
     }
     const auth=headers.get("authorization");
     const token=auth&&/^Bearer [\x21-\x7e]+$/i.test(auth)?auth.slice(7):null;
-    await service.authenticate(token);
+    const principal=await service.authenticate(token);
     if(headers.has("origin")) throw new ServiceError("ORIGIN_REJECTED",403);
     if(request.method!=="POST") throw new ServiceError("METHOD_NOT_ALLOWED",405);
-    if(!Object.hasOwn(routes,request.path)) throw new ServiceError("NOT_FOUND",404);
+    if(!Object.hasOwn(routes,request.path)||!service.operations.includes(routes[request.path]!)) throw new ServiceError("NOT_FOUND",404);
     if(!/^application\/json(?:;\s*charset=utf-8)?$/i.test(headers.get("content-type")??"")||headers.has("content-encoding")) throw new ServiceError("UNSUPPORTED_MEDIA_TYPE",415);
     if(request.body.length>MAX_REQUEST_BYTES) throw new ServiceError("REQUEST_TOO_LARGE",413);
     let input:unknown;
     try { input=parseJson(new TextDecoder("utf-8",{fatal:true}).decode(request.body)); } catch { throw new ServiceError("INVALID_REQUEST",400); }
-    return response(200,await service.invoke(routes[request.path]!,input,token));
+    return response(200,await service.invoke(routes[request.path]!,input,token,principal));
   } catch(error) { return errorResponse(error); }
 }
 /** Returns an unbound Node server for loopback development, with bounded HTTP reads. */
