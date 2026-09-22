@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conformance case result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "caseId",
+    "implementation",
+    "commit",
+    "profile",
+    "status",
+    "evidence"
+  ],
+  "properties": {
+    "caseId": {
+      "type": "string"
+    },
+    "implementation": {
+      "enum": [
+        "typescript",
+        "python"
+      ]
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "blocked",
+        "unsupported",
+        "skipped",
+        "error"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

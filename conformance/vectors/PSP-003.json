@@ -1,0 +1,14 @@
+{
+  "id": "PSP-003",
+  "requirement": "PSP-KEY-001",
+  "status": "draft",
+  "operation": "key-resolution",
+  "input": {
+    "kid": "synthetic-unknown",
+    "trustedKeys": []
+  },
+  "expected": {
+    "decision": "deny"
+  },
+  "note": "Unknown key must not be treated as authenticated."
+}

@@ -1,0 +1,16 @@
+{
+  "id": "PSP-001",
+  "requirement": "PSP-AFF-001",
+  "status": "draft",
+  "operation": "node-affinity",
+  "input": {
+    "agents": [
+      "mcp://reference/allowed"
+    ],
+    "requestedAgent": "mcp://reference/other"
+  },
+  "expected": {
+    "decision": "deny"
+  },
+  "note": "Unauthorized agent must not receive a forwarded call."
+}

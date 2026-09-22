@@ -1,0 +1,18 @@
+name: Implementation proposal
+description: "Component and language, requirement IDs, scope, dependencies, and acceptance criteria."
+labels: ["implementation"]
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: "Component and language, requirement IDs, scope, dependencies, and acceptance criteria."
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Public report
+      options:
+        - label: This report contains only synthetic data and no private vulnerability details.
+          required: true

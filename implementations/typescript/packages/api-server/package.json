@@ -1,0 +1,28 @@
+{
+  "name": "@psp-cdl/api-server",
+  "version": "0.1.0-dev.0",
+  "private": true,
+  "description": "Versioned HTTP service contracts, authentication, and tenant isolation",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test tests/scaffold.test.mjs"
+  }
+}

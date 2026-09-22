@@ -1,0 +1,13 @@
+{
+  "name": "topology-c",
+  "status": "planned",
+  "topology": "C",
+  "syntheticDataOnly": true,
+  "provider": "mock",
+  "components": [
+    "llmproxy",
+    "mcpproxy",
+    "mcp-server",
+    "api-server"
+  ]
+}

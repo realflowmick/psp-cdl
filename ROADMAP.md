@@ -1,0 +1,26 @@
+# Implementation roadmap
+
+The repository setup is milestone M0. The following milestones are implementation work, not completed security features. Track them with `.github/bootstrap-issues.json`; publication can seed matching GitHub milestones and issues.
+
+| Milestone | Work | Completion gate |
+| --- | --- | --- |
+| M0: Project foundation | Public repository, governance, workspaces, CI, licenses, shared registry | Local checks pass; GitHub settings and CI verified after authentication |
+| M1: Normative profile | Resolve signature formula and signed fields, canonicalization, CDL unknown/negation rules, minimum topology and trust assumptions | Reviewed profile, requirements inventory, unambiguous valid/invalid byte vectors |
+| M2: Portable core | PSP parser, canonicalization, Ed25519 verification, trusted key resolver, time/version validation; CDL parsing, inheritance, Appendix B policy tables | TypeScript/Python differential parity; tampering, malformed input, boundary and fuzz cases pass |
+| M3: Reference services | Draft OpenAPI and MCP contracts; session store, nodes, checkpoints, verify/scan/decrypt/process interfaces | Authenticated tenant-scoped contract tests, durable-state and replay tests; MCP transport interoperability |
+| M4: MCPProxy | Authenticated discovery, namespaced tool routing, active-node allow-list, CDL PDP, response provenance, policy version binding | Denied requests never reach tool spies; capability drift, bypass, cancellation and malformed-response tests |
+| M5: LLMProxy | Provider-neutral adapter; pre-inference CDL checks, signed prompt assembly, tool dispatch gate, output/display gate, completion policy and refresh | Full mediated loop; streaming cannot release forbidden content; credentials and tenant/session isolation tested |
+| M6: Interoperability and effectiveness | Cross-language mixed stacks, topologies A/B/C, baselines and ablations, adversarial and benign corpus | Reproducible signed result manifest, independent outcome grading, confidence intervals and all negative results |
+| M7: Reviewed release | Documentation, packages, images, SBOMs, provenance, compatibility matrix, external security review | No unresolved critical findings, independent review, repeatable release and explicitly scoped conformance claim |
+
+## Suggested follow-up tasks
+
+1. **Review the standards for implementability.** Start with `specs/errata/README.md`; enumerate every MUST/MUST NOT and resolve ambiguous requirements with the author. Draft the reference profile without silently rewriting published RFCs.
+2. **Build shared vectors before security code.** Include exact input bytes, fixed clocks, public test keys, expected decisions and reason codes. Add malformed, tampered, replayed, expired, cross-tenant and clean controls. Mark draft expectations until the profile is accepted.
+3. **Implement core and CDL in TypeScript, then Python.** Keep independent implementations with a common oracle. Prove parser, canonical byte, signature, and policy parity before network services depend on them.
+4. **Implement MCP and API servers.** Cover the eleven required `realflow.*` tools in PSP §22.5.2. Treat these as reference wire names, not a SaaS dependency. Add a benign synthetic data server and a deliberately adversarial test server, with network isolation in the harness.
+5. **Implement MCPProxy, then LLMProxy.** Use mock providers and tool spies first. Add real providers only behind explicit credential and cost opt-in. A model's claimed node, trust level, capability, or approval is never the authority.
+6. **Run the effectiveness study.** Measure successful prohibited actions and useful benign completions, not just refusal language. Compare no controls, PSP only, CDL only, and combined controls across A/B/C and mixed-language deployments.
+7. **Prepare a release candidate.** Obtain independent review, validate packaging and upgrade paths, publish reproducibility artifacts, and state exactly what is and is not enforced.
+
+Work can be divided among language maintainers after M1 fixes shared contracts. No schedule, success rate, or production readiness is asserted by this roadmap.

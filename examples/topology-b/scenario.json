@@ -1,0 +1,11 @@
+{
+  "name": "topology-b",
+  "status": "planned",
+  "topology": "B",
+  "syntheticDataOnly": true,
+  "provider": "mock",
+  "components": [
+    "llmproxy",
+    "api-server"
+  ]
+}

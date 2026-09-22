@@ -1,0 +1,19 @@
+{
+  "importDate": "2026-09-22",
+  "entries": [
+    {
+      "source": "RFC-PSP-CORE-v3_1_1.md",
+      "path": "specs/psp/RFC-PSP-CORE-v3_1_1.md",
+      "originalSha256": "c8f643bf4e8933636fbf24b1eaf418a6da239793753f54ef861e574759f690a9",
+      "importedSha256": "9a83bc2737e052b423a2d6fa2e1026eba722e3b2daa88b6ca9be4cd40ff4dde2",
+      "change": "Append author-directed CC0 notice; technical prose unchanged."
+    },
+    {
+      "source": "RFC-CDL-v1_5.md",
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "originalSha256": "2190cbbf0a9e956a03413c6d106b4ac14a9621f74c1620b7ef302c685424501b",
+      "importedSha256": "e60871a4e8d427c2dd1ca770865fd1d27e223926bf58c052c9b8bb77e27e9dec",
+      "change": "Replace final CC BY 4.0 notice with author-directed CC0 notice; technical prose unchanged."
+    }
+  ]
+}

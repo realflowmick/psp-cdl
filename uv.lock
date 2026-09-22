@@ -1,0 +1,75 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[manifest]
+members = [
+    "psp-cdl-api-server",
+    "psp-cdl-cdl",
+    "psp-cdl-core",
+    "psp-cdl-llmproxy",
+    "psp-cdl-mcp-server",
+    "psp-cdl-mcpproxy",
+    "psp-cdl-test-harness",
+    "psp-cdl-workspace",
+]
+
+[[package]]
+name = "psp-cdl-api-server"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/api-server" }
+
+[[package]]
+name = "psp-cdl-cdl"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/cdl" }
+
+[[package]]
+name = "psp-cdl-core"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/core" }
+
+[[package]]
+name = "psp-cdl-llmproxy"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/llmproxy" }
+
+[[package]]
+name = "psp-cdl-mcp-server"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/mcp-server" }
+
+[[package]]
+name = "psp-cdl-mcpproxy"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/mcpproxy" }
+
+[[package]]
+name = "psp-cdl-test-harness"
+version = "0.1.0.dev0"
+source = { editable = "implementations/python/packages/test-harness" }
+
+[[package]]
+name = "psp-cdl-workspace"
+version = "0.1.0.dev0"
+source = { virtual = "." }
+dependencies = [
+    { name = "psp-cdl-api-server" },
+    { name = "psp-cdl-cdl" },
+    { name = "psp-cdl-core" },
+    { name = "psp-cdl-llmproxy" },
+    { name = "psp-cdl-mcp-server" },
+    { name = "psp-cdl-mcpproxy" },
+    { name = "psp-cdl-test-harness" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "psp-cdl-api-server", editable = "implementations/python/packages/api-server" },
+    { name = "psp-cdl-cdl", editable = "implementations/python/packages/cdl" },
+    { name = "psp-cdl-core", editable = "implementations/python/packages/core" },
+    { name = "psp-cdl-llmproxy", editable = "implementations/python/packages/llmproxy" },
+    { name = "psp-cdl-mcp-server", editable = "implementations/python/packages/mcp-server" },
+    { name = "psp-cdl-mcpproxy", editable = "implementations/python/packages/mcpproxy" },
+    { name = "psp-cdl-test-harness", editable = "implementations/python/packages/test-harness" },
+]

@@ -1,0 +1,16 @@
+{
+  "id": "CDL-002",
+  "requirement": "CDL-PARSE-001",
+  "status": "draft",
+  "operation": "cdl-parse",
+  "input": {
+    "declaration": "PII no-training"
+  },
+  "expected": {
+    "terms": [
+      "pii",
+      "no-training"
+    ]
+  },
+  "note": "Confirm delimiter and normalization in CDL section 4."
+}

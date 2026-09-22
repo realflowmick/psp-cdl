@@ -1,0 +1,11 @@
+# Founding lead covers all areas until more maintainers are appointed.
+# Rules request review; branch protection determines required approvals.
+* @realflowmick
+/specs/ @realflowmick
+/schemas/ @realflowmick
+/conformance/ @realflowmick
+/implementations/typescript/ @realflowmick
+/implementations/python/ @realflowmick
+/evaluation/ @realflowmick
+/.github/ @realflowmick
+/SECURITY.md @realflowmick

@@ -1,0 +1,16 @@
+{
+  "id": "PSP-002",
+  "requirement": "PSP-AFF-001",
+  "status": "draft",
+  "operation": "node-affinity",
+  "input": {
+    "agents": [
+      "mcp://reference/allowed"
+    ],
+    "requestedAgent": "mcp://reference/allowed"
+  },
+  "expected": {
+    "decision": "allow-affinity-check-only"
+  },
+  "note": "Benign control; all other checks must still pass."
+}

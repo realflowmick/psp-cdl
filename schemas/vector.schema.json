@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Draft conformance vector",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "requirement",
+    "status",
+    "operation",
+    "input",
+    "expected",
+    "note"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]+$"
+    },
+    "requirement": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "accepted"
+      ]
+    },
+    "operation": {
+      "type": "string"
+    },
+    "input": {
+      "type": "object"
+    },
+    "expected": {
+      "type": "object"
+    },
+    "note": {
+      "type": "string"
+    }
+  }
+}

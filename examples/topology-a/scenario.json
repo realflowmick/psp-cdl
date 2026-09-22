@@ -1,0 +1,8 @@
+{
+  "name": "topology-a",
+  "status": "planned",
+  "topology": "A",
+  "syntheticDataOnly": true,
+  "provider": "mock",
+  "components": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "CDL-001",
+  "requirement": "CDL-MATCH-001",
+  "status": "draft",
+  "operation": "cdl-conflict",
+  "input": {
+    "covenants": [
+      "no-training"
+    ],
+    "capabilities": [
+      "used-for-model-training"
+    ]
+  },
+  "expected": {
+    "decision": "deny"
+  },
+  "note": "Appendix B interpretation requires reviewed table extraction."
+}

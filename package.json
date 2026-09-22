@@ -1,0 +1,26 @@
+{
+  "name": "psp-cdl-workspace",
+  "version": "0.1.0-dev.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "PSP and CDL reference implementation workspace",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "implementations/typescript/packages/*"
+  ],
+  "scripts": {
+    "check:repo": "node scripts/check-repository.mjs",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "check": "npm run check:repo && npm run build && npm test",
+    "conformance:inventory": "node implementations/typescript/packages/test-harness/dist/cli.js --inventory",
+    "conformance": "node implementations/typescript/packages/test-harness/dist/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.6",
+    "ajv": "8.20.0",
+    "typescript": "5.9.3"
+  }
+}

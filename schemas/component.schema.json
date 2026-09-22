@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Component readiness metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "status",
+    "specifications",
+    "implementedFeatures"
+  ],
+  "properties": {
+    "id": {
+      "enum": [
+        "core",
+        "cdl",
+        "llmproxy",
+        "mcpproxy",
+        "mcp-server",
+        "api-server",
+        "test-harness"
+      ]
+    },
+    "status": {
+      "enum": [
+        "scaffold",
+        "experimental",
+        "release-candidate",
+        "stable"
+      ]
+    },
+    "specifications": {
+      "type": "object",
+      "required": [
+        "psp",
+        "cdl"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "psp": {
+          "type": "string"
+        },
+        "cdl": {
+          "type": "string"
+        }
+      }
+    },
+    "implementedFeatures": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

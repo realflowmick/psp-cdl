@@ -1,0 +1,18 @@
+name: Evaluation finding
+description: "Topology, corpus and run hashes, implementation/model versions, observable outcomes, and reproduction steps. Do not post uncoordinated vulnerability details."
+labels: ["evaluation"]
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: "Topology, corpus and run hashes, implementation/model versions, observable outcomes, and reproduction steps. Do not post uncoordinated vulnerability details."
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Public report
+      options:
+        - label: This report contains only synthetic data and no private vulnerability details.
+          required: true

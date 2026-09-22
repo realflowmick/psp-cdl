@@ -1,0 +1,55 @@
+{
+  "owner": "realflowmick",
+  "name": "psp-cdl",
+  "visibility": "public",
+  "defaultBranch": "main",
+  "description": "Public-domain PSP and CDL standards, reference LLM/MCP proxies, and reproducible workflow-security evaluation. Sponsored by RealflowCloud, Inc.",
+  "topics": [
+    "psp",
+    "cdl",
+    "llm-security",
+    "prompt-injection",
+    "model-context-protocol",
+    "reference-implementation",
+    "typescript",
+    "python"
+  ],
+  "requiredCheck": "Repository checks",
+  "bootstrapRequiredApprovals": 0,
+  "staffedRequiredApprovals": 1,
+  "plannedOrganizationTeams": [
+    {
+      "name": "project-admins",
+      "permission": "admin"
+    },
+    {
+      "name": "specification-editors",
+      "permission": "push"
+    },
+    {
+      "name": "typescript-maintainers",
+      "permission": "push"
+    },
+    {
+      "name": "python-maintainers",
+      "permission": "push"
+    },
+    {
+      "name": "conformance-maintainers",
+      "permission": "push"
+    },
+    {
+      "name": "security-response",
+      "permission": "push"
+    },
+    {
+      "name": "release-managers",
+      "permission": "maintain"
+    },
+    {
+      "name": "triagers",
+      "permission": "triage"
+    }
+  ],
+  "teamStatus": "Not created: personal repository and no additional identities appointed."
+}

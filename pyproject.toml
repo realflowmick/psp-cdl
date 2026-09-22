@@ -1,0 +1,20 @@
+[project]
+name = "psp-cdl-workspace"
+version = "0.1.0.dev0"
+requires-python = ">=3.12"
+dependencies = ["psp-cdl-core", "psp-cdl-cdl", "psp-cdl-llmproxy", "psp-cdl-mcpproxy", "psp-cdl-mcp-server", "psp-cdl-api-server", "psp-cdl-test-harness"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["implementations/python/packages/*"]
+
+[tool.uv.sources]
+psp-cdl-core = { workspace = true }
+psp-cdl-cdl = { workspace = true }
+psp-cdl-llmproxy = { workspace = true }
+psp-cdl-mcpproxy = { workspace = true }
+psp-cdl-mcp-server = { workspace = true }
+psp-cdl-api-server = { workspace = true }
+psp-cdl-test-harness = { workspace = true }

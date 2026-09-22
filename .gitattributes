@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+# Preserve exact imported RFC bytes for the provenance manifest.
+specs/psp/RFC-PSP-CORE-v3_1_1.md -text
+specs/cdl/RFC-CDL-v1_5.md -text

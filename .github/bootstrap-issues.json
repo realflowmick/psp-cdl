@@ -1,0 +1,165 @@
+{
+  "labels": [
+    {
+      "name": "specification",
+      "color": "5319e7",
+      "description": "Normative text or interpretation"
+    },
+    {
+      "name": "implementation",
+      "color": "0052cc",
+      "description": "Reference implementation work"
+    },
+    {
+      "name": "evaluation",
+      "color": "0e8a16",
+      "description": "Effectiveness and reproducibility"
+    },
+    {
+      "name": "conformance",
+      "color": "1d76db",
+      "description": "Cross-language protocol correctness"
+    },
+    {
+      "name": "security",
+      "color": "b60205",
+      "description": "Security controls; private reports use advisories"
+    },
+    {
+      "name": "governance",
+      "color": "d4c5f9",
+      "description": "Project governance and operations"
+    },
+    {
+      "name": "typescript",
+      "color": "3178c6",
+      "description": "TypeScript workspace"
+    },
+    {
+      "name": "python",
+      "color": "3572a5",
+      "description": "Python workspace"
+    },
+    {
+      "name": "blocked-spec",
+      "color": "e4e669",
+      "description": "Blocked on normative clarification"
+    }
+  ],
+  "milestones": [
+    {
+      "title": "M1: Normative profile",
+      "description": "Resolve implementation-blocking ambiguities and accept exact shared contracts."
+    },
+    {
+      "title": "M2: Portable core",
+      "description": "Independent PSP/CDL implementations with shared byte vectors and differential tests."
+    },
+    {
+      "title": "M3: Reference services",
+      "description": "MCP and HTTP services with authenticated, tenant-scoped contracts."
+    },
+    {
+      "title": "M4: MCPProxy",
+      "description": "Mediated tool dispatch and governed responses."
+    },
+    {
+      "title": "M5: LLMProxy",
+      "description": "Authoritative model/tool loop and input/output governance."
+    },
+    {
+      "title": "M6: Interoperability and effectiveness",
+      "description": "Mixed-language stacks, adversarial study, baselines and ablations."
+    },
+    {
+      "title": "M7: Reviewed release",
+      "description": "Independent review, packaging, provenance, documentation and scoped claims."
+    }
+  ],
+  "issues": [
+    {
+      "title": "Resolve PSP signed-byte formula, metadata binding and expiration boundaries",
+      "milestone": "M1: Normative profile",
+      "labels": [
+        "specification",
+        "security",
+        "blocked-spec"
+      ],
+      "body": "Resolve PSP-E001 through PSP-E004 in specs/errata/README.md. Publish a reviewed profile and valid/invalid exact-byte vectors, including metadata mutation, expiration equality, Unicode and numeric edge cases. No conformance claim until resolved.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Extract normative requirements and deterministic CDL policy tables",
+      "milestone": "M1: Normative profile",
+      "labels": [
+        "specification",
+        "conformance"
+      ],
+      "body": "Expand the starter register to every MUST/MUST NOT. Review CDL inheritance, negation authority, unknown terms, Appendix B matrices, and engine versus proxy guarantees. Accept vectors with documented reason codes.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Implement TypeScript PSP core and CDL policy engine",
+      "milestone": "M2: Portable core",
+      "labels": [
+        "implementation",
+        "typescript"
+      ],
+      "body": "Implement reviewed parser, canonicalization, signature/time/key checks and CDL rules. Add negative controls, bounded parser behavior and fuzz regressions. Pass accepted shared vectors without treating blocked cases as passes.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Implement Python PSP core and CDL policy engine",
+      "milestone": "M2: Portable core",
+      "labels": [
+        "implementation",
+        "python"
+      ],
+      "body": "Implement reviewed contracts independently in Python. Match TypeScript on accepted byte vectors and complete policy outcomes. Include malformed, expired, revoked, tampered and legitimate controls.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Define API/MCP contracts and implement reference services in both languages",
+      "milestone": "M3: Reference services",
+      "labels": [
+        "implementation",
+        "typescript",
+        "python"
+      ],
+      "body": "Create draft OpenAPI and MCP schemas, the eleven PSP section 22.5.2 tools, synthetic governed data and adversarial test servers. Test tenant binding, authentication, atomic persistence, replay and transport interoperability.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Implement MCPProxy in TypeScript and Python",
+      "milestone": "M4: MCPProxy",
+      "labels": [
+        "implementation",
+        "security"
+      ],
+      "body": "Enforce node affinity, trusted capability discovery, CDL decisions and response provenance. Bind checked state to actual dispatch. Demonstrate denied calls never reach downstream spies, including races and topology bypass.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Implement LLMProxy and provider-neutral dispatch loop in both languages",
+      "milestone": "M5: LLMProxy",
+      "labels": [
+        "implementation",
+        "security"
+      ],
+      "body": "Implement signed prompt construction, pre-inference data policy, tool dispatch and output/display gating, completion policy and refresh. Begin with mock providers. Prove streaming, tenant and stale-state behavior before live-provider opt-in.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Run cross-language topology matrix and preregister effectiveness study",
+      "milestone": "M6: Interoperability and effectiveness",
+      "labels": [
+        "evaluation",
+        "conformance"
+      ],
+      "body": "Follow evaluation/PROTOCOL.md with unprotected, PSP-only, CDL-only and combined conditions, A/B/C topology and mixed stacks. Publish task utility, forbidden side effects, disclosure, uncertainty, costs and exclusions.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    },
+    {
+      "title": "Prepare independently reviewed reference release",
+      "milestone": "M7: Reviewed release",
+      "labels": [
+        "implementation",
+        "security",
+        "governance"
+      ],
+      "body": "Obtain independent security review; build repeatable packages/images with SBOMs and provenance. Document compatibility and precisely scoped conformance. Appoint independent reviewers and enable required approvals before a production-readiness claim.\n\nSee ROADMAP.md for sequencing and acceptance gates."
+    }
+  ]
+}
