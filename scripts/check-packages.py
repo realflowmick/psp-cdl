@@ -32,7 +32,7 @@ for component in components:
     run([UV, 'build', '--package', 'psp-cdl-' + component, '--wheel', '--out-dir', str(ARTIFACTS), '--offline'])
 packages = {f'@psp-cdl/{component}': 'file:' + (ARTIFACTS / f'psp-cdl-{component}-0.1.0-dev.0.tgz').as_posix() for component in components}
 (CONSUMER / 'package.json').write_text(json.dumps({'private': True, 'type': 'module', 'dependencies': packages}), encoding='utf-8')
-run([NPM, 'install', '--ignore-scripts', '--offline', '--no-audit', '--no-fund'], CONSUMER)
+run([NPM, 'install', '--ignore-scripts', '--no-audit', '--no-fund'], CONSUMER)
 node_source = r'''
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';

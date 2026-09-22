@@ -24,4 +24,4 @@ Policy artifact checks run with `npm run test:policy` and the Python unittest su
 
 See the [library guide](library-api.md) for public APIs. Run `uv run --locked python scripts/check-packages.py` to build local tarballs/wheels and verify isolated consumers. This check uses dependency caches populated by `npm ci` and `uv sync`, writes only under `.artifacts`, and never publishes packages.
 
-Python artifact installation may download declared dependencies from the configured package index. The seeded codec corpus is reproducible with `python scripts/generate-codec-vectors.py --check`; omit `--check` only when intentionally regenerating the proposed fixture file.
+Artifact installation may download declared dependencies from the configured npm/Python package indexes. The seeded codec corpus is reproducible with `python scripts/generate-codec-vectors.py --check`; omit `--check` only when intentionally regenerating the proposed fixture file.
