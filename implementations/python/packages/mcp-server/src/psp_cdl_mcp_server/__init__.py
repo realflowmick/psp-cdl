@@ -1,27 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Reference sessions, nodes, checkpoints, security operations, and synthetic tools. Implementation begins in M3."""
 from copy import deepcopy
-
-_MANIFEST = {
-    "id": "mcp-server",
-    "status": "scaffold",
-    "specifications": {
-        "psp": "3.2.0",
-        "cdl": "1.5"
-    },
-    "implementedFeatures": []
-}
-
-
-def get_manifest() -> dict:
-    """Return readiness metadata, never a conformance claim."""
-    return deepcopy(_MANIFEST)
-
-
+from .server import McpServer, MCP_VERSION
+_MANIFEST = {'id': 'mcp-server', 'status': 'experimental', 'specifications': {'psp': '3.2.0', 'cdl': '1.5'}, 'implementedFeatures': ['mcp-security-tools-0.1', 'mcp-stdio-2025-11-25']}
+def get_manifest(): return deepcopy(_MANIFEST)
 class NotImplementedFeatureError(NotImplementedError):
-    code = "NOT_IMPLEMENTED"
-
-
-def require_implementation() -> None:
-    """Fail before any operation or side effect."""
-    raise NotImplementedFeatureError("mcp-server is a scaffold; no security operation was executed.")
+    code="NOT_IMPLEMENTED"
+def require_implementation():
+    raise NotImplementedFeatureError("Complete workflow services are not implemented.")

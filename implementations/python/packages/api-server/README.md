@@ -1,7 +1,7 @@
-# api-server
+# psp-cdl-api-server
 
-Versioned HTTP service contracts, authentication, and tenant isolation.
+Status: **experimental reusable library**. Implements the first read-only authenticated security service slice. HTTP and MCP stdio share the service layer and core/CDL libraries; no listener, credentials or SaaS connection is created on import.
 
-Status: **scaffold**, with no implemented protocol operations. Target milestone: M3 in the root ROADMAP.md. See docs/architecture.md for component boundaries. Shared schemas and conformance vectors become conformance oracles only after profile review. The bootstrap guard always raises NOT_IMPLEMENTED before side effects. Package publication is not enabled.
+See the [service API guide](../../../../docs/service-api.md), [draft profile](../../../../specs/profiles/PSP-SERVICE-0.1.md) and [roadmap](../../../../ROADMAP.md). Hosts supply validated credentials and authorized operation snapshots. Stateful sessions, nodes, checkpoints, decryption and full workflow execution remain unsupported. Package publication is disabled pending release review.
 
 License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.

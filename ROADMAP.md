@@ -17,7 +17,7 @@ The signature portion of M1 is specified by PSP Core 3.2.0 and [PSP Signature Pr
 
 The first M2 slice is implemented as reusable TypeScript/Python libraries: bounded PSP/CDL codecs, object/JSON/markup round trips, signature/key/time validation, finite policy evaluation and shared profile adapters. The [API guide](docs/library-api.md) documents supported representations and limits. Both languages pass 511 shared checks plus direct two-way interchange and isolated package checks. This is experimental, scoped profile coverage; broader RFC grammar review, sustained fuzzing and independent security review remain open.
 
-The next slice is M3: draft shared MCP/HTTP contracts and build a reusable authenticated service layer on these libraries. Start with tenant-scoped verification and policy endpoints, then session/node state and replay controls. Use synthetic keys and tool spies before network integrations. Keep full conformance and effectiveness claims gated on later milestones.
+The first read-only M3 slice now implements [draft authenticated HTTP/MCP security services](docs/service-api.md) on the reusable libraries, including operation-bound verification and host-owned policy evaluation. Both languages pass 33 shared service cases and real mixed-language HTTP/stdio checks. The next slice is stateful M3: tenant-scoped session/node persistence, atomic versioned updates, single-use checkpoint resumption and replay controls. Establish operation snapshot issuance/invalidation before dispatch integration; complete remaining security tools separately.
 
 ## Suggested follow-up tasks
 

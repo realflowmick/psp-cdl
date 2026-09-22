@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-/** Reference sessions, nodes, checkpoints, security operations, and synthetic tools. Implementation begins in M3. */
+export * from "./server.js";
 export const manifest = Object.freeze({
   "id": "mcp-server",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": [
+    "mcp-security-tools-0.1",
+    "mcp-stdio-2025-11-25"
+  ]
 } as const);
-
-/** Always fails until a reviewed implementation supplies a real entry point. */
-export function requireImplementation(): never {
-  throw Object.assign(new Error("mcp-server is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
-}
+Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
+export function requireImplementation():never { throw Object.assign(new Error("Complete workflow services are not implemented."),{code:"NOT_IMPLEMENTED"}); }

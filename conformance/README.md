@@ -21,3 +21,7 @@ Run `npm run test:policy` for schema, matrix-coverage, reference and restricted 
 ## Reversible codecs and interchange
 
 [Codec vectors](vectors/codec/profile-1.0.json) cover hand-authored markup, 80 seeded generated object trees, malformed markup/JSON and CDL schema transport. `npm run conformance:profiles` and `python -m psp_cdl_test_harness --profiles` execute all library profiles. `python scripts/check-parity.py` compares complete reports, then independently produces and consumes actual markup, JSON, signed envelopes and CDL representations in both directions. These reports use the documented profile adapter format; the generic full-workflow result schema is reserved for future workflow runs.
+
+## Read-only service slice
+
+[Service fixtures](vectors/services/profile-0.1.json) are draft expectations for 33 HTTP cases executed independently in both languages. `scripts/check-service-parity.py`, invoked by the existing parity check, also compares MCP transcripts and uses actual mixed-language HTTP/stdio peers. These are distinct from the 511 library-profile checks and from the five still-unimplemented full-workflow seed cases. No durable state, replay-safe mutation or proxy dispatch is exercised.

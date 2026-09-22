@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: Apache-2.0
+from psp_cdl_core import canonical_json, parse_json
+from psp_cdl_api_server import MAX_REQUEST_BYTES, SecurityService, ServiceError, scope_for
+from .tools import TOOL_DEFINITIONS
+MCP_VERSION="2025-11-25"
+OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate"}
+
+class McpServer:
+    """One peer per instance; credentials come from the trusted process launcher."""
+    def __init__(self,service: SecurityService,credential):
+        self.service,self.credential=service,credential
+        self.phase,self.identity="new",None
+
+    def handle(self,source):
+        def error(id,code,reason):
+            return {"jsonrpc":"2.0","id":id,"error":{"code":code,"message":reason}}
+        try:
+            if len(source.encode("utf-8"))>MAX_REQUEST_BYTES:
+                raise ValueError()
+            message=parse_json(source)
+        except (ValueError,UnicodeError):
+            return error(None,-32700,"Parse error")
+        if type(message) is not dict or message.get("jsonrpc")!="2.0" or type(message.get("method")) is not str or set(message)-{"jsonrpc","id","method","params"}:
+            return error(None,-32600,"Invalid Request")
+        notification="id" not in message
+        id=message.get("id")
+        if not notification and not (type(id) is str or type(id) in (int,float) and int(id)==id and abs(id)<=9_007_199_254_740_991):
+            return error(None,-32600,"Invalid Request")
+        def fail(code,reason):
+            return None if notification else error(id,code,reason)
+        def success(result):
+            return {"jsonrpc":"2.0","id":id,"result":result}
+        try:
+            token=self.credential()
+            principal=self.service.authenticate(token)
+            identity=canonical_json([principal["tenantId"],principal["subjectId"]])
+            if self.identity is not None and self.identity!=identity:
+                return fail(-32001,"IDENTITY_CHANGED")
+            params=message.get("params",{})
+            if type(params) is not dict:
+                return fail(-32602,"Invalid params")
+            if "_meta" in params and type(params["_meta"]) is not dict:
+                return fail(-32602,"Invalid params")
+            if notification:
+                if message["method"]=="notifications/initialized" and self.phase=="initializing" and not set(params)-{"_meta"}:
+                    self.phase="ready"
+                return None
+            method=message["method"]
+            if method=="ping":
+                return success({})
+            if method=="initialize":
+                client=params.get("clientInfo")
+                if self.phase!="new" or type(params.get("protocolVersion")) is not str or type(params.get("capabilities")) is not dict or type(client) is not dict or type(client.get("name")) is not str or type(client.get("version")) is not str:
+                    return fail(-32602,"Invalid initialization")
+                self.identity,self.phase=identity,"initializing"
+                return success({"protocolVersion":MCP_VERSION,"capabilities":{"tools":{"listChanged":False}},"serverInfo":{"name":"psp-cdl-reference","version":"0.1.0"}})
+            if self.phase!="ready":
+                return fail(-32000,"NOT_INITIALIZED")
+            if method=="tools/list":
+                if set(params)-{"_meta"}:
+                    return fail(-32602,"Invalid params")
+                # Detach tool schemas so callers cannot alter future discovery.
+                tools=[t for t in TOOL_DEFINITIONS if scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
+                return success({"tools":parse_json(canonical_json(tools))})
+            if method!="tools/call":
+                return fail(-32601,"Method not found")
+            if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or params["name"] not in OPERATIONS or type(params.get("arguments")) is not dict:
+                return fail(-32602,"Invalid tool or arguments")
+            try:
+                result=self.service.invoke(OPERATIONS[params["name"]],params["arguments"],token,principal)
+                return success({"content":[{"type":"text","text":canonical_json(result)}],"structuredContent":result,"isError":False})
+            except Exception as exc:
+                if isinstance(exc,ServiceError) and exc.status==400:
+                    return fail(-32602,exc.code)
+                code=exc.code if isinstance(exc,ServiceError) else "INTERNAL_ERROR"
+                return success({"content":[{"type":"text","text":canonical_json({"error":{"code":code}})}],"isError":True})
+        except Exception as exc:
+            return fail(-32001 if isinstance(exc,ServiceError) and exc.status==401 else -32603,exc.code if isinstance(exc,ServiceError) else "INTERNAL_ERROR")

@@ -1,0 +1,800 @@
+{
+  "profile": "PSP-SERVICE-0.1",
+  "notice": "Public synthetic test tokens, keys and data. Never use in deployments.",
+  "now": 2000000001,
+  "principals": {
+    "public-token-a": {
+      "tenantId": "tenant-a",
+      "subjectId": "subject-a",
+      "scopes": [
+        "security:verify",
+        "policy:evaluate"
+      ]
+    },
+    "public-tenant-b": {
+      "tenantId": "tenant-b",
+      "subjectId": "subject-a",
+      "scopes": [
+        "security:verify",
+        "policy:evaluate"
+      ]
+    },
+    "public-subject-b": {
+      "tenantId": "tenant-a",
+      "subjectId": "subject-b",
+      "scopes": [
+        "security:verify",
+        "policy:evaluate"
+      ]
+    },
+    "public-no-scope": {
+      "tenantId": "tenant-a",
+      "subjectId": "subject-a",
+      "scopes": []
+    }
+  },
+  "snapshot": {
+    "tenantId": "tenant-a",
+    "subjectId": "subject-a",
+    "operationId": "op-1",
+    "policyVersion": "v1",
+    "expires": 2000007200,
+    "verification": {
+      "context": {
+        "tenant-id": "tenant-a",
+        "operation-id": "op-1",
+        "policy-version": "v1"
+      },
+      "allowedAttributes": [
+        "tenant-id",
+        "operation-id",
+        "policy-version"
+      ],
+      "keys": [
+        {
+          "id": "public-test-ed25519",
+          "algorithm": "ed25519",
+          "materialHex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+          "status": "active",
+          "trustLevels": [
+            3
+          ],
+          "sectionTypes": [
+            "context"
+          ],
+          "scope": {
+            "tenant-id": "tenant-a"
+          },
+          "allowUnscoped": false
+        }
+      ]
+    },
+    "resources": [
+      {
+        "classes": [],
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [
+          "used-for-model-training"
+        ],
+        "checks": {},
+        "parameters": {},
+        "context": {}
+      }
+    ]
+  },
+  "httpCases": [
+    {
+      "id": "policy-deny",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "decision": "deny",
+          "reasonCodes": [
+            "CAPABILITY_CONFLICT"
+          ]
+        }
+      }
+    },
+    {
+      "id": "policy-allow",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "allow": true,
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "decision": "allow",
+          "reasonCodes": []
+        }
+      }
+    },
+    {
+      "id": "verify-valid",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"ZImdj1inOK_E7HqcvN02UHi0U2uDP8vzXv1e8PXE_xHiLMaL6ZBDSPBTU38Rw1kMZV20TzgU4w7BGBRZFHQMBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": true,
+              "signature_algorithm": "ed25519",
+              "trust_level": 3,
+              "priority": 50,
+              "expires": 2000003600
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 1,
+            "invalid": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-tampered",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"ZImdj1inOK_E7HqcvN02UHi0U2uDP8vzXv1e8PXE_xHiLMaL6ZBDSPBTU38Rw1kMZV20TzgU4w7BGBRZFHQMBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Tampered content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "INVALID_SIGNATURE"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-malformed",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp type=context}unclosed"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "UNCLOSED_SECTION"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-unsigned",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp type=context}Untrusted${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "UNSUPPORTED_PROFILE"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-tenant",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"nFgFVfbMNAS6lUSFSAA74vyXlEmyiBhkTefxwk4Oyto_1BhHiSQnQ4RVM5mDRIklpNuEss3y7S9_eNw4ziBoBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-b\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "SCOPE_MISMATCH"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-operation",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-2\" policy-version=\"v1\" signature=\"4ibNh4wM8X5IBYhDCjWluh9rgkCz4PY3hXFxPkwoWOb9C_v_sRFtW2T_nr7yiP0nR9Dxu1grofl-D8zJBQCPDQ\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "SCOPE_MISMATCH"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-revision",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"old\" signature=\"jh0yaBT_cFjQpRynAaV0IXMfCZkJHFwMez9283K7WEd5qtPTzwv79tetIP897FfacbrXKhqbKqyPqkIw4aNzDA\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "SCOPE_MISMATCH"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-missing-binding",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" policy-version=\"v1\" signature=\"J2OLxAwvjQGAIcxsPrCkUlXr5fwIcsnV1QtgLHZbz2SzlVN3nMLS5A_mSszC9uAxJePJs_6mDjkUqUvHcEoKBw\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "SCOPE_MISMATCH"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "verify-expired",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000000001\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"eiwVvVnPFcBhT7aYNqwj6tjG2X27hBOnUoqCEZLSBTOoHNjSZpx5lPNAkZaP3ReL-uYIAHuvjFC6upYdGIsADQ\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "EXPIRED"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "no-auth",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "token": null,
+      "rawBody": "{bad",
+      "expected": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "UNAUTHENTICATED"
+          }
+        }
+      }
+    },
+    {
+      "id": "bad-token",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "token": "invalid",
+      "expected": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "UNAUTHENTICATED"
+          }
+        }
+      }
+    },
+    {
+      "id": "no-scope",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "token": "public-no-scope",
+      "expected": {
+        "status": 403,
+        "body": {
+          "error": {
+            "code": "FORBIDDEN"
+          }
+        }
+      }
+    },
+    {
+      "id": "cross-tenant",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "token": "public-tenant-b",
+      "expected": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "NOT_FOUND"
+          }
+        }
+      }
+    },
+    {
+      "id": "cross-subject",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "token": "public-subject-b",
+      "expected": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "NOT_FOUND"
+          }
+        }
+      }
+    },
+    {
+      "id": "unknown-operation",
+      "request": {
+        "operation_id": "unknown"
+      },
+      "expected": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "NOT_FOUND"
+          }
+        }
+      }
+    },
+    {
+      "id": "stale-operation",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "now": 2000007200,
+      "expected": {
+        "status": 409,
+        "body": {
+          "error": {
+            "code": "STALE_OPERATION"
+          }
+        }
+      }
+    },
+    {
+      "id": "forged-checks",
+      "request": {
+        "operation_id": "op-1",
+        "checks": {
+          "consent": "satisfied"
+        }
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "forged-tenant",
+      "request": {
+        "operation_id": "op-1",
+        "tenant_id": "tenant-b"
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "duplicate-json",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "rawBody": "{\"operation_id\":\"op-1\",\"operation_id\":\"op-2\"}",
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "invalid-json",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "rawBody": "{bad",
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "bad-id",
+      "request": {
+        "operation_id": "op-1\n"
+      },
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "empty-batch",
+      "request": {
+        "operation_id": "op-1",
+        "sections": []
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "duplicate-sections",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"ZImdj1inOK_E7HqcvN02UHi0U2uDP8vzXv1e8PXE_xHiLMaL6ZBDSPBTU38Rw1kMZV20TzgU4w7BGBRZFHQMBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          },
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"ZImdj1inOK_E7HqcvN02UHi0U2uDP8vzXv1e8PXE_xHiLMaL6ZBDSPBTU38Rw1kMZV20TzgU4w7BGBRZFHQMBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "origin",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "extraHeaders": [
+        [
+          "Origin",
+          "https://example.test"
+        ]
+      ],
+      "expected": {
+        "status": 403,
+        "body": {
+          "error": {
+            "code": "ORIGIN_REJECTED"
+          }
+        }
+      }
+    },
+    {
+      "id": "media",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "contentType": "text/plain",
+      "expected": {
+        "status": 415,
+        "body": {
+          "error": {
+            "code": "UNSUPPORTED_MEDIA_TYPE"
+          }
+        }
+      }
+    },
+    {
+      "id": "encoding",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "extraHeaders": [
+        [
+          "Content-Encoding",
+          "gzip"
+        ]
+      ],
+      "expected": {
+        "status": 415,
+        "body": {
+          "error": {
+            "code": "UNSUPPORTED_MEDIA_TYPE"
+          }
+        }
+      }
+    },
+    {
+      "id": "method",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "method": "GET",
+      "expected": {
+        "status": 405,
+        "body": {
+          "error": {
+            "code": "METHOD_NOT_ALLOWED"
+          }
+        }
+      }
+    },
+    {
+      "id": "query",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "path": "/v1/policy/evaluate?tenant=other",
+      "expected": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "NOT_FOUND"
+          }
+        }
+      }
+    },
+    {
+      "id": "duplicate-auth",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "extraHeaders": [
+        [
+          "Authorization",
+          "Bearer other"
+        ]
+      ],
+      "expected": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST"
+          }
+        }
+      }
+    },
+    {
+      "id": "backend-failure",
+      "request": {
+        "operation_id": "op-1"
+      },
+      "backendFailure": true,
+      "expected": {
+        "status": 500,
+        "body": {
+          "error": {
+            "code": "INTERNAL_ERROR"
+          }
+        }
+      }
+    },
+    {
+      "id": "revoked-key",
+      "request": {
+        "operation_id": "op-1",
+        "sections": [
+          {
+            "id": "s1",
+            "content": "${psp content-type=\"text\" expires=\"2000003600\" kid=\"public-test-ed25519\" operation-id=\"op-1\" policy-version=\"v1\" signature=\"ZImdj1inOK_E7HqcvN02UHi0U2uDP8vzXv1e8PXE_xHiLMaL6ZBDSPBTU38Rw1kMZV20TzgU4w7BGBRZFHQMBg\" signature-algorithm=\"ed25519\" signature-version=\"2.0\" tenant-id=\"tenant-a\" timestamp=\"2000000000\" trust-level=\"3\" type=\"context\" version=\"1.0.0\"}Synthetic governed content${/psp}"
+          }
+        ]
+      },
+      "path": "/v1/security/verify",
+      "expected": {
+        "status": 200,
+        "body": {
+          "profile": "PSP-SERVICE-0.1",
+          "operation_id": "op-1",
+          "policy_version": "v1",
+          "results": [
+            {
+              "id": "s1",
+              "valid": false,
+              "error": "REVOKED_KEY"
+            }
+          ],
+          "summary": {
+            "total": 1,
+            "valid": 0,
+            "invalid": 1
+          }
+        }
+      },
+      "revoked": true
+    }
+  ]
+}

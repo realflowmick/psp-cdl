@@ -1,27 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Versioned HTTP service contracts, authentication, and tenant isolation. Implementation begins in M3."""
 from copy import deepcopy
-
-_MANIFEST = {
-    "id": "api-server",
-    "status": "scaffold",
-    "specifications": {
-        "psp": "3.2.0",
-        "cdl": "1.5"
-    },
-    "implementedFeatures": []
-}
-
-
-def get_manifest() -> dict:
-    """Return readiness metadata, never a conformance claim."""
-    return deepcopy(_MANIFEST)
-
-
+from .service import SecurityService, ServiceError, ServiceHost, SERVICE_PROFILE, MAX_REQUEST_BYTES, identifier, scope_for
+_MANIFEST = {'id': 'api-server', 'status': 'experimental', 'specifications': {'psp': '3.2.0', 'cdl': '1.5'}, 'implementedFeatures': ['authenticated-security-service-0.1', 'http-security-adapter']}
+def get_manifest(): return deepcopy(_MANIFEST)
 class NotImplementedFeatureError(NotImplementedError):
-    code = "NOT_IMPLEMENTED"
-
-
-def require_implementation() -> None:
-    """Fail before any operation or side effect."""
-    raise NotImplementedFeatureError("api-server is a scaffold; no security operation was executed.")
+    code="NOT_IMPLEMENTED"
+def require_implementation():
+    raise NotImplementedFeatureError("Complete workflow services are not implemented.")
