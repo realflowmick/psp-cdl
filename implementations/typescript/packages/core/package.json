@@ -11,6 +11,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./crypto": {
+      "types": "./dist/crypto.d.ts",
+      "import": "./dist/crypto.js"
     }
   },
   "files": [
@@ -23,6 +27,9 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "node --test tests/scaffold.test.mjs"
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "canonicalize": "5.1.0"
   }
 }

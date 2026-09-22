@@ -3,4 +3,6 @@ Sponsored by RealflowCloud, Inc.
 Copyright 2026 RealflowCloud, Inc. and contributors for Apache-2.0 material.
 
 Specification material is dedicated under CC0-1.0; see LICENSING.md.
+Bundled psp_cdl_cdl/_tables.py is CC0-1.0.
+See LICENSE-CC0.txt for the dedication; other implementation code is Apache-2.0.
 Sponsorship and product names do not imply certification or endorsement of forks.

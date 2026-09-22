@@ -11,14 +11,15 @@ PROJECT = json.loads((ROOT / "project.json").read_text(encoding="utf-8"))
 
 
 class ScaffoldTests(unittest.TestCase):
-    def test_components_fail_closed_and_advertise_no_features(self):
+    def test_components_advertise_scoped_features_and_reject_whole_workflows(self):
         for component in PROJECT["components"]:
             with self.subTest(component=component["id"]):
                 mod = importlib.import_module("psp_cdl_" + component["id"].replace("-", "_"))
                 manifest = mod.get_manifest()
                 self.assertEqual(manifest["id"], component["id"])
-                self.assertEqual(manifest["status"], "scaffold")
-                self.assertEqual(manifest["implementedFeatures"], [])
+                implemented = component["id"] in {"core", "cdl", "test-harness"}
+                self.assertEqual(manifest["status"], "experimental" if implemented else "scaffold")
+                self.assertEqual(bool(manifest["implementedFeatures"]), implemented)
                 self.assertEqual(manifest["specifications"], PROJECT["specifications"])
                 with self.assertRaises(mod.NotImplementedFeatureError) as result:
                     mod.require_implementation()
@@ -28,7 +29,7 @@ class ScaffoldTests(unittest.TestCase):
         mod = importlib.import_module("psp_cdl_core")
         manifest = mod.get_manifest()
         manifest["implementedFeatures"].append("unsafe-claim")
-        self.assertEqual(mod.get_manifest()["implementedFeatures"], [])
+        self.assertNotIn("unsafe-claim", mod.get_manifest()["implementedFeatures"])
 
     def test_unimplemented_harness_does_not_succeed(self):
         result = subprocess.run([sys.executable, "-m", "psp_cdl_test_harness"], cwd=ROOT, capture_output=True, text=True)

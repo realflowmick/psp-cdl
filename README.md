@@ -5,7 +5,7 @@ Open standards and reference implementations for protecting LLM workflows, spons
 - **Prompt State Protocol (PSP)** describes signed prompt sections, workflow state, node/tool affinity, provenance, and session controls.
 - **Covenant Declaration Language (CDL)** describes data classifications, handling constraints, and processing capabilities.
 
-**Status: proposed standards; implementation scaffolds.** No proxy, policy evaluator, MCP service, or API server is production-ready or conformant yet. Passing repository checks validates the development setup, not security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
+**Status: proposed standards; experimental reusable libraries.** TypeScript and Python implement PSP markup/object/JSON codecs, signatures and deterministic CDL policy evaluation. Proxies, MCP services and API servers remain scaffolds. Library tests establish scoped behavior, not production readiness, full protocol conformance or measured security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
 
 ## Standards
 
@@ -14,7 +14,7 @@ Open standards and reference implementations for protecting LLM workflows, spons
 | [PSP Core](specs/psp/RFC-PSP-CORE-v3_2_0.md) | 3.2.0 | Proposed Standard |
 | [CDL](specs/cdl/RFC-CDL-v1_5.md) | 1.5 | Proposed Standard |
 
-The [3.1.1 baseline](specs/psp/RFC-PSP-CORE-v3_1_1.md) remains archived. The [signature profile](specs/profiles/PSP-SIGNATURE-2.0.md) resolves the initial signing ambiguities and has executable cross-language byte/crypto vectors. [CDL Deterministic Policy Profile 1.0](specs/profiles/CDL-DETERMINISTIC-1.0.md) defines finite matching rules, authorized negation and evidence requirements; [PSP Trust and Enforcement Profile 1.0](specs/profiles/PSP-TRUST-1.0.md) defines six trust levels and scoped topology guarantees. These proposed profiles require explicit adoption; full protocol implementations are still pending.
+The [3.1.1 baseline](specs/psp/RFC-PSP-CORE-v3_1_1.md) remains archived. The [signature profile](specs/profiles/PSP-SIGNATURE-2.0.md) resolves the initial signing ambiguities and has executable cross-language byte/crypto vectors. [CDL Deterministic Policy Profile 1.0](specs/profiles/CDL-DETERMINISTIC-1.0.md) defines finite matching rules, authorized negation and evidence requirements; [PSP Trust and Enforcement Profile 1.0](specs/profiles/PSP-TRUST-1.0.md) defines six trust levels and scoped topology guarantees. [PSP Codec Profile 1.0](specs/profiles/PSP-CODEC-1.0.md) defines reversible markup, document objects and signed nested-document transport. These proposed profiles require explicit adoption; full protocol implementations are still pending. See the [reusable library API](docs/library-api.md).
 
 Read the [remaining specification issues](specs/errata/README.md) before implementing cryptography or claiming interoperability. RFC-PSP-API is referenced by PSP but was not supplied; local API contracts will be drafts until reviewed. These are project RFCs, not IETF or IANA approvals.
 
@@ -48,9 +48,10 @@ uv sync --locked --all-packages
 uv run --locked python -m unittest discover -s implementations/python/tests -v
 uv run --locked python scripts/check-parity.py
 npm run conformance:inventory
+npm run conformance:profiles
 ```
 
-`npm run check` checks repository contracts, compiles all TypeScript packages, checks that the scaffold boundary fails closed, and audits signature/policy fixtures. The inventory command lists the original seed cases; it does not execute conformance tests or include the separate profile corpora. `npm run conformance` deliberately fails until an implementation adapter exists. See [development](docs/development.md) for the detailed workflow.
+`npm run check` checks repository contracts, compiles all TypeScript packages, executes library tests and audits signature/policy fixtures. The profile harness runs 511 shared codec, signature, policy and trust checks through public library APIs. Parity checks exchange actual output in both directions. The inventory command still lists only the five original seed cases; `npm run conformance` deliberately fails because full workflow adapters are pending. See [development](docs/development.md) for the detailed workflow.
 
 ## Participate
 

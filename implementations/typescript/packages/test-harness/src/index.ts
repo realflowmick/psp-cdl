@@ -1,16 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
-/** Shared conformance adapters and effectiveness-study execution. Implementation begins in M6. */
+/** Executable library profile adapters; full workflow conformance remains pending. */
 export const manifest = Object.freeze({
   "id": "test-harness",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": ["library-profile-adapters"]
 } as const);
 
 /** Always fails until a reviewed implementation supplies a real entry point. */
 export function requireImplementation(): never {
-  throw Object.assign(new Error("test-harness is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
+  throw Object.assign(new Error("Use profile adapters; complete workflow conformance is not implemented."), { code: "NOT_IMPLEMENTED" });
 }
+
+export * from "./profiles.js";
+
+Object.freeze(manifest.specifications);
+Object.freeze(manifest.implementedFeatures);

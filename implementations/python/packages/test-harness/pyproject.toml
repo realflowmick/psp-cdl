@@ -7,9 +7,10 @@ name = "psp-cdl-test-harness"
 version = "0.1.0.dev0"
 description = "Shared conformance adapters and effectiveness-study execution"
 requires-python = ">=3.12"
+dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-cdl==0.1.0.dev0"]
 license = "Apache-2.0"
 readme = "README.md"
-classifiers = ["Development Status :: 1 - Planning", "Programming Language :: Python :: 3"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/psp_cdl_test_harness"]

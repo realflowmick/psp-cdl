@@ -2,11 +2,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { manifest, requireImplementation } from '../dist/index.js';
-
-test('cdl advertises no implemented security features', () => {
-  assert.equal(manifest.status, 'scaffold');
-  assert.deepEqual(manifest.implementedFeatures, []);
+test('library advertises scoped experimental features', () => {
+  assert.equal(manifest.status, 'experimental');
+  assert(manifest.implementedFeatures.length > 0);
 });
-test('cdl rejects an unimplemented operation', () => {
-  assert.throws(requireImplementation, { code: 'NOT_IMPLEMENTED' });
+test('whole workflow execution remains unsupported', () => {
+  assert.throws(requireImplementation, {code:'NOT_IMPLEMENTED'});
 });

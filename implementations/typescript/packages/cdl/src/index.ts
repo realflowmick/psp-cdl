@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
-/** CDL parsing, inheritance, vocabulary, and deterministic policy decisions. Implementation begins in M2. */
+export * from "./policy.js";
 export const manifest = Object.freeze({
   "id": "cdl",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": [
+    "cdl-declarations",
+    "cdl-schema-inheritance",
+    "cdl-deterministic-1.0",
+    "topology-gates"
+  ]
 } as const);
+export function requireImplementation(): never { throw Object.assign(new Error("Use a named library API; complete workflow execution is not implemented."), {code:"NOT_IMPLEMENTED"}); }
 
-/** Always fails until a reviewed implementation supplies a real entry point. */
-export function requireImplementation(): never {
-  throw Object.assign(new Error("cdl is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
-}
+Object.freeze(manifest.specifications);
+Object.freeze(manifest.implementedFeatures);

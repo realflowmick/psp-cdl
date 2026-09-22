@@ -1,11 +1,25 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Source-workspace harness inventory. No tests are claimed as executed."""
+"""Source-workspace inventory and explicit library profile execution."""
 import json
 import sys
 from pathlib import Path
 
 
 def main() -> int:
+    if sys.argv[1:] == ["--profiles"]:
+        from .profiles import profile_report
+        root = next((p for p in Path(__file__).resolve().parents if (p / "project.json").is_file()), None)
+        try:
+            if root is None:
+                raise ValueError("Missing workspace")
+            def read(name):
+                return json.loads((root / "conformance/vectors" / name).read_text(encoding="utf-8"))
+            report = profile_report(read("policy/profile-1.0.json"), read("codec/profile-1.0.json"), read("signatures/profile-2.0.json"))
+            print(json.dumps(report, ensure_ascii=True))
+            return 1 if report["failed"] else 0
+        except (ValueError, OSError):
+            print(json.dumps({"mode": "profile-conformance", "status": "error", "executed": 0, "passed": 0, "reason": "Profile fixtures unavailable or invalid."}))
+            return 2
     if sys.argv[1:] == ["--inventory"]:
         root = next((p for p in Path(__file__).resolve().parents if (p / "project.json").is_file()), None)
         if root is None:
