@@ -17,3 +17,5 @@ The harness inventory is available through `npm run conformance:inventory` or `u
 For restricted environments, place uv and npm caches inside `.cache/` rather than changing global settings. Use `UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, and `npm_config_cache` only in the current shell. Never commit `.cache`, `.tools`, `.venv`, credentials, generated results containing private data, or production keys.
 
 Before adding an SDK, pin the MCP protocol revision and supported transports in the implementation profile. The candidate baseline is [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25); SDK selection is a later reviewed change. Runtime support follows the [Node.js release schedule](https://nodejs.org/en/about/previous-releases).
+
+The signature profile fixture suite runs with npm run test:signatures and with the Python unittest suite. Both are included in CI. The pinned JCS/crypto packages are development dependencies; no scaffold component has been promoted to a production verifier.

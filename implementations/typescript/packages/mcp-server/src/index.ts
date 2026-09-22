@@ -4,7 +4,7 @@ export const manifest = Object.freeze({
   "id": "mcp-server",
   "status": "scaffold",
   "specifications": {
-    "psp": "3.1.1",
+    "psp": "3.2.0",
     "cdl": "1.5"
   },
   "implementedFeatures": []

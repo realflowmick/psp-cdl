@@ -18,3 +18,9 @@ psp-cdl-mcpproxy = { workspace = true }
 psp-cdl-mcp-server = { workspace = true }
 psp-cdl-api-server = { workspace = true }
 psp-cdl-test-harness = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "cryptography==50.0.1",
+    "rfc8785==0.1.4",
+]
