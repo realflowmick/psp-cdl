@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-/** Versioned HTTP service contracts, authentication, and tenant isolation. Implementation begins in M3. */
+export * from "./service.js";
 export const manifest = Object.freeze({
   "id": "api-server",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": [
+    "authenticated-security-service-0.1",
+    "http-security-adapter"
+  ]
 } as const);
-
-/** Always fails until a reviewed implementation supplies a real entry point. */
-export function requireImplementation(): never {
-  throw Object.assign(new Error("api-server is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
-}
+Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
+export function requireImplementation():never { throw Object.assign(new Error("Complete workflow services are not implemented."),{code:"NOT_IMPLEMENTED"}); }

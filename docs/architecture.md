@@ -16,7 +16,7 @@ flowchart LR
     Harness -.-> Services
 ```
 
-The diagram is the target mediated deployment. None of these network paths is active in the scaffold. The reference LLMProxy must own the dispatch loop or integrate with a chat host that does; merely forwarding model API traffic cannot enforce CDL Topology B's complete-mediation promise.
+The diagram is the target mediated deployment. The first read-only security service adapters are implemented; the full mediated workflow remains pending. The reference LLMProxy must own the dispatch loop or integrate with a chat host that does; merely forwarding model API traffic cannot enforce CDL Topology B's complete-mediation promise.
 
 | Component | Scope | Exclusions |
 | --- | --- | --- |
@@ -46,4 +46,6 @@ Credentials, private keys, and authoritative node/session identity stay outside 
 
 `core` and `cdl` now provide the shared experimental implementation described in the [API guide](library-api.md). Proxies, MCP/API servers and eventual model adapters must consume these libraries rather than create parallel parsers. Markup, native objects, JSON documents and signed envelopes share a versioned reversible tree. Node crypto is an explicit subpath; pure codec/policy imports do not import Node built-ins. Python has the same separation. Finite policy tables are packaged with each CDL library, with tests against the normative sources.
 
-The library harness executes profile fixtures without running servers or tools. Network services remain unimplemented. An integration must construct authenticated facts, resolve every contributing data location, preserve policy origins, bind decisions to operations, and enforce them before side effects.
+The library harness executes profile fixtures without running servers or tools. Read-only HTTP/MCP security adapters now use these libraries; stateful workflow services remain unimplemented. An integration must construct authenticated facts, resolve every contributing data location, preserve policy origins, bind decisions to operations, and enforce them before side effects.
+
+The [service layer](service-api.md) resides in `api-server`, independently of transport. Both HTTP and `mcp-server` depend on it; it depends only on core/CDL and host authority interfaces. This dependency direction prevents parser, verification and policy copies inside transports. There is no service listener or credential lookup on import.

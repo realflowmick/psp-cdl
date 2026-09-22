@@ -59,6 +59,7 @@ jobs:
       - run: uv sync --locked --all-packages
       - run: uv run --locked python scripts/check-parity.py
       - run: uv run --locked python scripts/generate-codec-vectors.py --check
+      - run: uv run --locked python scripts/generate-service-contracts.py --check
       - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks

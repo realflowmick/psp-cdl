@@ -25,3 +25,5 @@ Policy artifact checks run with `npm run test:policy` and the Python unittest su
 See the [library guide](library-api.md) for public APIs. Run `uv run --locked python scripts/check-packages.py` to build local tarballs/wheels and verify isolated consumers. This check uses dependency caches populated by `npm ci` and `uv sync`, writes only under `.artifacts`, and never publishes packages.
 
 Artifact installation may download declared dependencies from the configured npm/Python package indexes. The seeded codec corpus is reproducible with `python scripts/generate-codec-vectors.py --check`; omit `--check` only when intentionally regenerating the proposed fixture file.
+
+Service checks are part of both language suites and `scripts/check-parity.py`. To isolate them, run `python scripts/check-service-parity.py` after building TypeScript and syncing the Python workspace. This test opens temporary loopback servers and subprocess stdio peers and closes them afterward. Run `python scripts/generate-service-contracts.py --check` to verify generated draft schemas and packaged discovery metadata.

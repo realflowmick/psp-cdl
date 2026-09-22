@@ -11,3 +11,5 @@ These profiles are proposed standards adopted at the author's direction, with [a
 See [the decision record](../../docs/decisions/0002-signature-profile.md), [the archived baseline](../psp/RFC-PSP-CORE-v3_1_1.md), and [the specification process](../PROCESS.md).
 
 [PSP Codec Profile 1.0](PSP-CODEC-1.0.md) now specifies the bounded markup/tree/JSON grammar, exact-source preservation and signed nested-document transport implemented by the reusable libraries. [ADR 0004](../../docs/decisions/0004-reusable-libraries.md) records adoption and compatibility limits. Executable library profile adapters now exist; service adapters and complete RFC grammar/requirement coverage remain pending.
+
+[Service Profile 0.1](PSP-SERVICE-0.1.md) is a project draft for the first read-only authenticated HTTP/MCP slice. [ADR 0005](../../docs/decisions/0005-authenticated-service-slice.md) records its scope; it does not replace the missing RFC-PSP-API or assert full mandatory-tool coverage.

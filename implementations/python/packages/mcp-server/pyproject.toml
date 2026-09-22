@@ -7,9 +7,10 @@ name = "psp-cdl-mcp-server"
 version = "0.1.0.dev0"
 description = "Reference sessions, nodes, checkpoints, security operations, and synthetic tools"
 requires-python = ">=3.12"
+dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-api-server==0.1.0.dev0"]
 license = "Apache-2.0"
 readme = "README.md"
-classifiers = ["Development Status :: 1 - Planning", "Programming Language :: Python :: 3"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/psp_cdl_mcp_server"]

@@ -26,7 +26,7 @@ def run(command, cwd=ROOT):
         raise SystemExit(' '.join(str(c) for c in command) + '\n' + result.stdout + result.stderr)
     return result.stdout
 
-components = ('core', 'cdl', 'test-harness')
+components = ('core', 'cdl', 'test-harness', 'api-server', 'mcp-server')
 for component in components:
     run([NPM, 'pack', '--workspace', '@psp-cdl/' + component, '--pack-destination', str(ARTIFACTS), '--ignore-scripts'])
     run([UV, 'build', '--package', 'psp-cdl-' + component, '--wheel', '--out-dir', str(ARTIFACTS), '--offline'])
@@ -41,7 +41,15 @@ import * as core from '@psp-cdl/core';
 import * as crypto from '@psp-cdl/core/crypto';
 import * as cdl from '@psp-cdl/cdl';
 import * as harness from '@psp-cdl/test-harness';
-for(const pkg of ['core','cdl','test-harness']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
+import {SecurityService} from '@psp-cdl/api-server';
+import {createHttpServer} from '@psp-cdl/api-server/http';
+import {McpServer} from '@psp-cdl/mcp-server';
+import {serveStdio} from '@psp-cdl/mcp-server/stdio';
+for(const pkg of ['core','cdl','test-harness','api-server','mcp-server']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
+const service=new SecurityService({authenticate:()=>null,resolve:()=>{throw new Error('must not resolve');},now:()=>1});
+await assert.rejects(()=>service.invoke('evaluate',{operation_id:'op'},'invalid'),{code:'UNAUTHENTICATED'});
+assert.equal((await new McpServer(service,()=> 'invalid').handle('{"jsonrpc":"2.0","id":1,"method":"ping"}')).error.message,'UNAUTHENTICATED');
+assert.equal(typeof createHttpServer,'function');assert.equal(typeof serveStdio,'function');
 const source='${psp type=context}hello 🧪${/psp}';
 const document=core.documentFromJson(core.documentToJson(core.parseMarkup(source)));
 assert.equal(core.serializeMarkup(document),source);
@@ -65,7 +73,11 @@ import psp_cdl_core as core
 from psp_cdl_core import crypto
 import psp_cdl_cdl as cdl
 import psp_cdl_test_harness as harness
-for module in (core,crypto,cdl,harness):
+import psp_cdl_api_server as api
+import psp_cdl_mcp_server as mcp
+from psp_cdl_api_server.http import create_wsgi_app
+from psp_cdl_mcp_server.stdio import serve_stdio
+for module in (core,crypto,cdl,harness,api,mcp):
     assert Path(module.__file__).resolve().is_relative_to(target), module.__file__
 source='${psp type=context}hello 🧪${/psp}'
 document=core.document_from_json(core.document_to_json(core.parse_markup(source)))
@@ -77,6 +89,13 @@ assert core.serialize_markup(core.envelope_to_document(e))==source
 assert cdl.evaluate_policy({'classes':[],'covenants':['no-training'],'capabilities':['used-for-model-training'],'checks':{},'parameters':{},'context':{}})['decision']=='deny'
 assert len(cdl.policy_table()['rules'])==88
 assert callable(harness.profile_report)
+class Host:
+    def authenticate(self,token): return None
+    def resolve(self,*args): raise AssertionError('must not resolve')
+    def now(self): return 1
+service=api.SecurityService(Host())
+assert mcp.McpServer(service,lambda:'invalid').handle('{"jsonrpc":"2.0","id":1,"method":"ping"}')['error']['message']=='UNAUTHENTICATED'
+assert callable(create_wsgi_app(service)) and callable(serve_stdio)
 '''
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Three npm tarballs and three Python wheels passed isolated consumer checks; no packages published.')
+print('Five npm tarballs and five Python wheels passed isolated consumer checks; no packages published.')
