@@ -48,7 +48,7 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {BufferedLlmLoop,DurableLlmLoop,promptContext} from '@psp-cdl/llmproxy';
+import {BufferedLlmLoop,DurableLlmLoop,RefreshingLlmLoop,promptContext} from '@psp-cdl/llmproxy';
 import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
@@ -109,6 +109,15 @@ try {
   assert.equal((await durable.run('consumer',session.sessionId,{message:'finish'},controls)).receipt.status,'completed');
   assert.equal((await durable.recover('consumer',session.sessionId,'durable',controls)).text,'installed-durable');
   await assert.rejects(()=>durable.run('consumer',session.sessionId,{message:'continue'},controls),{code:'PSP_POST_COMPLETION_LOCKDOWN'});
+  const refreshStore=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true,promptRefresh:true});
+  const refreshGate=new McpDispatchGate(refreshStore,host,'r1',[]);
+  const refreshSession=await refreshStore.execute(actor,{action:'createSession',requestId:'refresh-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
+  const signRefresh=(b,version,timestamp)=>crypto.signEnvelope('System '+version,{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test',timestamp,expires:9,version,sectionType:'system',contentType:'text',attributes:{...promptContext(b),'refresh-policy':'interval','refresh-interval':'1','refresh-grace':'0'}},new Uint8Array(32).fill(19));
+  const refreshHost={...durableHost,prompt:(_p,b)=>signRefresh(b,'1.0.0',0),refresh:(_p,b)=>signRefresh(b,'1.0.1',1),authorizeRefresh:()=>true,auditRefresh:()=>true,planTurn:()=>({state:{},retained:{},complete:false})};
+  const refreshing=new RefreshingLlmLoop(refreshStore,refreshGate,refreshHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:r=>({type:'final',text:r.messages[0].content})},{postCompletion:'lockdown'});
+  for(let turn=1;turn<=2;turn++)assert.equal((await refreshing.run('consumer',refreshSession.sessionId,{message:'next'},{...controls,requestId:'refresh-'+turn,expectedVersion:turn})).text,'System '+(turn===1?'1.0.0':'1.0.1'));
+  const refreshState=await refreshStore.execute(actor,{action:'getPromptState',sessionId:refreshSession.sessionId});
+  assert.equal(refreshState.state.turnCount,1);assert.equal(refreshState.state.refreshCount,1);
   gate.replaceRegistry('r1','r2',[]);assert.equal(gate.registryRevision,'r2');
 } finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
@@ -243,6 +252,20 @@ try:
     try: durable.run('consumer',session['sessionId'],{'message':'continue'},controls)
     except llm.LockdownError as exc: assert exc.code=='PSP_POST_COMPLETION_LOCKDOWN'
     else: raise AssertionError('completed session accepted input')
+    refresh_store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,prompt_refresh=True)
+    refresh_gate=proxy.McpDispatchGate(refresh_store,host,'r1',[])
+    refresh_session=refresh_store.execute(actor,{'action':'createSession','requestId':'refresh-session','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{}})
+    def sign_refresh(b,version,timestamp):return crypto.sign_envelope('System '+version,{'algorithm':'hmac-sha256','signatureVersion':'2.0','secretId':'test','timestamp':timestamp,'expires':9,'version':version,'sectionType':'system','contentType':'text','attributes':{**llm.prompt_context(b),'refresh-policy':'interval','refresh-interval':'1','refresh-grace':'0'}},bytes([19])*32)
+    class RefreshHost(DurableHost):
+        def prompt(self,p,b):return sign_refresh(b,'1.0.0',0)
+        def refresh(self,p,b,r):return sign_refresh(b,'1.0.1',1)
+        def authorize_refresh(self,*_):return True
+        def audit_refresh(self,*_):return True
+        def plan_turn(self,*_):return {'state':{},'retained':{},'complete':False}
+    refreshing=llm.RefreshingLlmLoop(refresh_store,refresh_gate,RefreshHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':lambda r,_:{'type':'final','text':r['messages'][0]['content']}},{'postCompletion':'lockdown'})
+    for turn in (1,2):assert refreshing.run('consumer',refresh_session['sessionId'],{'message':'next'},{**controls,'requestId':'refresh-'+str(turn),'expectedVersion':turn})['text']=='System '+('1.0.0' if turn==1 else '1.0.1')
+    refresh_state=refresh_store.execute(actor,{'action':'getPromptState','sessionId':refresh_session['sessionId']})
+    assert refresh_state['state']['turnCount']==1 and refresh_state['state']['refreshCount']==1
     gate.replace_registry('r1','r2',[])
     assert gate.registry_revision=='r2'
 finally:
@@ -263,4 +286,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
+print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

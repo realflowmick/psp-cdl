@@ -70,5 +70,13 @@ explicit lockdown mode writes terminal metadata outside application state and
 rejects later conversational input before inference, with a host audit callback.
 Historical recovery requires current identity, authorization, retained policy
 origins and release checks. Compare-and-write serializes competing state commits;
-inference/tool execution is not exactly once. Automatic refresh, other completion
-modes and streaming remain future work.
+inference/tool execution is not exactly once. Other completion modes and streaming
+remain future work.
+
+The separate [refresh loop](llm-refresh.md) obtains signed host-approved replacements
+before inference and preserves the complete transcript for policy checks. Accepted
+metadata is durable before use, while session state, answer receipts and turn
+counters commit atomically. Only prompt metadata writes may borrow the loop's live
+owner reservation. Expiration during provider/tool execution suppresses the pending
+result; refreshing cannot authorize replay of that result. Signers, compatibility
+approval, audit acceptance and retained policy origins remain host responsibilities.

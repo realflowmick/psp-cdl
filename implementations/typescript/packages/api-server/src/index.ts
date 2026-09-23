@@ -14,7 +14,8 @@ export const manifest = Object.freeze({
     "sqlite-atomic-backend",
     "authenticated-workflow-service-0.1",
     "session-operation-bindings",
-    "durable-turn-store-0.1"
+    "durable-turn-store-0.1",
+    "prompt-refresh-store-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);

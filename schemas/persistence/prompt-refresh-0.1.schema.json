@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflowcloud.org/psp/schemas/prompt-refresh-0.1.json",
+  "title": "PSP Prompt Refresh 0.1 private store commands",
+  "$comment": "CC0-1.0. Requires durableTurns and promptRefresh opt-in. Host authentication, signature verification, compatibility approval and complete write bounds remain runtime responsibilities. No public HTTP/MCP methods are added.",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "not": {
+        "pattern": "[^A-Za-z0-9._:-]"
+      }
+    },
+    "uuid": {
+      "type": "string",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "text",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "profile",
+            "providerId",
+            "providerRevision",
+            "outputDigest",
+            "trustLevel",
+            "steps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "const": "PSP-LLM-LOOP-0.1"
+            },
+            "providerId": {
+              "$ref": "#/$defs/id"
+            },
+            "providerRevision": {
+              "$ref": "#/$defs/id"
+            },
+            "outputDigest": {
+              "$ref": "#/$defs/digest"
+            },
+            "trustLevel": {
+              "const": 5
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32
+            }
+          }
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "required": [
+        "state",
+        "retained",
+        "complete"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "type": "object"
+        },
+        "retained": {
+          "type": "object"
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "lockdown": {
+      "type": "object",
+      "required": [
+        "error",
+        "code",
+        "message",
+        "session_id",
+        "locked_at",
+        "policy"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "const": "session_locked"
+        },
+        "code": {
+          "const": "PSP_POST_COMPLETION_LOCKDOWN"
+        },
+        "message": {
+          "const": "This session has concluded. No further interaction is permitted."
+        },
+        "session_id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "locked_at": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 20,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "policy": {
+          "const": "lockdown"
+        }
+      }
+    },
+    "promptState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "digest",
+        "policies",
+        "interval",
+        "grace",
+        "timestamp",
+        "expires",
+        "turnCount",
+        "refreshCount"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+          "not": {
+            "pattern": "[^0-9A-Za-z.+-]"
+          }
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "policies": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "expiration",
+              "interval"
+            ]
+          }
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "grace": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "timestamp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expires": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "turnCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "refreshCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "if": {
+        "properties": {
+          "policies": {
+            "type": "array",
+            "contains": {
+              "const": "interval"
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "interval": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "interval": {
+            "const": 0
+          }
+        }
+      },
+      "$comment": "Runtime additionally requires expires > timestamp; stored versions omit the optional v prefix."
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "action",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "getPromptState"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/uuid"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "action",
+        "sessionId",
+        "expectedVersion",
+        "refreshRevision",
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "putPromptState"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "refreshRevision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "state": {
+          "$ref": "#/$defs/promptState"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "action",
+        "requestId",
+        "sessionId",
+        "expectedVersion",
+        "nodeId",
+        "nodeVersion",
+        "policyVersion",
+        "state",
+        "inputDigest",
+        "output",
+        "retained",
+        "complete",
+        "postCompletion",
+        "refreshRevision"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "commitRefreshedTurn"
+        },
+        "requestId": {
+          "$ref": "#/$defs/id"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "nodeId": {
+          "$ref": "#/$defs/id"
+        },
+        "nodeVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "policyVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "state": {
+          "type": "object"
+        },
+        "inputDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "retained": {
+          "type": "object"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "postCompletion": {
+          "const": "lockdown"
+        },
+        "refreshRevision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    }
+  ]
+}

@@ -98,6 +98,7 @@ No raw conversation history is persisted or automatically replayed to models.
 The host can construct permitted views in a new signed prompt. Inference and
 read-only tool calls before a failed commit cannot be undone; cross-process
 workers may duplicate computation. Only the state transition is atomic.
-Automatic prompt refresh, streaming, live providers, scoped/redirect execution,
+The separate [refresh loop](llm-refresh.md) adds host-approved expiration/interval
+refresh with durable metadata and counters. Streaming, live providers, scoped/redirect execution,
 distributed reservations, retention/deletion and mutating tools remain pending.
 These checks do not establish full conformance or measured security effectiveness.
