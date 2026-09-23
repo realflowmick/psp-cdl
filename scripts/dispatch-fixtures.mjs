@@ -53,7 +53,7 @@ export async function fixture(settings={}) {
     const other={...registration,server:'other',invoke:async()=>{calls++;return {message:'other'};}};
     const gate=new McpDispatchGate(store,host,'registry-1',flags.duplicate?[registration,registration]:[registration,other]);
     const options={deadline:1800,cancelled:()=>!!flags.cancelled};
-    return {gate,host,flags,store,actor,session,coordinator,update,options,close,stats:()=>({calls,busy})};
+    return {gate,host,flags,store,backend,actor,session,coordinator,update,options,close,stats:()=>({calls,busy})};
   }catch(e){close();throw e;}
 }
 export async function runCase(c) {

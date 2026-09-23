@@ -194,6 +194,20 @@ requires-dist = [
 name = "psp-cdl-llmproxy"
 version = "0.1.0.dev0"
 source = { editable = "implementations/python/packages/llmproxy" }
+dependencies = [
+    { name = "psp-cdl-api-server" },
+    { name = "psp-cdl-cdl" },
+    { name = "psp-cdl-core" },
+    { name = "psp-cdl-mcpproxy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "psp-cdl-api-server", editable = "implementations/python/packages/api-server" },
+    { name = "psp-cdl-cdl", editable = "implementations/python/packages/cdl" },
+    { name = "psp-cdl-core", editable = "implementations/python/packages/core" },
+    { name = "psp-cdl-mcpproxy", editable = "implementations/python/packages/mcpproxy" },
+]
 
 [[package]]
 name = "psp-cdl-mcp-server"

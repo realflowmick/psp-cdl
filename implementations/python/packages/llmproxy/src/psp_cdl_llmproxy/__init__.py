@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Provider-neutral model gateway and authoritative tool-dispatch loop. Implementation begins in M5."""
+"""Experimental buffered model/tool loop; full workflow execution remains pending."""
 from copy import deepcopy
+from .loop import BufferedLlmLoop, LoopError, LLM_LOOP_PROFILE, prompt_context
 
 _MANIFEST = {
     "id": "llmproxy",
-    "status": "scaffold",
+    "status": "experimental",
     "specifications": {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": []
+    "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy"]
 }
 
 
@@ -24,4 +25,4 @@ class NotImplementedFeatureError(NotImplementedError):
 
 def require_implementation() -> None:
     """Fail before any operation or side effect."""
-    raise NotImplementedFeatureError("llmproxy is a scaffold; no security operation was executed.")
+    raise NotImplementedFeatureError("Complete workflow execution is not implemented.")

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflowcloud.org/psp/schemas/llm-loop-0.1.json",
+  "title": "PSP Buffered LLM Loop 0.1 draft data contracts",
+  "$comment": "CC0-1.0. Host-only callbacks and bindings are not transport/model inputs. Implementations additionally bound canonical JSON to 1 MiB.",
+  "$defs": {
+    "request": {
+      "type": "object", "required": ["message"], "additionalProperties": false,
+      "properties": {"message": {"type": "string"}}
+    },
+    "toolCall": {
+      "type": "object", "required": ["name", "arguments"], "additionalProperties": false,
+      "properties": {"name": {"type": "string"}, "arguments": {"type": "object"}}
+    },
+    "response": {
+      "oneOf": [
+        {"type": "object", "required": ["type", "text"], "additionalProperties": false,
+         "properties": {"type": {"const": "final"}, "text": {"type": "string"}}},
+        {"type": "object", "required": ["type", "name", "arguments"], "additionalProperties": false,
+         "properties": {"type": {"const": "tool"}, "name": {"type": "string"}, "arguments": {"type": "object"}}}
+      ]
+    },
+    "message": {
+      "oneOf": [
+        {"type": "object", "required": ["role", "content"], "additionalProperties": false,
+         "properties": {"role": {"enum": ["system", "user"]}, "content": {"type": "string"}}},
+        {"type": "object", "required": ["role", "call"], "additionalProperties": false,
+         "properties": {"role": {"const": "assistant"}, "call": {"$ref": "#/$defs/toolCall"}}},
+        {"type": "object", "required": ["role", "name", "data"], "additionalProperties": false,
+         "properties": {"role": {"const": "tool"}, "name": {"type": "string"}, "data": {"type": "object"}}}
+      ]
+    },
+    "providerRequest": {
+      "type": "object", "required": ["messages", "tools"], "additionalProperties": false,
+      "properties": {
+        "messages": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/message"}},
+        "tools": {"type": "array", "maxItems": 1024, "items": {
+          "type": "object", "required": ["name", "inputSchema", "outputSchema"], "additionalProperties": false,
+          "properties": {"name": {"type": "string"}, "inputSchema": {"type": "object"}, "outputSchema": {"type": "object"}}
+        }}
+      }
+    },
+    "result": {
+      "type": "object", "required": ["text", "provenance"], "additionalProperties": false,
+      "properties": {
+        "text": {"type": "string"},
+        "provenance": {"type": "object", "required": ["profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"], "additionalProperties": false,
+          "properties": {"profile": {"const": "PSP-LLM-LOOP-0.1"}, "providerId": {"type": "string"}, "providerRevision": {"type": "string"},
+            "outputDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "trustLevel": {"const": 5}, "steps": {"type": "integer", "minimum": 1, "maximum": 32}}
+        }
+      }
+    }
+  }
+}
