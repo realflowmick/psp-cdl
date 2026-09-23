@@ -33,3 +33,5 @@ refresh discovery contract; unsupported triggers and any refresh failure deny
 the invocation. Published RFC baselines remain unchanged.
 
 [MCP Prompt Refresh 0.1](PSP-MCP-PROMPT-REFRESH-0.1.md) is an opt-in draft extension that supplies the host callback through approved MCP discovery with owner/session pinning, exact schemas and the existing loop verification gates.
+
+[LLM Redirect 0.1](PSP-LLM-REDIRECT-0.1.md) is an opt-in draft for atomic source completion and same-owner target-session creation, host-approved CDL transfer and historical receipt recovery. It does not combine redirect with prompt refresh or scoped continuation.

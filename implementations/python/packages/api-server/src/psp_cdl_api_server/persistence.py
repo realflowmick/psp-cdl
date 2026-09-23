@@ -11,6 +11,7 @@ from typing import Protocol
 from psp_cdl_core import canonical_json, validate_json
 from .service import identifier
 from .prompt_state import PROMPT_REFRESH_PROFILE, valid_prompt_state, compare_prompt_versions
+from .redirect_state import REDIRECT_PROFILE, valid_redirect, valid_redirect_target
 
 PERSISTENCE_PROFILE = "PSP-PERSISTENCE-0.1"
 MAX_STATE_BYTES = 1_048_576
@@ -124,7 +125,7 @@ class OwnerCoordinator:
 
 class WorkflowStore:
     """Authenticate and authorize transitions in the trusted host before calling."""
-    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False, prompt_refresh=False):
+    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False, prompt_refresh=False, redirect_turns=False):
         if not identifier(backend.epoch) or type(resume_secret) is not bytes or len(resume_secret) < 32 or not callable(authorize_persistence):
             raise StoreError("INVALID_CONFIGURATION")
         self.backend = backend
@@ -137,6 +138,8 @@ class WorkflowStore:
         self.durable_turns = durable_turns
         if type(prompt_refresh) is not bool or prompt_refresh and not durable_turns: raise StoreError("INVALID_CONFIGURATION")
         self.prompt_refresh=prompt_refresh
+        if type(redirect_turns) is not bool or redirect_turns and (not durable_turns or prompt_refresh): raise StoreError("INVALID_CONFIGURATION")
+        self.redirect_turns=redirect_turns
 
     @property
     def coordinator(self):
@@ -234,6 +237,7 @@ class WorkflowStore:
         if self.durable_turns:
             fields.update(getTurn=["sessionId", "requestId"], commitTurn=["requestId", "sessionId", "expectedVersion", "nodeId", "nodeVersion", "policyVersion", "state", "inputDigest", "output", "retained", "complete", "postCompletion"])
         if self.prompt_refresh: fields.update(getPromptState=["sessionId"],putPromptState=["sessionId","expectedVersion","refreshRevision","state"],commitRefreshedTurn=[*fields["commitTurn"],"refreshRevision"])
+        if self.redirect_turns: fields["commitRedirectTurn"]=[*fields["commitTurn"],"redirect"]
         action = c.get("action")
         names = fields.get(action) if type(action) is str else None
         if names is None or set(c) != {"action", *names}:
@@ -250,11 +254,12 @@ class WorkflowStore:
             raise StoreError("INVALID_TOKEN")
         if "refreshRevision" in c and not integer(c["refreshRevision"]): raise StoreError("INVALID_COMMAND")
         if action=="putPromptState" and not valid_prompt_state(c["state"]): raise StoreError("INVALID_COMMAND")
-        if action in ("commitTurn","commitRefreshedTurn"):
+        if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn"):
             output = c["output"]
             provenance = output.get("provenance") if type(output) is dict else None
-            if type(c["complete"]) is not bool or c["postCompletion"] != "lockdown" or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
+            if type(c["complete"]) is not bool or c["postCompletion"] != ("redirect" if action=="commitRedirectTurn" else "lockdown") or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
                 raise StoreError("INVALID_COMMAND")
+        if action=="commitRedirectTurn" and (not valid_redirect(c["redirect"]) or c["redirect"]["nodeId"]==c["nodeId"] if c["complete"] else c["redirect"] is not None): raise StoreError("INVALID_COMMAND")
         now = self._now()
         prompt_key=key("receipt",digest(canonical_json(["prompt-refresh",actor["subjectId"],c.get("sessionId")])))
         if action=="getPromptState":
@@ -359,7 +364,7 @@ class WorkflowStore:
             expires_at = s["body"]["expiresAt"]
             next_state = {**s["body"], "version": s["revision"] + 1, "updatedAt": now}
             checks = [comparison(s)]
-            if action in ("commitTurn","commitRefreshedTurn"):
+            if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn"):
                 if action=="commitRefreshedTurn":
                     r=self.backend.read(actor["tenantId"],prompt_key)
                     if r is None or r["revision"]!=c["refreshRevision"] or r["body"]["sessionVersion"]!=s["revision"]: raise StoreError("STATE_CONFLICT")
@@ -371,6 +376,17 @@ class WorkflowStore:
                 next_state.update(state=c["state"], status="completed" if c["complete"] else "running")
                 if c["complete"]: next_state["llmCompletion"] = {"profile":"PSP-LLM-DURABLE-0.1", "policy":"lockdown", "requestId":c["requestId"], "lockedAt":now}
                 result = {"profile":"PSP-LLM-DURABLE-0.1", "requestId":c["requestId"], "sessionId":s["id"], "sessionVersion":next_state["version"], "status":next_state["status"], "inputDigest":c["inputDigest"], "output":c["output"], "retained":c["retained"]}
+                if action=="commitRedirectTurn" and c["complete"]:
+                    target=c["redirect"]
+                    if target["expiresAt"]<=self._now() or target["expiresAt"]>expires_at: raise StoreError("INVALID_EXPIRY")
+                    node=self._node(actor,target["nodeId"],target["nodeVersion"])
+                    target_id=str(uuid.uuid4());target_key=key("session",target_id)
+                    redirect={"profile":REDIRECT_PROFILE,**target,"sessionId":target_id}
+                    body={**actor,"sessionId":target_id,"version":1,**{k:target[k] for k in ("nodeId","nodeVersion","policyVersion","expiresAt")},"status":"running",
+                          "state":{"input":c["output"],"retained":c["retained"]},"createdAt":now,"updatedAt":now}
+                    checks.extend([comparison(node),absent(target_key)]);writes.append(row(target_key,body))
+                    next_state["llmCompletion"]={"profile":REDIRECT_PROFILE,"policy":"redirect","requestId":c["requestId"],"completedAt":now,"redirect":redirect}
+                    result["redirect"]=redirect
             elif action == "updateSession":
                 n = self._node(actor, c["nodeId"], c["nodeVersion"])
                 checks.append(comparison(n))
@@ -398,7 +414,7 @@ class WorkflowStore:
             writes.append(row(key("session", s["id"]), next_state, s["revision"] + 1))
         if receipt_key:
             checks.append(absent(receipt_key))
-            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action in ("commitTurn","commitRefreshedTurn") else {})}))
+            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn") else {})}))
         validate_batch(actor["tenantId"], checks, writes, expires_at)
         try:
             allowed = self._authorize(bounded(actor), bounded(writes))
@@ -407,7 +423,8 @@ class WorkflowStore:
         if allowed is not True:
             raise StoreError("PERSISTENCE_DENIED")
         access(result, current)
-        if not self.backend.commit(actor["tenantId"], checks, writes, expires_at):
+        if action=="commitRedirectTurn" and c["complete"] and self._now()>=c["redirect"]["expiresAt"]: raise StoreError("EXPIRED")
+        if not self.backend.commit(actor["tenantId"], checks, writes, min(expires_at,c["redirect"]["expiresAt"]) if action=="commitRedirectTurn" and c["complete"] else expires_at):
             if action == "putNode":
                 winner = self._node(actor, c["nodeId"], c["nodeVersion"])
                 if canonical_json(winner["body"]["definition"]) != canonical_json(c["definition"]):

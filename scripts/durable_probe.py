@@ -4,7 +4,7 @@ import json
 import sys
 from psp_cdl_api_server.persistence import WorkflowStore, OwnerCoordinator
 from psp_cdl_api_server.sqlite import SqliteBackend
-from psp_cdl_llmproxy import DurableLlmLoop, LoopError
+from psp_cdl_llmproxy import DurableLlmLoop, RedirectingLlmLoop, LoopError
 from psp_cdl_mcpproxy import McpDispatchGate, binding_digest
 
 sys.stdin.reconfigure(encoding="utf-8")
@@ -16,7 +16,7 @@ class Host:
     def authenticate(self,_): return {**options["actor"],"scopes":["sessions:read","sessions:write","models:invoke"]}
     def now(self): return 100
     def snapshot(self,p,s): return {"revision":"a1","policyVersion":s["policyVersion"],"registryRevision":"r1","providerId":"mock","providerRevision":"model-1","expires":190,"releaseSources":[],"releaseComplete":True}
-    prompt=verification=policy=authorize_final=plan_turn=authorize_transition=unexpected
+    prompt=verification=policy=authorize_final=plan_turn=authorize_transition=resolve_redirect=redirect_policy=unexpected
     def audit(self,p,event):
         events.append(event)
         return True
@@ -25,12 +25,13 @@ class Host:
 host=Host()
 backend=SqliteBackend(sys.argv[1],"peer-epoch",host.now)
 try:
-    store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True)
+    store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,redirect_turns=bool(options.get("redirect")))
     gate=McpDispatchGate(store,host,"r1",[])
-    loop=DurableLlmLoop(store,gate,host,{"id":"mock","revision":"model-1","complete":True,"sources":[],"invoke":unexpected},{"postCompletion":"lockdown"})
+    Loop=RedirectingLlmLoop if options.get("redirect") else DurableLlmLoop
+    loop=Loop(store,gate,host,{"id":"mock","revision":"model-1","complete":True,"sources":[],"invoke":unexpected},{"postCompletion":"redirect","target":"mcp://realflow/applications/support"} if options.get("redirect") else {"postCompletion":"lockdown"})
     recovered=loop.recover("synthetic",options["sessionId"],options["requestId"],{"deadline":180,"cancelled":lambda:False})
     denied=None
     try: loop.run("synthetic",options["sessionId"],{"message":"Try to continue."},{"deadline":180,"cancelled":lambda:False,"maxSteps":1,"requestId":"new","expectedVersion":2})
-    except LoopError as exc: denied={"code":exc.code,"response":getattr(exc,"response",None)}
+    except LoopError as exc: denied={"code":exc.code,**({"response":exc.response} if hasattr(exc,"response") else {})}
     print(json.dumps({"recovered":recovered,"denied":denied,"events":events},ensure_ascii=False))
 finally: backend.close()

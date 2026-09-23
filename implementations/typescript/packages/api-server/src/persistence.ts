@@ -3,6 +3,8 @@ import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto
 import { byteLength, canonicalJson, record, validateJson } from "@psp-cdl/core";
 import { identifier } from "./service.js";
 import {PROMPT_REFRESH_PROFILE,validPromptState,comparePromptVersions} from "./prompt-state.js";
+import {REDIRECT_PROFILE,validRedirect} from "./redirect-state.js";
+export {REDIRECT_PROFILE,validRedirect,validRedirectTarget} from "./redirect-state.js";
 export {PROMPT_REFRESH_PROFILE,validPromptState,comparePromptVersions} from "./prompt-state.js";
 export type OwnerReservation=object;
 
@@ -33,6 +35,7 @@ export interface PersistenceHost {
   coordinator?:OwnerCoordinator;
   durableTurns?:boolean;
   promptRefresh?:boolean;
+  redirectTurns?:boolean;
 }
 /** Optional single-process, fail-fast exclusion. Share across every writer and gate. */
 export class OwnerCoordinator {
@@ -50,6 +53,7 @@ export class OwnerCoordinator {
   }
 }
 export type WorkflowCommand =
+  | {action:"commitRedirectTurn";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;state:Record<string,unknown>;inputDigest:string;output:Record<string,unknown>;retained:Record<string,unknown>;complete:boolean;postCompletion:"redirect";redirect:{target:string;nodeId:string;nodeVersion:string;policyVersion:string;expiresAt:number}|null}
   | {action:"putNode";nodeId:string;nodeVersion:string;definition:Record<string,unknown>}
   | {action:"getNode";nodeId:string;nodeVersion:string}
   | {action:"createSession";requestId:string;nodeId:string;nodeVersion:string;policyVersion:string;expiresAt:number;state:Record<string,unknown>}
@@ -100,6 +104,7 @@ export class WorkflowStore {
   readonly coordinator:OwnerCoordinator|undefined;
   readonly durableTurns:boolean;
   readonly promptRefresh:boolean;
+  readonly redirectTurns:boolean;
   private readonly secret:Uint8Array;
   constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
@@ -110,6 +115,8 @@ export class WorkflowStore {
     this.durableTurns=host.durableTurns===true;
     if(host.promptRefresh!==undefined&&typeof host.promptRefresh!=="boolean"||host.promptRefresh&&!this.durableTurns)fail("INVALID_CONFIGURATION");
     this.promptRefresh=host.promptRefresh===true;
+    if(host.redirectTurns!==undefined&&typeof host.redirectTurns!=="boolean"||host.redirectTurns&&(!this.durableTurns||this.promptRefresh))fail("INVALID_CONFIGURATION");
+    this.redirectTurns=host.redirectTurns===true;
   }
   private token(actor:Actor,id:string):string {
     const mac=createHmac("sha256",this.secret).update(canonicalJson([PERSISTENCE_PROFILE,this.backend.epoch,actor.tenantId,actor.subjectId,id])).digest("base64url");
@@ -179,6 +186,7 @@ export class WorkflowStore {
       commitTurn:["requestId","sessionId","expectedVersion","nodeId","nodeVersion","policyVersion","state","inputDigest","output","retained","complete","postCompletion"]
     });
     if(this.promptRefresh)Object.assign(fields,{getPromptState:["sessionId"],putPromptState:["sessionId","expectedVersion","refreshRevision","state"],commitRefreshedTurn:[...fields.commitTurn!,"refreshRevision"]});
+    if(this.redirectTurns)fields.commitRedirectTurn=[...fields.commitTurn!,"redirect"];
     const names=typeof c.action==="string"&&Object.hasOwn(fields,c.action)?fields[c.action]:undefined;
     if(!names||Object.keys(c).length!==names.length+1||names.some(n=>!Object.hasOwn(c,n))) fail("INVALID_COMMAND");
     for(const n of ["requestId","nodeId","nodeVersion","policyVersion"]) if(Object.hasOwn(c,n)&&!identifier(c[n])) fail("INVALID_COMMAND");
@@ -187,12 +195,13 @@ export class WorkflowStore {
     if(c.action==="resumeCheckpoint"&&(typeof c.resumeToken!=="string"||c.resumeToken.length!==80)) fail("INVALID_TOKEN");
     if("refreshRevision" in c&&!integer(c.refreshRevision))fail("INVALID_COMMAND");
     if(c.action==="putPromptState"&&!validPromptState(c.state))fail("INVALID_COMMAND");
-    if(["commitTurn","commitRefreshedTurn"].includes(c.action as string)) {
+    if(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)) {
       const o=c.output,p=record(o)?o.provenance:null;
-      if(typeof c.complete!=="boolean"||c.postCompletion!=="lockdown"||!record(c.retained)||typeof c.inputDigest!=="string"||c.inputDigest.length!==64||!/^[0-9a-f]{64}$/.test(c.inputDigest)||
+      if(typeof c.complete!=="boolean"||c.postCompletion!==(c.action==="commitRedirectTurn"?"redirect":"lockdown")||!record(c.retained)||typeof c.inputDigest!=="string"||c.inputDigest.length!==64||!/^[0-9a-f]{64}$/.test(c.inputDigest)||
         !record(o)||Object.keys(o).sort().join(",")!=="provenance,text"||typeof o.text!=="string"||!record(p)||
         Object.keys(p).sort().join(",")!=="outputDigest,profile,providerId,providerRevision,steps,trustLevel"||p.profile!=="PSP-LLM-LOOP-0.1"||p.trustLevel!==5||
         !identifier(p.providerId)||!identifier(p.providerRevision)||!positive(p.steps)||(p.steps as number)>32||p.outputDigest!==hash(canonicalJson({text:o.text}))) fail("INVALID_COMMAND");
+      if(c.action==="commitRedirectTurn"&&(c.complete?!validRedirect(c.redirect)||c.redirect.nodeId===c.nodeId:c.redirect!==null))fail("INVALID_COMMAND");
     }
     const now=this.now();
     const promptKey=key("receipt",hash(canonicalJson(["prompt-refresh",actor.subjectId,c.sessionId??null])));
@@ -264,7 +273,7 @@ export class WorkflowStore {
       expiresAt=s.body.expiresAt as number;
       const next={...s.body,version:s.revision+1,updatedAt:now};
       checks=[check(s)];
-      if(["commitTurn","commitRefreshedTurn"].includes(c.action as string)) {
+      if(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)) {
         if(c.action==="commitRefreshedTurn") {
           const r=await this.backend.read(actor.tenantId,promptKey);
           if(!r||r.revision!==c.refreshRevision||r.body.sessionVersion!==s.revision)fail("STATE_CONFLICT");
@@ -276,6 +285,17 @@ export class WorkflowStore {
         Object.assign(next,{state:c.state,status:c.complete?"completed":"running"});
         if(c.complete) Object.assign(next,{llmCompletion:{profile:"PSP-LLM-DURABLE-0.1",policy:"lockdown",requestId:c.requestId,lockedAt:now}});
         result={profile:"PSP-LLM-DURABLE-0.1",requestId:c.requestId,sessionId:s.id,sessionVersion:next.version,status:c.complete?"completed":"running",inputDigest:c.inputDigest,output:c.output,retained:c.retained};
+        if(c.action==="commitRedirectTurn"&&c.complete) {
+          const target=c.redirect as Record<string,unknown>;
+          if((target.expiresAt as number)<=this.now()||(target.expiresAt as number)>expiresAt)fail("INVALID_EXPIRY");
+          const node=await this.node(actor,target.nodeId as string,target.nodeVersion as string),id=randomUUID(),k=key("session",id);
+          const redirect={profile:REDIRECT_PROFILE,...target,sessionId:id};
+          const body={...actor,sessionId:id,version:1,nodeId:target.nodeId,nodeVersion:target.nodeVersion,policyVersion:target.policyVersion,status:"running",
+            state:{input:c.output,retained:c.retained},createdAt:now,updatedAt:now,expiresAt:target.expiresAt};
+          checks.push(check(node),absent(k));writes.push(row(k,body));
+          Object.assign(next,{llmCompletion:{profile:REDIRECT_PROFILE,policy:"redirect",requestId:c.requestId,completedAt:now,redirect}});
+          result.redirect=redirect;
+        }
       } else if(c.action==="updateSession") {
         const n=await this.node(actor,c.nodeId as string,c.nodeVersion as string); checks.push(check(n));
         Object.assign(next,{nodeId:c.nodeId,nodeVersion:c.nodeVersion,policyVersion:c.policyVersion,status:c.status,state:c.state});
@@ -295,14 +315,15 @@ export class WorkflowStore {
       writes.push(row(key("session",s.id),next,s.revision+1));
     }
     if(receiptKey) {
-      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result,...(["commitTurn","commitRefreshedTurn"].includes(c.action as string)?{profile:"PSP-LLM-DURABLE-0.1"}:{})}));
+      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result,...(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)?{profile:"PSP-LLM-DURABLE-0.1"}:{})}));
     }
     validateBatch(actor.tenantId,checks,writes,expiresAt);
     let allowed:unknown;
     try { allowed=await this.host.authorizePersistence(bounded(actor),bounded(writes)); } catch { fail("PERSISTENCE_DENIED"); }
     if(allowed!==true) fail("PERSISTENCE_DENIED");
     await access(result,current);
-    if(!await this.backend.commit(actor.tenantId,checks,writes,expiresAt)) {
+    if(c.action==="commitRedirectTurn"&&c.complete&&this.now()>=(c.redirect as Record<string,number>).expiresAt!)fail("EXPIRED");
+    if(!await this.backend.commit(actor.tenantId,checks,writes,c.action==="commitRedirectTurn"&&c.complete?Math.min(expiresAt,(c.redirect as Record<string,number>).expiresAt!):expiresAt)) {
       if(c.action==="putNode") {
         const winner=await this.node(actor,c.nodeId as string,c.nodeVersion as string);
         if(!equal(winner.body.definition,c.definition)) fail("NODE_CONFLICT"); return access(winner.body,winner.body,true);

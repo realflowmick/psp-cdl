@@ -1,0 +1,710 @@
+{
+  "profile": "PSP-LLM-REDIRECT-0.1",
+  "status": "draft",
+  "cases": [
+    {
+      "id": "atomic-completion",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "continuing-turn",
+      "settings": {
+        "continueTurn": true
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "targets": 0,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "source-does-not-resume",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "INACTIVE_SESSION"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "historical-recovery",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "continue-then-complete",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run",
+          "flags": {
+            "continueTurn": true
+          }
+        },
+        {
+          "action": "run",
+          "flags": {
+            "continueTurn": false
+          },
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 3,
+        "providerCalls": 3
+      }
+    },
+    {
+      "id": "denyRedirect",
+      "settings": {
+        "denyRedirect": true
+      },
+      "expected": {
+        "codes": [
+          "REDIRECT_DENIED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "unknownRedirect",
+      "settings": {
+        "unknownRedirect": true
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_POLICY"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "emptyRedirect",
+      "settings": {
+        "emptyRedirect": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_POLICY"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "wrongRedirectBinding",
+      "settings": {
+        "wrongRedirectBinding": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_POLICY"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "throwRedirect",
+      "settings": {
+        "throwRedirect": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "throwResolve",
+      "settings": {
+        "throwResolve": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "badResolve",
+      "settings": {
+        "badResolve": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REDIRECT"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "missingTarget",
+      "settings": {
+        "missingTarget": true
+      },
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "sameTarget",
+      "settings": {
+        "sameTarget": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REDIRECT"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "expiredTarget",
+      "settings": {
+        "expiredTarget": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REDIRECT"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "longTarget",
+      "settings": {
+        "longTarget": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REDIRECT"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "resolveOwner",
+      "settings": {
+        "resolveOwner": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REDIRECT"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "denyTransition",
+      "settings": {
+        "denyTransition": true
+      },
+      "expected": {
+        "codes": [
+          "TRANSITION_DENIED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "denyStorage",
+      "settings": {
+        "denyStorage": true
+      },
+      "expected": {
+        "codes": [
+          "PERSISTENCE_DENIED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "failBeforeCommit",
+      "settings": {
+        "failBeforeCommit": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "redirectCancel",
+      "settings": {
+        "redirectCancel": true
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "redirectRevoke",
+      "settings": {
+        "redirectRevoke": true
+      },
+      "expected": {
+        "codes": [
+          "UNAUTHENTICATED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "redirectDrift",
+      "settings": {
+        "redirectDrift": true
+      },
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "redirectExpiry",
+      "settings": {
+        "redirectExpiry": true
+      },
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "failAfterCommit",
+      "settings": {
+        "failAfterCommit": true
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "failAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "HOST_ERROR",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "cancelAfterCommit",
+      "settings": {
+        "cancelAfterCommit": true
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "cancelAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "CANCELLED",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "driftAfterCommit",
+      "settings": {
+        "driftAfterCommit": true
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "driftAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "denyAfterCommit",
+      "settings": {
+        "denyAfterCommit": true
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "denyAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OUTPUT_DENIED",
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "recovery-denied",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "denyRecovery": true
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "RECOVERY_DENIED"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "recovery-cdl-denied",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover",
+          "flags": {
+            "denyRecoveryPolicy": true
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OUTPUT_DENIED"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "isolated-callback-copies",
+      "settings": {
+        "mutateResolve": true,
+        "mutateRedirect": true,
+        "mutateTransition": true
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "targets": 1,
+        "version": 2,
+        "providerCalls": 2
+      }
+    },
+    {
+      "id": "unauthenticated",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run",
+          "token": "bad"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "UNAUTHENTICATED"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 0
+      }
+    },
+    {
+      "id": "cross-owner",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run",
+          "token": "test-other"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 0
+      }
+    },
+    {
+      "id": "cross-tenant",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run",
+          "token": "test-tenant"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 0
+      }
+    },
+    {
+      "id": "model-cannot-select-target",
+      "settings": {},
+      "steps": [
+        {
+          "action": "run",
+          "request": {
+            "message": "hello",
+            "target": "mcp://evil/applications/evil"
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "INVALID_REQUEST"
+        ],
+        "targets": 0,
+        "version": 1,
+        "providerCalls": 0
+      }
+    },
+    {
+      "id": "missing-target",
+      "settings": {
+        "configuration": {
+          "postCompletion": "redirect"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "unmanaged",
+      "settings": {
+        "configuration": {
+          "postCompletion": "unmanaged",
+          "target": "mcp://realflow/applications/support"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "url",
+      "settings": {
+        "configuration": {
+          "postCompletion": "redirect",
+          "target": "https://example.com/applications/support"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "userinfo",
+      "settings": {
+        "configuration": {
+          "postCompletion": "redirect",
+          "target": "mcp://user@realflow/applications/support"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "query",
+      "settings": {
+        "configuration": {
+          "postCompletion": "redirect",
+          "target": "mcp://realflow/applications/support?secret=x"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "newline",
+      "settings": {
+        "configuration": {
+          "postCompletion": "redirect",
+          "target": "mcp://realflow/applications/support\n"
+        }
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "store-opt-in",
+      "settings": {
+        "disabledRedirect": true
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION"
+      }
+    }
+  ]
+}

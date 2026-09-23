@@ -28,6 +28,10 @@ def actor(p): return {k:p[k] for k in ("tenantId", "subjectId")}
 
 
 class DurableLlmLoop(BufferedLlmLoop):
+    _completion_policy = "lockdown"
+    def _prepare_commit(self,p,binding,command,options): return command
+    def _authorize_commit(self,p,binding,context,options):
+        if call(lambda:self._host.authorize_transition(copy(p),copy(context))) is not True: raise LoopError("TRANSITION_DENIED")
     def _make_buffered(self,host,on_prompt,token,session,options): return BufferedLlmLoop(self._store,self._gate,host,self._provider)
     def _turn_command(self,command,buffered): return command
     def __init__(self, store, gate, host, provider, configuration=None):
@@ -110,7 +114,7 @@ class DurableLlmLoop(BufferedLlmLoop):
         def authorize_final(live, binding, data):
             try:
                 if call(lambda:self._host.authorize_final(copy(live), copy(binding), copy(data))) is not True: return False
-                plan = copy(call(lambda:self._host.plan_turn(copy(live), copy({**binding, "requestId":options["requestId"], "postCompletion":"lockdown"}), copy(data))), "INVALID_PLAN")
+                plan = copy(call(lambda:self._host.plan_turn(copy(live), copy({**binding, "requestId":options["requestId"], "postCompletion":self._completion_policy}), copy(data))), "INVALID_PLAN")
                 if type(plan) is not dict or set(plan) != {"state", "retained", "complete"} or type(plan["state"]) is not dict or type(plan["retained"]) is not dict or type(plan["complete"]) is not bool: raise LoopError("INVALID_PLAN")
                 captured.update(plan=plan, binding=copy(binding), data=copy(data))
                 return True
@@ -139,15 +143,15 @@ class DurableLlmLoop(BufferedLlmLoop):
             try:
                 if context["replay"]: raise LoopError("TURN_ALREADY_COMMITTED")
                 fresh()
-                if call(lambda:self._host.authorize_transition(copy(p), copy(context))) is not True: raise LoopError("TRANSITION_DENIED")
+                self._authorize_commit(p,binding,context,options)
                 fresh()
                 return True
             except Exception as exc:
                 guard_error.append(exc)
                 return False
         command = {"action":"commitTurn", "requestId":options["requestId"], "sessionId":session_id, "expectedVersion":options["expectedVersion"],
-                   **{k:session[k] for k in ("nodeId", "nodeVersion", "policyVersion")}, **plan, "postCompletion":"lockdown", "inputDigest":input_digest, "output":output}
-        command=self._turn_command(command,buffered)
+                   **{k:session[k] for k in ("nodeId", "nodeVersion", "policyVersion")}, **plan, "postCompletion":self._completion_policy, "inputDigest":input_digest, "output":output}
+        command=self._prepare_commit(p,binding,self._turn_command(command,buffered),options)
         try: receipt = self._store.execute(owner, command, guard)
         except Exception:
             if guard_error: raise guard_error[0]

@@ -48,7 +48,7 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {BufferedLlmLoop,DurableLlmLoop,RefreshingLlmLoop,promptContext,McpPromptRefresher,mcpRefreshToolDefinition} from '@psp-cdl/llmproxy';
+import {BufferedLlmLoop,DurableLlmLoop,RedirectingLlmLoop,RefreshingLlmLoop,promptContext,McpPromptRefresher,mcpRefreshToolDefinition} from '@psp-cdl/llmproxy';
 import {PinnedMcpClient,StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
@@ -109,6 +109,15 @@ try {
   assert.equal((await durable.run('consumer',session.sessionId,{message:'finish'},controls)).receipt.status,'completed');
   assert.equal((await durable.recover('consumer',session.sessionId,'durable',controls)).text,'installed-durable');
   await assert.rejects(()=>durable.run('consumer',session.sessionId,{message:'continue'},controls),{code:'PSP_POST_COMPLETION_LOCKDOWN'});
+  const redirectStore=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true,redirectTurns:true});
+  await redirectStore.execute(actor,{action:'putNode',nodeId:'support',nodeVersion:'1',definition:{type:'application'}});
+  const redirectSession=await redirectStore.execute(actor,{action:'createSession',requestId:'redirect-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
+  const redirectGate=new McpDispatchGate(redirectStore,host,'r1',[]);
+  const redirectHost={...durableHost,resolveRedirect:()=>({nodeId:'support',nodeVersion:'1',policyVersion:'p1',expiresAt:9}),redirectPolicy:host.policy};
+  const redirectLoop=new RedirectingLlmLoop(redirectStore,redirectGate,redirectHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:()=>({type:'final',text:'installed-redirect'})},{postCompletion:'redirect',target:'mcp://realflow/applications/support'});
+  const redirected=await redirectLoop.run('consumer',redirectSession.sessionId,{message:'handoff'},{...controls,requestId:'redirect'});
+  assert.equal((await redirectStore.execute(actor,{action:'getSession',sessionId:redirected.redirect.sessionId})).state.input.text,'installed-redirect');
+  assert.deepEqual((await redirectLoop.recover('consumer',redirectSession.sessionId,'redirect',controls)).redirect,redirected.redirect);
   const refreshStore=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true,promptRefresh:true});
   const refreshGate=new McpDispatchGate(refreshStore,host,'r1',[]);
   const refreshSession=await refreshStore.execute(actor,{action:'createSession',requestId:'refresh-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
@@ -264,6 +273,17 @@ try:
     try: durable.run('consumer',session['sessionId'],{'message':'continue'},controls)
     except llm.LockdownError as exc: assert exc.code=='PSP_POST_COMPLETION_LOCKDOWN'
     else: raise AssertionError('completed session accepted input')
+    redirect_store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,redirect_turns=True)
+    redirect_store.execute(actor,{'action':'putNode','nodeId':'support','nodeVersion':'1','definition':{'type':'application'}})
+    redirect_session=redirect_store.execute(actor,{'action':'createSession','requestId':'redirect-session','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{}})
+    redirect_gate=proxy.McpDispatchGate(redirect_store,host,'r1',[])
+    class RedirectHost(DurableHost):
+        def resolve_redirect(self,*_):return {'nodeId':'support','nodeVersion':'1','policyVersion':'p1','expiresAt':9}
+        redirect_policy=DispatchHost.policy
+    redirect_loop=llm.RedirectingLlmLoop(redirect_store,redirect_gate,RedirectHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':lambda *_:{'type':'final','text':'installed-redirect'}},{'postCompletion':'redirect','target':'mcp://realflow/applications/support'})
+    redirected=redirect_loop.run('consumer',redirect_session['sessionId'],{'message':'handoff'},{**controls,'requestId':'redirect'})
+    assert redirect_store.execute(actor,{'action':'getSession','sessionId':redirected['redirect']['sessionId']})['state']['input']['text']=='installed-redirect'
+    assert redirect_loop.recover('consumer',redirect_session['sessionId'],'redirect',controls)['redirect']==redirected['redirect']
     refresh_store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,prompt_refresh=True)
     refresh_gate=proxy.McpDispatchGate(refresh_store,host,'r1',[])
     refresh_session=refresh_store.execute(actor,{'action':'createSession','requestId':'refresh-session','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{}})
@@ -313,4 +333,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
+print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh/redirect loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

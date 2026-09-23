@@ -20,7 +20,7 @@ class Fixture:
         self.directory = tempfile.TemporaryDirectory(prefix="psp-dispatch-")
         self.backend = SqliteBackend(str(Path(self.directory.name)/"state.sqlite"), "epoch-1", lambda:self.flags["now"])
         self.coordinator = OwnerCoordinator()
-        self.store = WorkflowStore(self.backend, resume_secret=bytes([7])*32, authorize_persistence=lambda *_:not self.flags.get("denyPersistence"), coordinator=self.coordinator, durable_turns=bool(self.flags.get("durableTurns")), prompt_refresh=bool(self.flags.get("promptRefresh")))
+        self.store = WorkflowStore(self.backend, resume_secret=bytes([7])*32, authorize_persistence=lambda *_:not self.flags.get("denyPersistence"), coordinator=self.coordinator, durable_turns=bool(self.flags.get("durableTurns")), prompt_refresh=bool(self.flags.get("promptRefresh")), redirect_turns=bool(self.flags.get("redirectTurns")))
         try:
             self.store.execute(self.actor, {"action":"putNode", "nodeId":"entry", "nodeVersion":"1", "definition":{"agents":self.flags.get("agents", "mcp://echo/read,mcp://other/read")}})
             self.session = self.store.execute(self.actor, {"action":"createSession", "requestId":"seed", "nodeId":"entry", "nodeVersion":"1", "policyVersion":"policy-1", "expiresAt":2000, "state":{"stage":"initial"}})
