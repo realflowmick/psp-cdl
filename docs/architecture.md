@@ -62,4 +62,13 @@ The opt-in [HTTP mediation adapter](mcp-http.md) reuses pinned peer discovery an
 
 The opt-in [revision extension](mcp-revision.md) negotiates catalog/tool/input preconditions outside tool arguments. A receiving `RevisionedToolRegistry` selects a callback atomically with a process-local lease that blocks publication through buffered completion and release authorization. Remote receipts are checked consistency metadata, not authority. The host reviews a fresh peer snapshot before replacing an idle gate and separately publishes matching authority; the gap fails stale. All gates and publishers in a deployment must share host coordination. No model-visible administration endpoint or hosted approval service is added.
 
-The opt-in [buffered model/tool loop](llm-loop.md) adds `llmproxy → mcpproxy/api-server/core/cdl` dependencies. It shares the gate's store/coordinator, holds owner reservations during inference and release, and uses an additional host-only dispatch check for transcript-derived restrictions. The provider sees separated messages and discovered tools, while credentials, keys and authoritative bindings remain host-owned. Signed prompt verification and current policy/session checks repeat at boundaries. A final answer does not complete a durable session; completion transitions, post-completion behavior, automatic refresh and streaming remain future work.
+The opt-in [buffered model/tool loop](llm-loop.md) adds `llmproxy → mcpproxy/api-server/core/cdl` dependencies. It shares the gate's store/coordinator, holds owner reservations during inference and release, and uses an additional host-only dispatch check for transcript-derived restrictions. The provider sees separated messages and discovered tools, while credentials, keys and authoritative bindings remain host-owned. Signed prompt verification and current policy/session checks repeat at boundaries. A final answer alone does not complete a durable session.
+
+The separate [durable loop](llm-durable.md) buffers that answer until a host-approved
+turn commits application state and an immutable answer receipt atomically. Its
+explicit lockdown mode writes terminal metadata outside application state and
+rejects later conversational input before inference, with a host audit callback.
+Historical recovery requires current identity, authorization, retained policy
+origins and release checks. Compare-and-write serializes competing state commits;
+inference/tool execution is not exactly once. Automatic refresh, other completion
+modes and streaming remain future work.

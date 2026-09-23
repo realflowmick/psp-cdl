@@ -116,7 +116,7 @@ class OwnerCoordinator:
 
 class WorkflowStore:
     """Authenticate and authorize transitions in the trusted host before calling."""
-    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None):
+    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False):
         if not identifier(backend.epoch) or type(resume_secret) is not bytes or len(resume_secret) < 32 or not callable(authorize_persistence):
             raise StoreError("INVALID_CONFIGURATION")
         self.backend = backend
@@ -125,6 +125,8 @@ class WorkflowStore:
         if coordinator is not None and not isinstance(coordinator, OwnerCoordinator):
             raise StoreError("INVALID_CONFIGURATION")
         self._coordinator = coordinator
+        if type(durable_turns) is not bool: raise StoreError("INVALID_CONFIGURATION")
+        self.durable_turns = durable_turns
 
     @property
     def coordinator(self):
@@ -178,7 +180,7 @@ class WorkflowStore:
         # A competing commit can occur after the receipt miss but before a state read.
         actor, command = bounded(actor_value), bounded(command_value)
         work = lambda: self._execute_retry(actor, command, guard)
-        if self.coordinator is not None and type(command) is dict and command.get("action") not in ("getSession", "getNode"):
+        if self.coordinator is not None and type(command) is dict and command.get("action") not in ("getSession", "getNode", "getTurn"):
             return self.coordinator.run(actor, work)
         return work()
 
@@ -212,6 +214,8 @@ class WorkflowStore:
             "createCheckpoint": ["requestId", "sessionId", "expectedVersion", "expiresAt"],
             "resumeCheckpoint": ["requestId", "checkpointId", "resumeToken", "state"],
         }
+        if self.durable_turns:
+            fields.update(getTurn=["sessionId", "requestId"], commitTurn=["requestId", "sessionId", "expectedVersion", "nodeId", "nodeVersion", "policyVersion", "state", "inputDigest", "output", "retained", "complete", "postCompletion"])
         action = c.get("action")
         names = fields.get(action) if type(action) is str else None
         if names is None or set(c) != {"action", *names}:
@@ -226,6 +230,11 @@ class WorkflowStore:
             raise StoreError("INVALID_COMMAND")
         if action == "resumeCheckpoint" and (type(c["resumeToken"]) is not str or len(c["resumeToken"]) != 80):
             raise StoreError("INVALID_TOKEN")
+        if action == "commitTurn":
+            output = c["output"]
+            provenance = output.get("provenance") if type(output) is dict else None
+            if type(c["complete"]) is not bool or c["postCompletion"] != "lockdown" or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
+                raise StoreError("INVALID_COMMAND")
         now = self._now()
         if action == "getSession":
             s = self._owned(actor, "session", c["sessionId"])
@@ -234,6 +243,12 @@ class WorkflowStore:
         if action == "getNode":
             node = self._node(actor, c["nodeId"], c["nodeVersion"])
             return access(node["body"], node["body"])
+        if action == "getTurn":
+            receipt = self.backend.read(actor["tenantId"], key("receipt", digest(canonical_json([actor["subjectId"], c["requestId"]]))))
+            if receipt is None or receipt["body"].get("subjectId") != actor["subjectId"] or receipt["body"].get("tenantId") != actor["tenantId"] or receipt["body"].get("profile") != "PSP-LLM-DURABLE-0.1" or type(receipt["body"].get("result")) is not dict or receipt["body"]["result"].get("sessionId") != c["sessionId"]:
+                raise StoreError("NOT_FOUND")
+            self._live(receipt, self._now())
+            return access(receipt["body"]["result"], replay=True)
         current = None
         checks, writes, expires_at = [], [], MAX_INTEGER
         receipt_key = key("receipt", digest(canonical_json([actor["subjectId"], c["requestId"]]))) if "requestId" in c else None
@@ -296,7 +311,13 @@ class WorkflowStore:
             expires_at = s["body"]["expiresAt"]
             next_state = {**s["body"], "version": s["revision"] + 1, "updatedAt": now}
             checks = [comparison(s)]
-            if action == "updateSession":
+            if action == "commitTurn":
+                if any(c[k] != s["body"][k] for k in ("nodeId", "nodeVersion", "policyVersion")): raise StoreError("STATE_CONFLICT")
+                if c["complete"] and now > 253402300799: raise StoreError("INVALID_CLOCK")
+                next_state.update(state=c["state"], status="completed" if c["complete"] else "running")
+                if c["complete"]: next_state["llmCompletion"] = {"profile":"PSP-LLM-DURABLE-0.1", "policy":"lockdown", "requestId":c["requestId"], "lockedAt":now}
+                result = {"profile":"PSP-LLM-DURABLE-0.1", "requestId":c["requestId"], "sessionId":s["id"], "sessionVersion":next_state["version"], "status":next_state["status"], "inputDigest":c["inputDigest"], "output":c["output"], "retained":c["retained"]}
+            elif action == "updateSession":
                 n = self._node(actor, c["nodeId"], c["nodeVersion"])
                 checks.append(comparison(n))
                 next_state.update({name: c[name] for name in ("nodeId", "nodeVersion", "policyVersion", "status", "state")})
@@ -323,7 +344,7 @@ class WorkflowStore:
             writes.append(row(key("session", s["id"]), next_state, s["revision"] + 1))
         if receipt_key:
             checks.append(absent(receipt_key))
-            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result}))
+            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action == "commitTurn" else {})}))
         validate_batch(actor["tenantId"], checks, writes, expires_at)
         try:
             allowed = self._authorize(bounded(actor), bounded(writes))

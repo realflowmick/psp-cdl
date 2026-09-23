@@ -19,3 +19,9 @@ See [the decision record](../../docs/decisions/0002-signature-profile.md), [the 
 [MCP Stdio Mediation Profile 0.1](PSP-MCP-STDIO-0.1.md) is the opt-in draft extension for launcher-authenticated stdio caller/proxy/downstream connections, pinned discovery, bounded I/O and checked structured responses. Remote HTTP/OAuth, hot registry updates, wire-level cancellation and complete topology claims remain unsupported.
 
 [MCP HTTP Mediation Profile 0.1](PSP-MCP-HTTP-0.1.md) is the opt-in draft for resource-token authentication, verified TLS, bounded transport sessions, finite JSON/SSE buffering and owner-scoped wire cancellation. It consumes host-obtained tokens; it does not implement OAuth client flows or complete MCP conformance.
+
+[Durable LLM Turns 0.1](PSP-LLM-DURABLE-0.1.md) extends the separate
+[Buffered Loop 0.1](PSP-LLM-LOOP-0.1.md) draft with atomic state/answer receipts,
+host-approved completion, explicitly configured lockdown and current-policy
+recovery. It leaves the published unmanaged default and existing loop behavior
+unchanged. Other completion modes and automatic refresh remain unsupported.

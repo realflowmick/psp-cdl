@@ -20,7 +20,7 @@ def call(lang, path, command=None, **options):
     return json.loads(p.stdout) if p.stdout else None
 
 
-def race(path, directory, commands):
+def race(path, directory, commands, **options):
     processes = []
     gate = directory / "go"
     try:
@@ -28,7 +28,7 @@ def race(path, directory, commands):
             ready = directory / (lang + ".ready")
             p = subprocess.Popen([*PEERS[lang], str(path)], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8")
             processes.append((p, ready))
-            p.stdin.write(json.dumps({"actor": ACTOR, "command": command, "barrier": {"ready": str(ready), "go": str(gate)}}))
+            p.stdin.write(json.dumps({"actor": ACTOR, "command": command, **options, "barrier": {"ready": str(ready), "go": str(gate)}}))
             p.stdin.close()
             p.stdin = None
         deadline = time.monotonic() + 12

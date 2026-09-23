@@ -21,6 +21,7 @@ class Fixture:
         self.base.principal["scopes"] += [] if self.flags.get("noModelScope") else ["models:invoke"]
         self.options = {**self.base.options, "maxSteps":self.flags.get("maxSteps", 4)}
         provider = {"id":"mock", "revision":"model-1", "complete":not self.flags.get("incompleteProvider"), "sources":[{"id":"provider", "capabilities":["used-for-model-training"] if self.flags.get("providerTraining") else []}], "invoke":self.invoke}
+        self.provider = provider
         try: self.loop = BufferedLlmLoop(self.base.store, self.base.gate, self, provider)
         except Exception:
             self.close()
