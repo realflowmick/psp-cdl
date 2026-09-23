@@ -47,7 +47,8 @@ import {McpServer} from '@psp-cdl/mcp-server';
 import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {StdioMcpClient,createMcpProxy} from '@psp-cdl/mcpproxy/mcp';
+import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
+assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 import {WorkflowService} from '@psp-cdl/api-server/workflow';
 import {SessionOperations} from '@psp-cdl/api-server/operations';
@@ -81,6 +82,13 @@ try {
     const response=await proxy.handle('{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"echo.read","arguments":{"message":"installed"}}}');
     assert.equal(response.result.structuredContent.message,'installed');assert.equal(response.result._meta['psp-cdl/provenance'].trustLevel,5);
   }finally{await peer.close();}
+  const endpoint='http://127.0.0.1:8123/mcp';
+  const http=new McpHttpServer({authenticate:t=>host.authenticate(t),open:(_p,cancelled)=>({service:createMcpProxyService(gate,session.sessionId,()=>({deadline:9,cancelled})),close:()=>{}})},{endpoint,allowLoopbackHttp:true,authorizationServers:['https://issuer.example/'],maxSessions:2,sessionTtlMs:10000,callTimeoutMs:2000});
+  const send=(message,sid)=>http.handle({method:'POST',path:'/mcp',headers:[['host','127.0.0.1:8123'],['authorization','Bearer consumer'],['content-type','application/json'],['accept','application/json, text/event-stream'],...(sid?[['mcp-session-id',sid]]:[])],body:Buffer.from(JSON.stringify(message))});
+  const sid=(await send({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'installed',version:'1'}}})).headers['mcp-session-id'];
+  await send({jsonrpc:'2.0',method:'notifications/initialized'},sid);
+  const result=JSON.parse((await send({jsonrpc:'2.0',id:2,method:'tools/call',params:{name:'echo.read',arguments:{message:'installed-http'}}},sid)).body);
+  assert.equal(result.result.structuredContent.message,'installed-http');http.close();
 } finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
 const document=core.documentFromJson(core.documentToJson(core.parseMarkup(source)));
@@ -114,7 +122,8 @@ import psp_cdl_test_harness as harness
 import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy
-from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy
+from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
+assert callable(HttpMcpClient.connect)
 from psp_cdl_api_server.http import create_wsgi_app
 from psp_cdl_mcp_server.stdio import serve_stdio
 from psp_cdl_api_server.persistence import WorkflowStore, OwnerCoordinator
@@ -172,6 +181,15 @@ try:
         assert response['result']['structuredContent']['message']=='installed' and response['result']['_meta']['psp-cdl/provenance']['trustLevel']==5
     finally:
         peer.close()
+    import json
+    from types import SimpleNamespace
+    http=McpHttpServer(SimpleNamespace(authenticate=lambda t,r:host.authenticate(t),open=lambda p,c:{'service':create_mcp_proxy_service(gate,session['sessionId'],lambda:{'deadline':9,'cancelled':c}),'close':lambda:None}),{'endpoint':'http://127.0.0.1:8123/mcp','allowLoopbackHttp':True,'authorizationServers':['https://issuer.example/'],'maxSessions':2,'sessionTtlMs':10000,'callTimeoutMs':2000})
+    def send(message,sid=None): return http.handle({'method':'POST','path':'/mcp','headers':[['host','127.0.0.1:8123'],['authorization','Bearer consumer'],['content-type','application/json'],['accept','application/json, text/event-stream'],*([['mcp-session-id',sid]] if sid else [])],'body':json.dumps(message).encode()})
+    sid=send({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2025-11-25','capabilities':{},'clientInfo':{'name':'installed','version':'1'}}})['headers']['mcp-session-id']
+    send({'jsonrpc':'2.0','method':'notifications/initialized'},sid)
+    result=json.loads(send({'jsonrpc':'2.0','id':2,'method':'tools/call','params':{'name':'echo.read','arguments':{'message':'installed-http'}}},sid)['body'])
+    assert result['result']['structuredContent']['message']=='installed-http'
+    http.close()
 finally:
     backend.close()
 '''
@@ -190,4 +208,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Six npm tarballs and six Python wheels passed isolated consumer checks, including mediated stdio dispatch; no packages published.')
+print('Six npm tarballs and six Python wheels passed isolated consumer checks, including mediated stdio and HTTP dispatch; no packages published.')

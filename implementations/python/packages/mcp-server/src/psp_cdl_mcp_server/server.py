@@ -18,12 +18,12 @@ class SecurityTools:
         return {"data":self.service.invoke(OPERATIONS[name], args, token, principal)}
 
 class McpServer:
-    """One peer per instance; credentials come from the trusted process launcher."""
+    """One initialized peer; transports can supply immutable per-request context."""
     def __init__(self,service: SecurityService,credential):
         self.service,self.credential=SecurityTools(service) if hasattr(service,"operations") else service,credential
         self.phase,self.identity="new",None
 
-    def handle(self,source):
+    def handle(self,source,context=None):
         def error(id,code,reason):
             return {"jsonrpc":"2.0","id":id,"error":{"code":code,"message":reason}}
         try:
@@ -43,9 +43,12 @@ class McpServer:
         def success(result):
             return {"jsonrpc":"2.0","id":id,"result":result}
         try:
-            token=self.credential()
-            principal=self.service.authenticate(token)
+            service = context["service"] if context else self.service
+            token = context["token"] if context else self.credential()
+            principal=service.authenticate(token)
             identity=canonical_json([principal["tenantId"],principal["subjectId"]])
+            if context and context.get("principal") and identity != canonical_json([context["principal"]["tenantId"],context["principal"]["subjectId"]]):
+                return fail(-32001,"IDENTITY_CHANGED")
             if self.identity is not None and self.identity!=identity:
                 return fail(-32001,"IDENTITY_CHANGED")
             params=message.get("params",{})
@@ -72,14 +75,14 @@ class McpServer:
                 if set(params)-{"_meta"}:
                     return fail(-32602,"Invalid params")
                 # Detach tool schemas so callers cannot alter future discovery.
-                tools=self.service.discover(token,principal)
+                tools=service.discover(token,principal)
                 return success({"tools":parse_json(canonical_json(tools))})
             if method!="tools/call":
                 return fail(-32601,"Method not found")
             if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or type(params.get("arguments")) is not dict:
                 return fail(-32602,"Invalid tool or arguments")
             try:
-                result=self.service.call_tool(params["name"],params["arguments"],token,principal)
+                result=service.call_tool(params["name"],params["arguments"],token,principal)
                 return success({"content":[{"type":"text","text":canonical_json(result["data"])}],"structuredContent":result["data"],"isError":False,**({"_meta":result["meta"]} if "meta" in result else {})})
             except Exception as exc:
                 if isinstance(exc,ServiceError) and exc.status==400:

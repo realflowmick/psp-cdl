@@ -23,13 +23,13 @@ function toolService(service:SecurityService|McpToolService):McpToolService {
     }
   };
 }
-/** One dispatcher per stdio connection; credentials are supplied by its trusted launcher. */
+/** One initialized peer; trusted transports may provide immutable per-request context. */
 export class McpServer {
   private phase:"new"|"initializing"|"ready"="new";
   private identity:string|undefined;
   private readonly service:McpToolService;
   constructor(service:SecurityService|McpToolService, private readonly credential:()=>string) {this.service=toolService(service);}
-  async handle(source:string):Promise<Record<string,unknown>|null> {
+  async handle(source:string, context?:{token:string;service:McpToolService;principal?:Principal}):Promise<Record<string,unknown>|null> {
     let message:unknown;
     const error=(id:unknown,code:number,reason:string)=>({jsonrpc:"2.0",id,error:{code,message:reason}});
     try { if(Buffer.byteLength(source)>MAX_REQUEST_BYTES) throw new Error(); message=parseJson(source); }
@@ -39,8 +39,10 @@ export class McpServer {
     if(!notification&&!(typeof id==="string"||(typeof id==="number"&&Number.isSafeInteger(id)))) return error(null,-32600,"Invalid Request");
     const fail=(code:number,reason:string)=>notification?null:error(id,code,reason);
     try {
-      const token=this.credential(), principal=await this.service.authenticate(token);
+      const service=context?.service??this.service;
+      const token=context?.token??this.credential(), principal=await service.authenticate(token);
       const identity=canonicalJson([principal.tenantId,principal.subjectId]);
+      if(context?.principal&&identity!==canonicalJson([context.principal.tenantId,context.principal.subjectId]))return fail(-32001,"IDENTITY_CHANGED");
       if(this.identity!==undefined&&this.identity!==identity) return fail(-32001,"IDENTITY_CHANGED");
       const params=Object.hasOwn(message,"params")?message.params:{};
       if(!record(params)) return fail(-32602,"Invalid params");
@@ -59,12 +61,12 @@ export class McpServer {
       if(this.phase!=="ready") return fail(-32000,"NOT_INITIALIZED");
       if(message.method==="tools/list") {
         if(Object.keys(params).some(k=>k!=="_meta")) return fail(-32602,"Invalid params");
-        return success({tools:parseJson(canonicalJson(await this.service.discover(token,principal)))});
+        return success({tools:parseJson(canonicalJson(await service.discover(token,principal)))});
       }
       if(message.method!=="tools/call") return fail(-32601,"Method not found");
       if(Object.keys(params).some(k=>!["name","arguments","_meta"].includes(k))||typeof params.name!=="string"||!record(params.arguments)) return fail(-32602,"Invalid tool or arguments");
       try {
-        const result=await this.service.callTool(params.name,params.arguments,token,principal);
+        const result=await service.callTool(params.name,params.arguments,token,principal);
         return success({content:[{type:"text",text:canonicalJson(result.data)}],structuredContent:result.data,isError:false,...(result.meta?{_meta:result.meta}:{})});
       } catch(e) {
         if(e instanceof ServiceError&&e.status===400) return fail(-32602,e.code);
