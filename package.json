@@ -22,9 +22,9 @@
     "conformance:profiles": "node implementations/typescript/packages/test-harness/dist/cli.js --profiles"
   },
   "devDependencies": {
-    "@types/node": "22.18.6",
+    "@types/node": "26.6.2",
     "ajv": "8.20.0",
     "canonicalize": "5.1.0",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   }
 }
