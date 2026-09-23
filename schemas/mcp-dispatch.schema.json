@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://psp-cdl.org/schemas/mcp-dispatch-0.1.json",
+  "$comment":"CC0-1.0. Project draft PSP-MCP-DISPATCH-0.1; an embedded library contract, not an MCP wire protocol.",
+  "$ref":"#/$defs/call",
+  "$defs":{
+    "call":{"type":"object","additionalProperties":false,"required":["name","arguments"],"properties":{"name":{"type":"string"},"arguments":{"type":"object"}}},
+    "digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "provenance":{"type":"object","additionalProperties":false,"required":["profile","toolUri","toolRevision","registryRevision","inputDigest","outputDigest","trustLevel"],"properties":{
+      "profile":{"const":"PSP-MCP-DISPATCH-0.1"},"toolUri":{"type":"string","pattern":"^mcp://[A-Za-z0-9_-]{1,64}/[A-Za-z0-9_-]{1,64}$"},"toolRevision":{"type":"string"},"registryRevision":{"type":"string"},"inputDigest":{"$ref":"#/$defs/digest"},"outputDigest":{"$ref":"#/$defs/digest"},"trustLevel":{"const":5}
+    }},
+    "result":{"type":"object","additionalProperties":false,"required":["data","provenance"],"properties":{"data":{"type":"object"},"provenance":{"$ref":"#/$defs/provenance"}}}
+  }
+}

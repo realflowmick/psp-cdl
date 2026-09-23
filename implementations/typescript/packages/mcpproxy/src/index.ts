@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
-/** MCP mediation, node-agent affinity, covenant checks, and provenance. Implementation begins in M4. */
+export * from "./dispatch.js";
 export const manifest = Object.freeze({
   "id": "mcpproxy",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": ["host-mcp-dispatch-gate-0.1"]
 } as const);
+Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
 
 /** Always fails until a reviewed implementation supplies a real entry point. */
 export function requireImplementation(): never {
-  throw Object.assign(new Error("mcpproxy is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
+  throw Object.assign(new Error("Complete MCP proxy transport and durable effect dispatch are not implemented."), { code: "NOT_IMPLEMENTED" });
 }

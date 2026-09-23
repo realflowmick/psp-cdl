@@ -214,6 +214,18 @@ requires-dist = [
 name = "psp-cdl-mcpproxy"
 version = "0.1.0.dev0"
 source = { editable = "implementations/python/packages/mcpproxy" }
+dependencies = [
+    { name = "psp-cdl-api-server" },
+    { name = "psp-cdl-cdl" },
+    { name = "psp-cdl-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "psp-cdl-api-server", editable = "implementations/python/packages/api-server" },
+    { name = "psp-cdl-cdl", editable = "implementations/python/packages/cdl" },
+    { name = "psp-cdl-core", editable = "implementations/python/packages/core" },
+]
 
 [[package]]
 name = "psp-cdl-test-harness"

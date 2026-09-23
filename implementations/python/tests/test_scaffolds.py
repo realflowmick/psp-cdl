@@ -17,7 +17,7 @@ class ScaffoldTests(unittest.TestCase):
                 mod = importlib.import_module("psp_cdl_" + component["id"].replace("-", "_"))
                 manifest = mod.get_manifest()
                 self.assertEqual(manifest["id"], component["id"])
-                implemented = component["id"] in {"core", "cdl", "test-harness", "api-server", "mcp-server"}
+                implemented = component["id"] in {"core", "cdl", "test-harness", "api-server", "mcp-server", "mcpproxy"}
                 self.assertEqual(manifest["status"], "experimental" if implemented else "scaffold")
                 self.assertEqual(bool(manifest["implementedFeatures"]), implemented)
                 self.assertEqual(manifest["specifications"], PROJECT["specifications"])
