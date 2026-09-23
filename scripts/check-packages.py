@@ -26,7 +26,7 @@ def run(command, cwd=ROOT):
         raise SystemExit(' '.join(str(c) for c in command) + '\n' + result.stdout + result.stderr)
     return result.stdout
 
-components = ('core', 'cdl', 'test-harness', 'api-server', 'mcp-server', 'mcpproxy')
+components = ('core', 'cdl', 'test-harness', 'api-server', 'mcp-server', 'mcpproxy', 'llmproxy')
 for component in components:
     run([NPM, 'pack', '--workspace', '@psp-cdl/' + component, '--pack-destination', str(ARTIFACTS), '--ignore-scripts'])
     run([UV, 'build', '--package', 'psp-cdl-' + component, '--wheel', '--out-dir', str(ARTIFACTS), '--offline'])
@@ -48,13 +48,14 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
+import {BufferedLlmLoop,promptContext} from '@psp-cdl/llmproxy';
 import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 import {WorkflowService} from '@psp-cdl/api-server/workflow';
 import {SessionOperations} from '@psp-cdl/api-server/operations';
 assert.equal(typeof WorkflowService,'function');assert.equal(typeof SessionOperations,'function');
-for(const pkg of ['core','cdl','test-harness','api-server','mcp-server','mcpproxy']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
+for(const pkg of ['core','cdl','test-harness','api-server','mcp-server','mcpproxy','llmproxy']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
 const service=new SecurityService({authenticate:()=>null,resolve:()=>{throw new Error('must not resolve');},now:()=>1});
 await assert.rejects(()=>service.invoke('evaluate',{operation_id:'op'},'invalid'),{code:'UNAUTHENTICATED'});
 assert.equal((await new McpServer(service,()=> 'invalid').handle('{"jsonrpc":"2.0","id":1,"method":"ping"}')).error.message,'UNAUTHENTICATED');
@@ -68,12 +69,20 @@ try {
   assert.deepEqual(await store.execute(actor,{action:'getSession',sessionId:session.sessionId}),session);
   const schema={type:'object',properties:{message:{type:'string'}},required:['message'],additionalProperties:false};
   let calls=0;
-  const host={authenticate:t=>t==='consumer'?{...actor,scopes:['tools:call']}:null,now:()=>1,
+  const host={authenticate:t=>t==='consumer'?{...actor,scopes:['tools:call','tools:list','models:invoke']}:null,now:()=>1,
     snapshot:()=>({revision:'a1',policyVersion:'p1',registryRevision:'r1',expires:9,releaseSources:[],releaseComplete:true}),
     policy:(_p,b)=>({bindingDigest:bindingDigest(b),resources:[{classes:[],covenants:[],capabilities:[],checks:{},parameters:{},context:{}}]})};
   const gate=new McpDispatchGate(store,host,'r1',[{server:'echo',name:'read',revision:'1',readOnly:true,sources:[],complete:true,inputSchema:schema,outputSchema:schema,invoke:a=>{calls++;return a;}}]);
   const output=await gate.callTool('consumer',session.sessionId,{name:'echo.read',arguments:{message:'🧪'}},{deadline:9,cancelled:()=>false});
   assert.equal(calls,1);assert.equal(output.data.message,'🧪');assert.equal(output.provenance.trustLevel,5);
+  const loopKey=new Uint8Array(32).fill(19);
+  const loopHost={...host,snapshot:()=>({...host.snapshot(),providerId:'mock',providerRevision:'1'}),
+    prompt:(_p,b)=>crypto.signEnvelope('Synthetic system text',{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test',timestamp:0,expires:9,version:'1.0.0',sectionType:'system',contentType:'text',attributes:promptContext(b)},loopKey),
+    verification:()=>({keys:[{id:'test',algorithm:'hmac-sha256',material:loopKey,status:'active',trustLevels:[2],sectionTypes:['system'],scope:{},allowUnscoped:false}]}),authorizeFinal:()=>true};
+  let inference=0;
+  const loop=new BufferedLlmLoop(store,gate,loopHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:r=>{inference++;assert.equal(r.messages[0].content,'Synthetic system text');return inference===1?{type:'tool',name:'echo.read',arguments:{message:'installed-loop'}}:{type:'final',text:r.messages.at(-1).data.message};}});
+  const answer=await loop.run('consumer',session.sessionId,{message:'read'},{deadline:9,cancelled:()=>false,maxSteps:3});
+  assert.equal(answer.text,'installed-loop');assert.equal(inference,2);assert.equal(calls,2);
   const peer=await StdioMcpClient.connect({executable:process.execPath,args:[resolve('peer.mjs')],env:{},serverInfo:{name:'psp-cdl-reference',version:'0.1.0'},timeoutMs:2000});
   try {
     const remoteGate=new McpDispatchGate(store,host,'r1',peer.registrations('echo',[{name:'read',revision:'1',readOnly:true,sources:[],complete:true,inputSchema:schema,outputSchema:schema}],()=>1));
@@ -128,6 +137,7 @@ import psp_cdl_test_harness as harness
 import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy
+import psp_cdl_llmproxy as llm
 from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
 assert callable(HttpMcpClient.connect)
 from psp_cdl_api_server.http import create_wsgi_app
@@ -138,7 +148,7 @@ from psp_cdl_api_server.sqlite import SqliteBackend
 from psp_cdl_api_server.workflow import WorkflowService
 from psp_cdl_api_server.operations import SessionOperations
 assert callable(WorkflowService) and callable(SessionOperations)
-for module in (core,crypto,cdl,harness,api,mcp,proxy):
+for module in (core,crypto,cdl,harness,api,mcp,proxy,llm):
     assert Path(module.__file__).resolve().is_relative_to(target), module.__file__
 source='${psp type=context}hello 🧪${/psp}'
 document=core.document_from_json(core.document_to_json(core.parse_markup(source)))
@@ -167,7 +177,7 @@ try:
     schema={'type':'object','properties':{'message':{'type':'string'}},'required':['message'],'additionalProperties':False}
     class DispatchHost:
         calls=0
-        def authenticate(self,t): return {**actor,'scopes':['tools:call']} if t=='consumer' else None
+        def authenticate(self,t): return {**actor,'scopes':['tools:call','tools:list','models:invoke']} if t=='consumer' else None
         def now(self): return 1
         def snapshot(self,*_): return {'revision':'a1','policyVersion':'p1','registryRevision':'r1','expires':9,'releaseSources':[],'releaseComplete':True}
         def policy(self,p,b,*_): return {'bindingDigest':proxy.binding_digest(b),'resources':[{'classes':[],'covenants':[],'capabilities':[],'checks':{},'parameters':{},'context':{}}]}
@@ -178,6 +188,19 @@ try:
     gate=proxy.McpDispatchGate(store,host,'r1',[{'server':'echo','name':'read','revision':'1','readOnly':True,'sources':[],'complete':True,'inputSchema':schema,'outputSchema':schema,'invoke':host.invoke}])
     output=gate.call_tool('consumer',session['sessionId'],{'name':'echo.read','arguments':{'message':'🧪'}},{'deadline':9,'cancelled':lambda:False})
     assert host.calls==1 and output['data']['message']=='🧪' and output['provenance']['trustLevel']==5
+    class LoopHost(DispatchHost):
+        def snapshot(self,*_): return {**super().snapshot(),'providerId':'mock','providerRevision':'1'}
+        def prompt(self,p,b): return crypto.sign_envelope('Synthetic system text',{'algorithm':'hmac-sha256','signatureVersion':'2.0','secretId':'test','timestamp':0,'expires':9,'version':'1.0.0','sectionType':'system','contentType':'text','attributes':llm.prompt_context(b)},bytes([19])*32)
+        def verification(self,*_): return {'keys':[{'id':'test','algorithm':'hmac-sha256','material':bytes([19])*32,'status':'active','trustLevels':[2],'sectionTypes':['system'],'scope':{},'allowUnscoped':False}]}
+        def authorize_final(self,*_): return True
+    inference=[]
+    def model(request,_):
+        inference.append(request)
+        assert request['messages'][0]['content']=='Synthetic system text'
+        return {'type':'tool','name':'echo.read','arguments':{'message':'installed-loop'}} if len(inference)==1 else {'type':'final','text':request['messages'][-1]['data']['message']}
+    loop=llm.BufferedLlmLoop(store,gate,LoopHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':model})
+    answer=loop.run('consumer',session['sessionId'],{'message':'read'},{'deadline':9,'cancelled':lambda:False,'maxSteps':3})
+    assert answer['text']=='installed-loop' and len(inference)==2 and host.calls==2
     peer=StdioMcpClient.connect({'executable':sys.executable,'args':['-I',str(Path('peer.py').resolve()),str(target)],'env':{},'serverInfo':{'name':'psp-cdl-reference','version':'0.1.0'},'timeoutMs':2000})
     try:
         remote=proxy.McpDispatchGate(store,host,'r1',peer.registrations('echo',[{'name':'read','revision':'1','readOnly':True,'sources':[],'complete':True,'inputSchema':schema,'outputSchema':schema}],lambda:1))
@@ -221,4 +244,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Six npm tarballs and six Python wheels passed isolated consumer checks, including stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
+print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered model/tool loops, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

@@ -28,7 +28,11 @@ export interface DispatchHost {
     {bindingDigest:string;resources:PolicyInput[]}|Promise<{bindingDigest:string;resources:PolicyInput[]}>;
 }
 /** Host-owned controls; never accept these fields in model tool arguments. */
-export interface CallOptions { deadline:number; cancelled:()=>boolean }
+export interface CallOptions {
+  deadline:number; cancelled:()=>boolean;
+  /** Host-only extra restriction, evaluated under the gate reservation. Never wire/model input. */
+  authorizeDispatch?:(session:Record<string,unknown>,capabilities:string[])=>boolean|Promise<boolean>;
+}
 const fail=(code:string):never=>{throw new DispatchError(code);};
 export const bindingDigest=(value:unknown):string=>createHash("sha256").update(canonicalJson(value)).digest("hex");
 const part=(v:unknown):v is string=>typeof v==="string"&&v.length<=64&&/^[A-Za-z0-9_-]+$/.test(v)&&!/[^A-Za-z0-9_-]/.test(v);
@@ -65,6 +69,7 @@ export class McpDispatchGate {
     this.tools=this.prepare(registrations);
   }
   get registryRevision():string {return this.currentRevision;}
+  usesStore(store:WorkflowStore):boolean {return store===this.store;}
   private prepare(registrations:ToolRegistration[]):Map<string,Tool> {
     if(!Array.isArray(registrations)||registrations.length>1024)fail("INVALID_CONFIGURATION");
     const tools=new Map<string,Tool>();
@@ -146,7 +151,8 @@ export class McpDispatchGate {
     },expected);
   }
   async callTool(token:unknown,sessionId:string,request:unknown,options:CallOptions,expected?:Principal):Promise<Record<string,unknown>> {
-    options={deadline:options?.deadline,cancelled:options?.cancelled};
+    options={deadline:options?.deadline,cancelled:options?.cancelled,...(options?.authorizeDispatch===undefined?{}:{authorizeDispatch:options.authorizeDispatch})};
+    if(options.authorizeDispatch!==undefined&&typeof options.authorizeDispatch!=="function") fail("INVALID_REQUEST");
     return this.within(token,sessionId,"tools:call",options,async(p,session,authority,allowed,fresh)=>{
       const r=copy(request);
       if(!record(r)||Object.keys(r).sort().join(",")!=="arguments,name"||typeof r.name!=="string"||!record(r.arguments)) fail("INVALID_REQUEST");
@@ -165,6 +171,7 @@ export class McpDispatchGate {
         if(decision!=="allow") fail(phase==="dispatch"?"POLICY_DENIED":"OUTPUT_DENIED");
       };
       await decide("dispatch",r.arguments as Record<string,unknown>,binding,tool.caps);
+      if(options.authorizeDispatch&&await callback(()=>options.authorizeDispatch!(copy(session),[...tool.caps]))!==true) fail("HOST_DENIED");
       await fresh();
       this.check(options,Math.min(authority.expires,session.expiresAt as number));
       // No await between final check and entering the pinned endpoint callback.

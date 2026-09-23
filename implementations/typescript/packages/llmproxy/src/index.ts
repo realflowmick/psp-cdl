@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
-/** Provider-neutral model gateway and authoritative tool-dispatch loop. Implementation begins in M5. */
+export * from "./loop.js";
 export const manifest = Object.freeze({
   "id": "llmproxy",
-  "status": "scaffold",
+  "status": "experimental",
   "specifications": {
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": []
+  "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy"]
 } as const);
 
-/** Always fails until a reviewed implementation supplies a real entry point. */
+/** Full workflow execution remains unsupported; use a named library API. */
 export function requireImplementation(): never {
-  throw Object.assign(new Error("llmproxy is a scaffold; no security operation was executed."), { code: "NOT_IMPLEMENTED" });
+  throw Object.assign(new Error("Complete workflow execution is not implemented."), { code: "NOT_IMPLEMENTED" });
 }
+Object.freeze(manifest.specifications);
+Object.freeze(manifest.implementedFeatures);

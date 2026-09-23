@@ -62,6 +62,9 @@ class McpDispatchGate:
     def registry_revision(self):
         with self._registry_lock: return self._revision
 
+    def uses_store(self, store):
+        return store is self._store
+
     @staticmethod
     def _prepare(registrations):
         if type(registrations) is not list or len(registrations)>1024: raise DispatchError("INVALID_CONFIGURATION")
@@ -151,6 +154,7 @@ class McpDispatchGate:
 
     def call_tool(self, token, session_id, request, options, expected=None):
         options = dict(options) if type(options) is dict else {}
+        if "authorizeDispatch" in options and not callable(options["authorizeDispatch"]): raise DispatchError("INVALID_REQUEST")
         def work(p, session, authority, allowed, fresh):
             r = copy(request)
             if type(r) is not dict or set(r) != {"name", "arguments"} or type(r["name"]) is not str or type(r["arguments"]) is not dict: raise DispatchError("INVALID_REQUEST")
@@ -168,9 +172,11 @@ class McpDispatchGate:
                 if decision == "unsupported": raise DispatchError("UNSUPPORTED_POLICY")
                 if decision != "allow": raise DispatchError("POLICY_DENIED" if phase == "dispatch" else "OUTPUT_DENIED")
             decide("dispatch", r["arguments"], binding, tool["caps"])
+            if "authorizeDispatch" in options and callback(lambda:options["authorizeDispatch"](copy(session), list(tool["caps"]))) is not True:
+                raise DispatchError("HOST_DENIED")
             fresh()
             self._check(options, min(authority["expires"], session["expiresAt"]))
-            try: raw = tool["invoke"](copy(r["arguments"]), dict(options))
+            try: raw = tool["invoke"](copy(r["arguments"]), {"deadline":options["deadline"], "cancelled":options["cancelled"]})
             except Exception:
                 self._check(options, min(authority["expires"], session["expiresAt"]))
                 raise DispatchError("TOOL_FAILED") from None

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import sys
+sys.stdout.reconfigure(encoding="utf-8")
 from psp_cdl_mcpproxy.mcp import HttpMcpClient, StdioMcpClient
 from psp_cdl_mcpproxy import McpDispatchGate
 from revision_fixtures import APPROVAL
