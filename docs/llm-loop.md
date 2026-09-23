@@ -75,9 +75,10 @@ release no result. Adapters must bound their I/O and honor cooperative controls.
 Already-dispatched inference/tool reads cannot be undone.
 
 Completed and paused sessions reject before inference. A model's `final` response
-does not complete a session. Durable turn persistence, completion transitions,
-PSP lockdown/scoped/redirect policy, audit signals, automatic refresh, streaming,
-live-provider adapters and multi-worker coordination remain unsupported. A fresh
+does not complete a session in this class. The separate opt-in
+[durable loop](llm-durable.md) adds atomic turns, host-approved completion,
+lockdown and authorized recovery. Scoped/redirect policy, automatic refresh,
+streaming, live-provider adapters and multi-worker coordination remain unsupported. A fresh
 host-authorized invocation can supply a new signed prompt after expiry. This
 slice establishes no model attention isolation, full topology conformance or
 measured security effectiveness.

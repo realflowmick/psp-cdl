@@ -48,10 +48,10 @@ export function promptContext(binding:Record<string,unknown>):Record<string,stri
 /** Bounded, buffered, host-embedded loop. No listener, provider SDK or implicit credential lookup. */
 export class BufferedLlmLoop {
   private readonly auth:SecurityService;
-  private readonly coordinator:OwnerCoordinator;
-  private readonly provider:ProviderRegistration;
+  protected readonly coordinator:OwnerCoordinator;
+  protected readonly provider:ProviderRegistration;
   private readonly providerCaps:string[];
-  constructor(private readonly store:WorkflowStore,private readonly gate:McpDispatchGate,private readonly host:LoopHost,provider:ProviderRegistration) {
+  constructor(protected readonly store:WorkflowStore,protected readonly gate:McpDispatchGate,protected readonly host:LoopHost,provider:ProviderRegistration) {
     if(!(store.coordinator instanceof OwnerCoordinator)||!(gate instanceof McpDispatchGate)||!gate.usesStore(store)||
       [host.authenticate,host.now,host.snapshot,host.prompt,host.verification,host.policy,host.authorizeFinal].some(f=>typeof f!=="function")||!record(provider)) fail("INVALID_CONFIGURATION");
     const {invoke,...metadata}=provider, meta=copy(metadata,"INVALID_CONFIGURATION");
@@ -60,7 +60,7 @@ export class BufferedLlmLoop {
     this.coordinator=store.coordinator!;
     this.auth=new SecurityService({authenticate:t=>host.authenticate(t),now:()=>host.now(),resolve:()=>null});
   }
-  private check(options:LoopOptions,expires=Number.MAX_SAFE_INTEGER):void {
+  protected check(options:Pick<LoopOptions,"deadline"|"cancelled">,expires=Number.MAX_SAFE_INTEGER):void {
     const now=this.host.now(),cancelled=options.cancelled();
     if(!integer(now)||typeof cancelled!=="boolean") fail("HOST_ERROR");
     if(cancelled) fail("CANCELLED");
@@ -72,7 +72,7 @@ export class BufferedLlmLoop {
     if(!p.scopes.includes("models:invoke")||expected&&(p.tenantId!==expected.tenantId||p.subjectId!==expected.subjectId)) fail("FORBIDDEN");
     return p;
   }
-  private async snapshot(p:Principal,s:Record<string,unknown>):Promise<LoopAuthority> {
+  protected async snapshot(p:Principal,s:Record<string,unknown>):Promise<LoopAuthority> {
     const a=copy(await callback(()=>this.host.snapshot(copy(p),copy(s))),"INVALID_AUTHORITY");
     if(!record(a)||Object.keys(a).sort().join(",")!=="expires,policyVersion,providerId,providerRevision,registryRevision,releaseComplete,releaseSources,revision"||
       !identifier(a.revision)||a.policyVersion!==s.policyVersion||a.providerId!==this.provider.id||a.providerRevision!==this.provider.revision||
@@ -80,7 +80,7 @@ export class BufferedLlmLoop {
     caps(a.releaseSources as CapabilitySource[],a.releaseComplete as boolean);
     return a as unknown as LoopAuthority;
   }
-  private async verify(p:Principal,binding:Record<string,unknown>,prompt:Envelope):Promise<void> {
+  protected async verify(p:Principal,binding:Record<string,unknown>,prompt:Envelope):Promise<void> {
     const policy=await callback(()=>this.host.verification(copy(p),copy(binding))),context=promptContext(binding);
     try {
       if(!policy||!Array.isArray(policy.keys)||policy.keys.some(k=>k.allowUnscoped!==false)) fail("PROMPT_REJECTED");
@@ -88,7 +88,7 @@ export class BufferedLlmLoop {
       if(e.signature.sectionType!=="system"||e.signature.contentType!=="text"||![1,2].includes(e.signature.trustLevel??2)) fail("PROMPT_REJECTED");
     }catch{return fail("PROMPT_REJECTED");}
   }
-  private async decide(p:Principal,binding:Record<string,unknown>,data:Record<string,unknown>,phase:LoopPhase,recipientCaps:string[]):Promise<Record<string,unknown>> {
+  protected async decide(p:Principal,binding:Record<string,unknown>,data:Record<string,unknown>,phase:LoopPhase,recipientCaps:string[]):Promise<Record<string,unknown>> {
     const context={...binding,phase,dataDigest:bindingDigest(data)};
     const policy=copy(await callback(()=>this.host.policy(copy(p),copy(context),copy(data),phase)),"INVALID_POLICY");
     if(!record(policy)||Object.keys(policy).sort().join(",")!=="bindingDigest,resources"||policy.bindingDigest!==bindingDigest(context)||!Array.isArray(policy.resources)||!policy.resources.length) fail("INVALID_POLICY");

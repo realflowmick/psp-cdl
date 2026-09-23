@@ -13,7 +13,8 @@ export const manifest = Object.freeze({
     "workflow-persistence-0.1",
     "sqlite-atomic-backend",
     "authenticated-workflow-service-0.1",
-    "session-operation-bindings"
+    "session-operation-bindings",
+    "durable-turn-store-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);

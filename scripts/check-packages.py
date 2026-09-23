@@ -48,7 +48,7 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {BufferedLlmLoop,promptContext} from '@psp-cdl/llmproxy';
+import {BufferedLlmLoop,DurableLlmLoop,promptContext} from '@psp-cdl/llmproxy';
 import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
@@ -62,14 +62,14 @@ assert.equal((await new McpServer(service,()=> 'invalid').handle('{"jsonrpc":"2.
 assert.equal(typeof createHttpServer,'function');assert.equal(typeof serveStdio,'function');
 const backend=new SqliteBackend(resolve('consumer.sqlite'),'package-test',()=>1);
 try {
-  const store=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator()}); // Synthetic data only.
+  const store=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true}); // Synthetic data only.
   const actor={tenantId:'synthetic-tenant',subjectId:'synthetic-subject'};
   await store.execute(actor,{action:'putNode',nodeId:'entry',nodeVersion:'1',definition:{text:'🧪',agents:'mcp://echo/read'}});
   const session=await store.execute(actor,{action:'createSession',requestId:'create',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{text:'🧪'}});
   assert.deepEqual(await store.execute(actor,{action:'getSession',sessionId:session.sessionId}),session);
   const schema={type:'object',properties:{message:{type:'string'}},required:['message'],additionalProperties:false};
   let calls=0;
-  const host={authenticate:t=>t==='consumer'?{...actor,scopes:['tools:call','tools:list','models:invoke']}:null,now:()=>1,
+  const host={authenticate:t=>t==='consumer'?{...actor,scopes:['tools:call','tools:list','models:invoke','sessions:read','sessions:write']}:null,now:()=>1,
     snapshot:()=>({revision:'a1',policyVersion:'p1',registryRevision:'r1',expires:9,releaseSources:[],releaseComplete:true}),
     policy:(_p,b)=>({bindingDigest:bindingDigest(b),resources:[{classes:[],covenants:[],capabilities:[],checks:{},parameters:{},context:{}}]})};
   const gate=new McpDispatchGate(store,host,'r1',[{server:'echo',name:'read',revision:'1',readOnly:true,sources:[],complete:true,inputSchema:schema,outputSchema:schema,invoke:a=>{calls++;return a;}}]);
@@ -103,6 +103,12 @@ try {
   const revisions=new RevisionedToolRegistry({authenticate:()=>p,authorize:()=>true},[{name:'read',revision:'1',readOnly:true,inputSchema:schema,outputSchema:schema,invoke:a=>a}]);
   const pre={...revisions.revision,toolRevision:'1',inputDigest:revisionDigest({message:'installed-revision'})};
   assert.equal((await revisions.service().revisions.callTool('read',{message:'installed-revision'},'synthetic',p,pre)).data.message,'installed-revision');
+  const durableHost={...loopHost,planTurn:()=>({state:{done:true},retained:{},complete:true}),authorizeTransition:()=>true,audit:()=>true,authorizeRecovery:()=>true,recoveryPolicy:host.policy};
+  const durable=new DurableLlmLoop(store,gate,durableHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:()=>({type:'final',text:'installed-durable'})},{postCompletion:'lockdown'});
+  const controls={deadline:9,cancelled:()=>false,maxSteps:1,requestId:'durable',expectedVersion:1};
+  assert.equal((await durable.run('consumer',session.sessionId,{message:'finish'},controls)).receipt.status,'completed');
+  assert.equal((await durable.recover('consumer',session.sessionId,'durable',controls)).text,'installed-durable');
+  await assert.rejects(()=>durable.run('consumer',session.sessionId,{message:'continue'},controls),{code:'PSP_POST_COMPLETION_LOCKDOWN'});
   gate.replaceRegistry('r1','r2',[]);assert.equal(gate.registryRevision,'r2');
 } finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
@@ -169,7 +175,7 @@ assert mcp.McpServer(service,lambda:'invalid').handle('{"jsonrpc":"2.0","id":1,"
 assert callable(create_wsgi_app(service)) and callable(serve_stdio)
 backend=SqliteBackend(str(Path('python-consumer.sqlite').resolve()),'package-test',lambda:1)
 try:
-    store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator())  # Synthetic data only.
+    store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True)  # Synthetic data only.
     actor={'tenantId':'synthetic-tenant','subjectId':'synthetic-subject'}
     store.execute(actor,{'action':'putNode','nodeId':'entry','nodeVersion':'1','definition':{'text':'🧪','agents':'mcp://echo/read'}})
     session=store.execute(actor,{'action':'createSession','requestId':'create','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{'text':'🧪'}})
@@ -177,7 +183,7 @@ try:
     schema={'type':'object','properties':{'message':{'type':'string'}},'required':['message'],'additionalProperties':False}
     class DispatchHost:
         calls=0
-        def authenticate(self,t): return {**actor,'scopes':['tools:call','tools:list','models:invoke']} if t=='consumer' else None
+        def authenticate(self,t): return {**actor,'scopes':['tools:call','tools:list','models:invoke','sessions:read','sessions:write']} if t=='consumer' else None
         def now(self): return 1
         def snapshot(self,*_): return {'revision':'a1','policyVersion':'p1','registryRevision':'r1','expires':9,'releaseSources':[],'releaseComplete':True}
         def policy(self,p,b,*_): return {'bindingDigest':proxy.binding_digest(b),'resources':[{'classes':[],'covenants':[],'capabilities':[],'checks':{},'parameters':{},'context':{}}]}
@@ -224,6 +230,19 @@ try:
     revisions=RevisionedToolRegistry(SimpleNamespace(authenticate=lambda _:p,authorize=lambda *_:True),[{'name':'read','revision':'1','readOnly':True,'inputSchema':schema,'outputSchema':schema,'invoke':lambda a,_:a}])
     pre={**revisions.revision,'toolRevision':'1','inputDigest':revision_digest({'message':'installed-revision'})}
     assert revisions.service().revisions.call_tool('read',{'message':'installed-revision'},'synthetic',p,pre)['data']['message']=='installed-revision'
+    class DurableHost(LoopHost):
+        def plan_turn(self,*_): return {'state':{'done':True},'retained':{},'complete':True}
+        def authorize_transition(self,*_): return True
+        def audit(self,*_): return True
+        def authorize_recovery(self,*_): return True
+        recovery_policy=DispatchHost.policy
+    durable=llm.DurableLlmLoop(store,gate,DurableHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':lambda *_:{'type':'final','text':'installed-durable'}},{'postCompletion':'lockdown'})
+    controls={'deadline':9,'cancelled':lambda:False,'maxSteps':1,'requestId':'durable','expectedVersion':1}
+    assert durable.run('consumer',session['sessionId'],{'message':'finish'},controls)['receipt']['status']=='completed'
+    assert durable.recover('consumer',session['sessionId'],'durable',controls)['text']=='installed-durable'
+    try: durable.run('consumer',session['sessionId'],{'message':'continue'},controls)
+    except llm.LockdownError as exc: assert exc.code=='PSP_POST_COMPLETION_LOCKDOWN'
+    else: raise AssertionError('completed session accepted input')
     gate.replace_registry('r1','r2',[])
     assert gate.registry_revision=='r2'
 finally:
@@ -244,4 +263,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered model/tool loops, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
+print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

@@ -28,6 +28,7 @@ export interface PersistenceHost {
   resumeSecret:Uint8Array;
   authorizePersistence(actor:Actor, writes:StoredRecord[]):boolean|Promise<boolean>;
   coordinator?:OwnerCoordinator;
+  durableTurns?:boolean;
 }
 /** Optional single-process, fail-fast exclusion. Share across every writer and gate. */
 export class OwnerCoordinator {
@@ -45,6 +46,8 @@ export type WorkflowCommand =
   | {action:"getNode";nodeId:string;nodeVersion:string}
   | {action:"createSession";requestId:string;nodeId:string;nodeVersion:string;policyVersion:string;expiresAt:number;state:Record<string,unknown>}
   | {action:"getSession";sessionId:string}
+  | {action:"getTurn";sessionId:string;requestId:string}
+  | {action:"commitTurn";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;state:Record<string,unknown>;inputDigest:string;output:Record<string,unknown>;retained:Record<string,unknown>;complete:boolean;postCompletion:"lockdown"}
   | {action:"updateSession";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;status:"running"|"completed";state:Record<string,unknown>}
   | {action:"createCheckpoint";requestId:string;sessionId:string;expectedVersion:number;expiresAt:number}
   | {action:"resumeCheckpoint";requestId:string;checkpointId:string;resumeToken:string;state:Record<string,unknown>};
@@ -84,12 +87,15 @@ export function validateBatch(tenantId:string, checks:Comparison[], writes:Store
 export class WorkflowStore {
   get epoch():string { return this.backend.epoch; }
   readonly coordinator:OwnerCoordinator|undefined;
+  readonly durableTurns:boolean;
   private readonly secret:Uint8Array;
   constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
     this.secret=new Uint8Array(host.resumeSecret);
     if(host.coordinator!==undefined&&!(host.coordinator instanceof OwnerCoordinator)) fail("INVALID_CONFIGURATION");
     this.coordinator=host.coordinator;
+    if(host.durableTurns!==undefined&&typeof host.durableTurns!=="boolean") fail("INVALID_CONFIGURATION");
+    this.durableTurns=host.durableTurns===true;
   }
   private token(actor:Actor,id:string):string {
     const mac=createHmac("sha256",this.secret).update(canonicalJson([PERSISTENCE_PROFILE,this.backend.epoch,actor.tenantId,actor.subjectId,id])).digest("base64url");
@@ -120,7 +126,7 @@ export class WorkflowStore {
     // One fresh attempt observes its receipt; unchanged expected versions still fail.
     const actor=bounded(actorValue) as Actor, command=bounded(commandValue);
     const execute=()=>this.executeRetry(actor,command,guard);
-    if(this.coordinator&&record(command)&&!["getSession","getNode"].includes(command.action as string)) return this.coordinator.run(actor,execute);
+    if(this.coordinator&&record(command)&&!["getSession","getNode","getTurn"].includes(command.action as string)) return this.coordinator.run(actor,execute);
     return execute();
   }
   private async executeRetry(actor:Actor,command:unknown,guard?:AccessGuard):Promise<Record<string,unknown>> {
@@ -149,15 +155,31 @@ export class WorkflowStore {
       createCheckpoint:["requestId","sessionId","expectedVersion","expiresAt"],
       resumeCheckpoint:["requestId","checkpointId","resumeToken","state"]
     };
+    if(this.durableTurns) Object.assign(fields,{
+      getTurn:["sessionId","requestId"],
+      commitTurn:["requestId","sessionId","expectedVersion","nodeId","nodeVersion","policyVersion","state","inputDigest","output","retained","complete","postCompletion"]
+    });
     const names=typeof c.action==="string"&&Object.hasOwn(fields,c.action)?fields[c.action]:undefined;
     if(!names||Object.keys(c).length!==names.length+1||names.some(n=>!Object.hasOwn(c,n))) fail("INVALID_COMMAND");
     for(const n of ["requestId","nodeId","nodeVersion","policyVersion"]) if(Object.hasOwn(c,n)&&!identifier(c[n])) fail("INVALID_COMMAND");
     for(const n of ["sessionId","checkpointId"]) if(Object.hasOwn(c,n)&&!uuid(c[n])) fail("INVALID_COMMAND");
     if(("state" in c&&!record(c.state))||("definition" in c&&!record(c.definition))||("expectedVersion" in c&&!positive(c.expectedVersion))||("expiresAt" in c&&!positive(c.expiresAt))||("status" in c&&!["running","completed"].includes(c.status as string))) fail("INVALID_COMMAND");
     if(c.action==="resumeCheckpoint"&&(typeof c.resumeToken!=="string"||c.resumeToken.length!==80)) fail("INVALID_TOKEN");
+    if(c.action==="commitTurn") {
+      const o=c.output,p=record(o)?o.provenance:null;
+      if(typeof c.complete!=="boolean"||c.postCompletion!=="lockdown"||!record(c.retained)||typeof c.inputDigest!=="string"||c.inputDigest.length!==64||!/^[0-9a-f]{64}$/.test(c.inputDigest)||
+        !record(o)||Object.keys(o).sort().join(",")!=="provenance,text"||typeof o.text!=="string"||!record(p)||
+        Object.keys(p).sort().join(",")!=="outputDigest,profile,providerId,providerRevision,steps,trustLevel"||p.profile!=="PSP-LLM-LOOP-0.1"||p.trustLevel!==5||
+        !identifier(p.providerId)||!identifier(p.providerRevision)||!positive(p.steps)||(p.steps as number)>32||p.outputDigest!==hash(canonicalJson({text:o.text}))) fail("INVALID_COMMAND");
+    }
     const now=this.now();
     if(c.action==="getSession") { const s=await this.owned(actor,"session",c.sessionId as string); this.live(s,this.now()); return access(s.body,s.body); }
     if(c.action==="getNode") { const n=await this.node(actor,c.nodeId as string,c.nodeVersion as string); return access(n.body,n.body); }
+    if(c.action==="getTurn") {
+      const r=await this.backend.read(actor.tenantId,key("receipt",hash(canonicalJson([actor.subjectId,c.requestId]))));
+      if(!r||r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId||r.body.profile!=="PSP-LLM-DURABLE-0.1"||!record(r.body.result)||r.body.result.sessionId!==c.sessionId) fail("NOT_FOUND");
+      this.live(r,this.now());return access(r.body.result as Record<string,unknown>,null,true);
+    }
     let current:Record<string,unknown>|null=null;
     let checks:Comparison[]=[], writes:StoredRecord[]=[], result:Record<string,unknown>, expiresAt=Number.MAX_SAFE_INTEGER;
     const receiptKey=c.requestId?key("receipt",hash(canonicalJson([actor.subjectId,c.requestId]))):null;
@@ -200,7 +222,13 @@ export class WorkflowStore {
       expiresAt=s.body.expiresAt as number;
       const next={...s.body,version:s.revision+1,updatedAt:now};
       checks=[check(s)];
-      if(c.action==="updateSession") {
+      if(c.action==="commitTurn") {
+        if(c.nodeId!==s.body.nodeId||c.nodeVersion!==s.body.nodeVersion||c.policyVersion!==s.body.policyVersion) fail("STATE_CONFLICT");
+        if(c.complete&&now>253402300799) fail("INVALID_CLOCK");
+        Object.assign(next,{state:c.state,status:c.complete?"completed":"running"});
+        if(c.complete) Object.assign(next,{llmCompletion:{profile:"PSP-LLM-DURABLE-0.1",policy:"lockdown",requestId:c.requestId,lockedAt:now}});
+        result={profile:"PSP-LLM-DURABLE-0.1",requestId:c.requestId,sessionId:s.id,sessionVersion:next.version,status:c.complete?"completed":"running",inputDigest:c.inputDigest,output:c.output,retained:c.retained};
+      } else if(c.action==="updateSession") {
         const n=await this.node(actor,c.nodeId as string,c.nodeVersion as string); checks.push(check(n));
         Object.assign(next,{nodeId:c.nodeId,nodeVersion:c.nodeVersion,policyVersion:c.policyVersion,status:c.status,state:c.state});
         result=next;
@@ -219,7 +247,7 @@ export class WorkflowStore {
       writes.push(row(key("session",s.id),next,s.revision+1));
     }
     if(receiptKey) {
-      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result}));
+      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result,...(c.action==="commitTurn"?{profile:"PSP-LLM-DURABLE-0.1"}:{})}));
     }
     validateBatch(actor.tenantId,checks,writes,expiresAt);
     let allowed:unknown;

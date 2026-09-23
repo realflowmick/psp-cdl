@@ -60,7 +60,7 @@ export async function fixture(settings={}) {
     }};
   try {
     const loop=new BufferedLlmLoop(f.store,f.gate,host,provider);
-    return {...f,loop,loopHost:host,flags,baseFlags:f.flags,requests,phases,options:{...f.options,maxSteps:settings.maxSteps??4},stats:()=>({providerCalls:requests.length,toolCalls:f.stats().calls,busy})};
+    return {...f,loop,loopHost:host,provider,flags,baseFlags:f.flags,requests,phases,options:{...f.options,maxSteps:settings.maxSteps??4},stats:()=>({providerCalls:requests.length,toolCalls:f.stats().calls,busy})};
   }catch(e){f.close();throw e;}
 }
 export async function runCase(c) {
