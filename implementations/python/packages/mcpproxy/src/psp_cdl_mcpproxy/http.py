@@ -131,7 +131,7 @@ class HttpMcpClient(PinnedMcpClient):
                     if message["method"] == "initialize" and not stopped.is_set(): self._session = session
                 results.put_nowait((value,None))
             except Exception as exc:
-                results.put_nowait((None,exc if isinstance(exc,PeerError) else PeerError("PEER_CONNECTION_FAILED" if isinstance(exc,(OSError,ssl.SSLError)) else "INVALID_RESPONSE")))
+                results.put_nowait((None,exc if isinstance(exc,PeerError) else PeerError("PEER_TIMEOUT" if isinstance(exc,TimeoutError) else "PEER_CONNECTION_FAILED" if isinstance(exc,(OSError,ssl.SSLError)) else "INVALID_RESPONSE")))
             finally:
                 if conn is not None: conn.close()
         worker = threading.Thread(target=work,daemon=True)
