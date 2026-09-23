@@ -47,6 +47,7 @@ import {McpServer} from '@psp-cdl/mcp-server';
 import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
+import {StdioMcpClient,createMcpProxy} from '@psp-cdl/mcpproxy/mcp';
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 import {WorkflowService} from '@psp-cdl/api-server/workflow';
 import {SessionOperations} from '@psp-cdl/api-server/operations';
@@ -71,6 +72,15 @@ try {
   const gate=new McpDispatchGate(store,host,'r1',[{server:'echo',name:'read',revision:'1',readOnly:true,sources:[],complete:true,inputSchema:schema,outputSchema:schema,invoke:a=>{calls++;return a;}}]);
   const output=await gate.callTool('consumer',session.sessionId,{name:'echo.read',arguments:{message:'🧪'}},{deadline:9,cancelled:()=>false});
   assert.equal(calls,1);assert.equal(output.data.message,'🧪');assert.equal(output.provenance.trustLevel,5);
+  const peer=await StdioMcpClient.connect({executable:process.execPath,args:[resolve('peer.mjs')],env:{},serverInfo:{name:'psp-cdl-reference',version:'0.1.0'},timeoutMs:2000});
+  try {
+    const remoteGate=new McpDispatchGate(store,host,'r1',peer.registrations('echo',[{name:'read',revision:'1',readOnly:true,sources:[],complete:true,inputSchema:schema,outputSchema:schema}],()=>1));
+    const proxy=createMcpProxy(remoteGate,()=> 'consumer',session.sessionId,()=>({deadline:9,cancelled:()=>false}));
+    await proxy.handle(JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'consumer',version:'1'}}}));
+    await proxy.handle('{"jsonrpc":"2.0","method":"notifications/initialized"}');
+    const response=await proxy.handle('{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"echo.read","arguments":{"message":"installed"}}}');
+    assert.equal(response.result.structuredContent.message,'installed');assert.equal(response.result._meta['psp-cdl/provenance'].trustLevel,5);
+  }finally{await peer.close();}
 } finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
 const document=core.documentFromJson(core.documentToJson(core.parseMarkup(source)));
@@ -84,6 +94,12 @@ assert.equal(cdl.policyTable().rules.length,88);
 assert.equal(typeof harness.profileReport,'function');
 '''
 (CONSUMER / 'smoke.mjs').write_text(node_source, encoding='utf-8')
+(CONSUMER / 'peer.mjs').write_text('''
+import {McpServer} from '@psp-cdl/mcp-server';
+import {serveStdio} from '@psp-cdl/mcp-server/stdio';
+const schema={type:'object',properties:{message:{type:'string'}},required:['message'],additionalProperties:false};
+await serveStdio(new McpServer({authenticate:()=>({tenantId:'test',subjectId:'test',scopes:[]}),discover:()=>[{name:'read',inputSchema:schema,outputSchema:schema}],callTool:(_n,a)=>({data:a})},()=> 'synthetic'));
+''',encoding='utf-8')
 run(['node', 'smoke.mjs'], CONSUMER)
 run([UV, 'pip', 'install', '--python', sys.executable, '--target', str(PYTHON), *[str(p) for p in ARTIFACTS.glob('*.whl')]])
 python_source = '''
@@ -98,6 +114,7 @@ import psp_cdl_test_harness as harness
 import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy
+from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy
 from psp_cdl_api_server.http import create_wsgi_app
 from psp_cdl_mcp_server.stdio import serve_stdio
 from psp_cdl_api_server.persistence import WorkflowStore, OwnerCoordinator
@@ -145,8 +162,32 @@ try:
     gate=proxy.McpDispatchGate(store,host,'r1',[{'server':'echo','name':'read','revision':'1','readOnly':True,'sources':[],'complete':True,'inputSchema':schema,'outputSchema':schema,'invoke':host.invoke}])
     output=gate.call_tool('consumer',session['sessionId'],{'name':'echo.read','arguments':{'message':'🧪'}},{'deadline':9,'cancelled':lambda:False})
     assert host.calls==1 and output['data']['message']=='🧪' and output['provenance']['trustLevel']==5
+    peer=StdioMcpClient.connect({'executable':sys.executable,'args':['-I',str(Path('peer.py').resolve()),str(target)],'env':{},'serverInfo':{'name':'psp-cdl-reference','version':'0.1.0'},'timeoutMs':2000})
+    try:
+        remote=proxy.McpDispatchGate(store,host,'r1',peer.registrations('echo',[{'name':'read','revision':'1','readOnly':True,'sources':[],'complete':True,'inputSchema':schema,'outputSchema':schema}],lambda:1))
+        server=create_mcp_proxy(remote,lambda:'consumer',session['sessionId'],lambda:{'deadline':9,'cancelled':lambda:False})
+        server.handle('{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"consumer","version":"1"}}}')
+        server.handle('{"jsonrpc":"2.0","method":"notifications/initialized"}')
+        response=server.handle('{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"echo.read","arguments":{"message":"installed"}}}')
+        assert response['result']['structuredContent']['message']=='installed' and response['result']['_meta']['psp-cdl/provenance']['trustLevel']==5
+    finally:
+        peer.close()
 finally:
     backend.close()
 '''
+(CONSUMER / 'peer.py').write_text('''
+import sys
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+import psp_cdl_mcp_server as mcp
+from psp_cdl_mcp_server.stdio import serve_stdio
+assert Path(mcp.__file__).resolve().is_relative_to(Path(sys.argv[1]))
+schema={'type':'object','properties':{'message':{'type':'string'}},'required':['message'],'additionalProperties':False}
+class Tools:
+    def authenticate(self,_): return {'tenantId':'test','subjectId':'test','scopes':[]}
+    def discover(self,*_): return [{'name':'read','inputSchema':schema,'outputSchema':schema}]
+    def call_tool(self,n,a,*_): return {'data':a}
+serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
+''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Six npm tarballs and six Python wheels passed isolated consumer checks, including actual local dispatch; no packages published.')
+print('Six npm tarballs and six Python wheels passed isolated consumer checks, including mediated stdio dispatch; no packages published.')

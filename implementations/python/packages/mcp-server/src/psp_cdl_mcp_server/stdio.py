@@ -17,5 +17,8 @@ def serve_stdio(server,input_stream=None,output_stream=None):
             raise ValueError("TRUNCATED_FRAME")
         reply=server.handle(frame[:-1].decode("utf-8",errors="strict"))
         if reply is not None:
-            target.write((canonical_json(reply)+"\n").encode("utf-8"))
+            wire=canonical_json(reply).encode("utf-8")
+            if len(wire)>MAX_REQUEST_BYTES:
+                raise ValueError("FRAME_TOO_LARGE")
+            target.write(wire+b"\n")
             target.flush()

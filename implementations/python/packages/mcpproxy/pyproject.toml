@@ -10,12 +10,13 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 readme = "README.md"
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3"]
-dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-cdl==0.1.0.dev0", "psp-cdl-api-server==0.1.0.dev0"]
+dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-cdl==0.1.0.dev0", "psp-cdl-api-server==0.1.0.dev0", "psp-cdl-mcp-server==0.1.0.dev0"]
 
 [tool.uv.sources]
 psp-cdl-core = { workspace = true }
 psp-cdl-cdl = { workspace = true }
 psp-cdl-api-server = { workspace = true }
+psp-cdl-mcp-server = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/psp_cdl_mcpproxy"]

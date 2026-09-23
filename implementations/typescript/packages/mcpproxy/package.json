@@ -8,6 +8,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./mcp": {"types":"./dist/mcp.d.ts","import":"./dist/mcp.js"},
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
@@ -28,6 +29,7 @@
   "dependencies": {
     "@psp-cdl/core": "0.1.0-dev.0",
     "@psp-cdl/cdl": "0.1.0-dev.0",
-    "@psp-cdl/api-server": "0.1.0-dev.0"
+    "@psp-cdl/api-server": "0.1.0-dev.0",
+    "@psp-cdl/mcp-server": "0.1.0-dev.0"
   }
 }

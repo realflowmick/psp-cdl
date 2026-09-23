@@ -18,7 +18,11 @@ export async function serveStdio(server:McpServer,input:Readable=process.stdin,o
       const source=new TextDecoder("utf-8",{fatal:true}).decode(pending);
       pending=Buffer.alloc(0);start=newline+1;
       const reply=await server.handle(source);
-      if(reply!==null&&!output.write(canonicalJson(reply)+"\n")) await once(output,"drain");
+      if(reply!==null) {
+        const wire=canonicalJson(reply);
+        if(Buffer.byteLength(wire)>MAX_REQUEST_BYTES) throw new Error("FRAME_TOO_LARGE");
+        if(!output.write(wire+"\n")) await once(output,"drain");
+      }
     }
   }
   if(pending.length) throw new Error("TRUNCATED_FRAME");

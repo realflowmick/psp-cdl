@@ -1,17 +1,34 @@
 // SPDX-License-Identifier: Apache-2.0
 import { canonicalJson, parseJson, record } from "@psp-cdl/core";
-import { MAX_REQUEST_BYTES, SecurityService, ServiceError, scopeFor, type Operation } from "@psp-cdl/api-server";
+import { MAX_REQUEST_BYTES, SecurityService, ServiceError, scopeFor, type Operation, type Principal } from "@psp-cdl/api-server";
 import { toolDefinitions } from "./tools.js";
 import { workflowToolDefinitions } from "./workflow-tools.js";
 export const MCP_VERSION="2025-11-25";
 const operations:Record<string,Operation>={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate",
   "realflow.sessions.create":"createSession","realflow.sessions.get":"getSession","realflow.sessions.update":"updateSession",
   "realflow.nodes.fetch":"getNode","realflow.checkpoints.create":"createCheckpoint","realflow.checkpoints.resume":"resumeCheckpoint"};
+export interface McpToolService {
+  authenticate(token:unknown):Promise<Principal>|Principal;
+  discover(token:string, principal:Principal):Promise<unknown[]>|unknown[];
+  callTool(name:string,args:Record<string,unknown>,token:string,principal:Principal):Promise<{data:Record<string,unknown>;meta?:Record<string,unknown>}>|{data:Record<string,unknown>;meta?:Record<string,unknown>};
+}
+function toolService(service:SecurityService|McpToolService):McpToolService {
+  if(!("operations" in service)) return service;
+  return {
+    authenticate:t=>service.authenticate(t),
+    discover:(_t,p)=>[...toolDefinitions,...workflowToolDefinitions].filter(t=>service.operations.includes(operations[t.name]!)&&p.scopes.includes(scopeFor(operations[t.name]!))),
+    callTool:async(name,args,token,p)=>{
+      if(!Object.hasOwn(operations,name)||!service.operations.includes(operations[name]!)) throw new ServiceError("Invalid tool or arguments",400);
+      return {data:await service.invoke(operations[name]!,args,token,p)};
+    }
+  };
+}
 /** One dispatcher per stdio connection; credentials are supplied by its trusted launcher. */
 export class McpServer {
   private phase:"new"|"initializing"|"ready"="new";
   private identity:string|undefined;
-  constructor(private readonly service:SecurityService, private readonly credential:()=>string) {}
+  private readonly service:McpToolService;
+  constructor(service:SecurityService|McpToolService, private readonly credential:()=>string) {this.service=toolService(service);}
   async handle(source:string):Promise<Record<string,unknown>|null> {
     let message:unknown;
     const error=(id:unknown,code:number,reason:string)=>({jsonrpc:"2.0",id,error:{code,message:reason}});
@@ -42,13 +59,13 @@ export class McpServer {
       if(this.phase!=="ready") return fail(-32000,"NOT_INITIALIZED");
       if(message.method==="tools/list") {
         if(Object.keys(params).some(k=>k!=="_meta")) return fail(-32602,"Invalid params");
-        return success({tools:parseJson(canonicalJson([...toolDefinitions,...workflowToolDefinitions].filter(t=>this.service.operations.includes(operations[t.name]!)&&principal.scopes.includes(scopeFor(operations[t.name]!)))))});
+        return success({tools:parseJson(canonicalJson(await this.service.discover(token,principal)))});
       }
       if(message.method!=="tools/call") return fail(-32601,"Method not found");
-      if(Object.keys(params).some(k=>!["name","arguments","_meta"].includes(k))||typeof params.name!=="string"||!Object.hasOwn(operations,params.name)||!this.service.operations.includes(operations[params.name]!)||!record(params.arguments)) return fail(-32602,"Invalid tool or arguments");
+      if(Object.keys(params).some(k=>!["name","arguments","_meta"].includes(k))||typeof params.name!=="string"||!record(params.arguments)) return fail(-32602,"Invalid tool or arguments");
       try {
-        const result=await this.service.invoke(operations[params.name]!,params.arguments,token,principal);
-        return success({content:[{type:"text",text:canonicalJson(result)}],structuredContent:result,isError:false});
+        const result=await this.service.callTool(params.name,params.arguments,token,principal);
+        return success({content:[{type:"text",text:canonicalJson(result.data)}],structuredContent:result.data,isError:false,...(result.meta?{_meta:result.meta}:{})});
       } catch(e) {
         if(e instanceof ServiceError&&e.status===400) return fail(-32602,e.code);
         const code=e instanceof ServiceError?e.code:"INTERNAL_ERROR";

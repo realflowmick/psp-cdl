@@ -2,7 +2,7 @@
 
 `McpDispatchGate` is the first experimental M4 slice in both languages. It authenticates callers, uses the durable active node's exact tool allow-list, evaluates CDL before invoking a registered tool, then validates and checks its buffered output before returning it. See the [draft profile](../specs/profiles/PSP-MCP-DISPATCH-0.1.md) for precise bounds and the [shared contract](../schemas/mcp-dispatch.schema.json).
 
-This is a library API for an application host. MCP client/server transport mediation, dynamic network discovery, the LLM tool loop and complete topology enforcement remain pending. It requires no SaaS account, provider credential or external service.
+This is a library API for an application host. The opt-in [MCP stdio adapter](mcp-stdio.md) now connects it to local caller and downstream processes. Remote HTTP/OAuth, hot network discovery, the LLM tool loop and complete topology enforcement remain pending. It requires no SaaS account, provider credential or external service.
 
 ## Setup and calls
 

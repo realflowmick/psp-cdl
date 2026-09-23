@@ -50,6 +50,7 @@ interface Tool { meta:Omit<ToolRegistration,"invoke">; invoke:ToolRegistration["
 
 /** A gate library, not a network proxy. Registry entries come from authenticated host adapters. */
 export class McpDispatchGate {
+  authenticate(token:unknown):Promise<Principal> {return this.auth.authenticate(token);}
   private readonly tools=new Map<string,Tool>();
   private readonly auth:SecurityService;
   private readonly coordinator:OwnerCoordinator;
@@ -94,9 +95,9 @@ export class McpDispatchGate {
       return fail("HOST_ERROR");
     }
   }
-  private async within<T>(token:unknown,sessionId:string,scope:string,options:CallOptions,work:(p:Principal,s:Record<string,unknown>,a:AuthoritySnapshot,allowed:Set<string>,fresh:()=>Promise<void>)=>Promise<T>):Promise<T> {
+  private async within<T>(token:unknown,sessionId:string,scope:string,options:CallOptions,work:(p:Principal,s:Record<string,unknown>,a:AuthoritySnapshot,allowed:Set<string>,fresh:()=>Promise<void>)=>Promise<T>,expected?:Principal):Promise<T> {
     return this.boundary(async()=>{
-      const p=await this.principal(token,scope), actor:Actor={tenantId:p.tenantId,subjectId:p.subjectId};
+      const p=await this.principal(token,scope,expected), actor:Actor={tenantId:p.tenantId,subjectId:p.subjectId};
       this.check(options);
       return this.coordinator.run(actor,async()=>{
         const session=await this.store.execute(actor,{action:"getSession",sessionId});
@@ -115,14 +116,14 @@ export class McpDispatchGate {
       });
     });
   }
-  async listTools(token:unknown,sessionId:string,options:CallOptions):Promise<Record<string,unknown>[]> {
+  async listTools(token:unknown,sessionId:string,options:CallOptions,expected?:Principal):Promise<Record<string,unknown>[]> {
     options={deadline:options?.deadline,cancelled:options?.cancelled};
     return this.within(token,sessionId,"tools:list",options,async(_p,_s,_a,allowed,fresh)=>{
       const tools=[...this.tools.values()].filter(t=>t.meta.readOnly&&allowed.has(t.uri)).sort((a,b)=>a.name<b.name?-1:1).map(t=>({name:t.name,inputSchema:copy(t.meta.inputSchema),outputSchema:copy(t.meta.outputSchema)}));
       await fresh(); return copy(tools,"INVALID_OUTPUT");
-    });
+    },expected);
   }
-  async callTool(token:unknown,sessionId:string,request:unknown,options:CallOptions):Promise<Record<string,unknown>> {
+  async callTool(token:unknown,sessionId:string,request:unknown,options:CallOptions,expected?:Principal):Promise<Record<string,unknown>> {
     options={deadline:options?.deadline,cancelled:options?.cancelled};
     return this.within(token,sessionId,"tools:call",options,async(p,session,authority,allowed,fresh)=>{
       const r=copy(request);
@@ -145,13 +146,16 @@ export class McpDispatchGate {
       await fresh();
       this.check(options,Math.min(authority.expires,session.expiresAt as number));
       // No await between final check and entering the pinned endpoint callback.
-      const output=copy(await callback(()=>tool.invoke(copy(r.arguments),{deadline:options.deadline,cancelled:options.cancelled}),"TOOL_FAILED"),"INVALID_OUTPUT");
+      let raw:unknown;
+      try {raw=await tool.invoke(copy(r.arguments),{deadline:options.deadline,cancelled:options.cancelled});}
+      catch {this.check(options,Math.min(authority.expires,session.expiresAt as number));return fail("TOOL_FAILED");}
+      const output=copy(raw,"INVALID_OUTPUT");
       this.check(options,Math.min(authority.expires,session.expiresAt as number));
       if(!matches(tool.meta.outputSchema,output)) fail("INVALID_OUTPUT");
       const outputDigest=bindingDigest(output);
       await decide("release",output,{...binding,outputDigest},capabilities(authority.releaseSources,authority.releaseComplete));
       await fresh();
       return {data:output,provenance:{profile:DISPATCH_PROFILE,toolUri:tool.uri,toolRevision:tool.meta.revision,registryRevision:this.registryRevision,inputDigest:binding.inputDigest,outputDigest,trustLevel:5}};
-    });
+    },expected);
   }
 }
