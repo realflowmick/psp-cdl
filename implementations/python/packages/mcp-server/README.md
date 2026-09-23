@@ -9,3 +9,5 @@ License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.
 `McpServer` also accepts a trusted tool-service object with `authenticate`, `discover` and `call_tool` callbacks. Calls return `{"data": object, "meta": optional_object}`; the dispatcher regenerates text and structured content. This interface supplies framing/lifecycle only. Use the [MCPProxy adapter](../../../../docs/mcp-stdio.md) to put the gate in that path; arbitrary host callbacks do not acquire CDL enforcement automatically. Stdio input and serialized output are bounded to 1 MiB per frame.
 
 The opt-in [Streamable HTTP adapter](../../../../docs/mcp-http.md) adds host-authenticated resource access, bounded owner sessions, verified downstream TLS and cancellation. It consumes host-obtained tokens and buffers finite JSON/SSE responses; OAuth client flows and production hosting remain host integrations.
+
+See the [revision and refresh guide](../../../../docs/mcp-revision.md) for the optional `PSP-MCP-REVISION-0.1` API, receiving execution leases and approved gate replacement. It remains a draft, process-local read-only contract.

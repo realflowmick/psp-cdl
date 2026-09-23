@@ -1,0 +1,30 @@
+{
+  "profile":"PSP-MCP-REVISION-0.1",
+  "status":"draft",
+  "license":"CC0-1.0",
+  "cases":[
+    {"id":"matching","expected":{"code":"OK","calls":1,"released":1,"generation":1}},
+    {"id":"generation","patch":{"generation":2},"expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"epoch","patch":{"epoch":"other"},"expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"catalog","patch":{"catalogDigest":"0000000000000000000000000000000000000000000000000000000000000000"},"expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"tool","patch":{"toolRevision":"tool-2"},"expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"input","patch":{"inputDigest":"0000000000000000000000000000000000000000000000000000000000000000"},"expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"extra","patch":{"approval":true},"expected":{"code":"INVALID_PRECONDITION","calls":0,"released":0,"generation":1}},
+    {"id":"missing","expected":{"code":"INVALID_PRECONDITION","calls":0,"released":0,"generation":1}},
+    {"id":"unknown-tool","expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":1}},
+    {"id":"deny-invoke","expected":{"code":"FORBIDDEN","calls":0,"released":0,"generation":1}},
+    {"id":"deny-release","expected":{"code":"FORBIDDEN","calls":1,"released":0,"generation":1}},
+    {"id":"identity-change","expected":{"code":"FORBIDDEN","calls":0,"released":0,"generation":1}},
+    {"id":"no-scope","expected":{"code":"FORBIDDEN","calls":0,"released":0,"generation":1}},
+    {"id":"cancel-before","expected":{"code":"CANCELLED","calls":0,"released":0,"generation":1}},
+    {"id":"cancel-after","expected":{"code":"CANCELLED","calls":1,"released":0,"generation":1}},
+    {"id":"race-before-select","expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":2}},
+    {"id":"aba","expected":{"code":"REVISION_MISMATCH","calls":0,"released":0,"generation":3}},
+    {"id":"busy-invoke","expected":{"code":"REGISTRY_BUSY","calls":1,"released":1,"generation":1}},
+    {"id":"busy-release","expected":{"code":"REGISTRY_BUSY","calls":1,"released":1,"generation":1}},
+    {"id":"publish-conflict","expected":{"code":"REVISION_CONFLICT","calls":1,"released":1,"generation":1}},
+    {"id":"invalid-candidate","expected":{"code":"INVALID_CONFIGURATION","calls":1,"released":1,"generation":1}},
+    {"id":"no-negotiation","expected":{"code":"REVISION_REQUIRED","calls":0,"released":0,"generation":1}},
+    {"id":"lease-failure","expected":{"code":"TOOL_ERROR","calls":1,"released":0,"generation":2}}
+  ]
+}

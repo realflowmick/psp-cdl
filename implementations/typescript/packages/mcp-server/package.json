@@ -19,6 +19,10 @@
     "./http": {
       "types": "./dist/http.d.ts",
       "import": "./dist/http.js"
+    },
+    "./revision": {
+      "types": "./dist/revision.d.ts",
+      "import": "./dist/revision.js"
     }
   },
   "files": [

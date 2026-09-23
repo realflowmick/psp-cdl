@@ -9,3 +9,5 @@ License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.
 The explicit `@psp-cdl/mcpproxy/mcp` entry point adds `StdioMcpClient`, `createMcpProxy` and `serveStdio`. It supports launcher-authenticated local mediation with pinned discovery and checked structured responses. See [the stdio guide](../../../../docs/mcp-stdio.md) for approvals, process cleanup, deadlines and unsupported wire-level cancellation. HTTP support is described below; OAuth client flows remain host integrations.
 
 The opt-in [Streamable HTTP adapter](../../../../docs/mcp-http.md) adds host-authenticated resource access, bounded owner sessions, verified downstream TLS and cancellation. It consumes host-obtained tokens and buffers finite JSON/SSE responses; OAuth client flows and production hosting remain host integrations.
+
+See the [revision and refresh guide](../../../../docs/mcp-revision.md) for the optional `PSP-MCP-REVISION-0.1` API, receiving execution leases and approved gate replacement. It remains a draft, process-local read-only contract.

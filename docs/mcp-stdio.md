@@ -46,3 +46,5 @@ The proxy returns checked data as MCP `structuredContent`, matching its advertis
 Timeouts and host cancellation close the owned direct child. The sequential upstream dispatcher cannot service an MCP cancellation notification while it is waiting for a tool; use host cancellation controls and the finite downstream timeout. A sent call cannot be undone. No shell, inherited credential environment, automatic retries or reconnects are used.
 
 Run [the paired demonstration](../examples/mediation/README.md) or `python scripts/check-mediation-parity.py` after building. The tests include real three-process mixed-language chains and actual tool-spy counts. Streamable HTTP/OAuth, remote TLS identity, streaming, hot registry changes, mutating tools and distributed dispatch remain later work. This reference layer requires no SaaS account or paid provider.
+
+For explicitly negotiated atomic remote revision checks and host-approved registry replacement, opt into the separate [revision profile](mcp-revision.md). Its guarantees apply only when both peers and their host publication path use that extension. The base profile remains unchanged.

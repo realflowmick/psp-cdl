@@ -3,6 +3,7 @@ from psp_cdl_core import canonical_json, parse_json
 from psp_cdl_api_server import MAX_REQUEST_BYTES, SecurityService, ServiceError, scope_for
 from .tools import TOOL_DEFINITIONS
 from .workflow_tools import WORKFLOW_TOOL_DEFINITIONS
+from .revision import REVISION_PROFILE, REVISION_KEY
 MCP_VERSION="2025-11-25"
 OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate", "realflow.sessions.create":"createSession", "realflow.sessions.get":"getSession", "realflow.sessions.update":"updateSession", "realflow.nodes.fetch":"getNode", "realflow.checkpoints.create":"createCheckpoint", "realflow.checkpoints.resume":"resumeCheckpoint"}
 
@@ -22,6 +23,7 @@ class McpServer:
     def __init__(self,service: SecurityService,credential):
         self.service,self.credential=SecurityTools(service) if hasattr(service,"operations") else service,credential
         self.phase,self.identity="new",None
+        self.revision_negotiated=False
 
     def handle(self,source,context=None):
         def error(id,code,reason):
@@ -67,14 +69,22 @@ class McpServer:
                 client=params.get("clientInfo")
                 if self.phase!="new" or type(params.get("protocolVersion")) is not str or type(params.get("capabilities")) is not dict or type(client) is not dict or type(client.get("name")) is not str or type(client.get("version")) is not str:
                     return fail(-32602,"Invalid initialization")
+                revisions=getattr(service,"revisions",None)
+                offered=getattr(revisions,"profile",None)==REVISION_PROFILE
+                experimental=params["capabilities"].get("experimental")
+                requested=type(experimental) is dict and REVISION_KEY in experimental
+                if requested and (not offered or experimental[REVISION_KEY]!={"profile":REVISION_PROFILE}): return fail(-32000,"REVISION_UNSUPPORTED")
+                self.revision_negotiated=requested
                 self.identity,self.phase=identity,"initializing"
-                return success({"protocolVersion":MCP_VERSION,"capabilities":{"tools":{"listChanged":False}},"serverInfo":{"name":"psp-cdl-reference","version":"0.1.0"}})
+                return success({"protocolVersion":MCP_VERSION,"capabilities":{"tools":{"listChanged":False},**({"experimental":{REVISION_KEY:{"profile":REVISION_PROFILE}}} if offered else {})},"serverInfo":{"name":"psp-cdl-reference","version":"0.1.0"}})
             if self.phase!="ready":
                 return fail(-32000,"NOT_INITIALIZED")
+            if self.revision_negotiated and getattr(getattr(service,"revisions",None),"profile",None)!=REVISION_PROFILE: return fail(-32000,"REVISION_UNSUPPORTED")
             if method=="tools/list":
                 if set(params)-{"_meta"}:
                     return fail(-32602,"Invalid params")
                 # Detach tool schemas so callers cannot alter future discovery.
+                if self.revision_negotiated: return success(parse_json(canonical_json(service.revisions.discover(token,principal))))
                 tools=service.discover(token,principal)
                 return success({"tools":parse_json(canonical_json(tools))})
             if method!="tools/call":
@@ -82,7 +92,8 @@ class McpServer:
             if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or type(params.get("arguments")) is not dict:
                 return fail(-32602,"Invalid tool or arguments")
             try:
-                result=service.call_tool(params["name"],params["arguments"],token,principal)
+                if not self.revision_negotiated and REVISION_KEY in params.get("_meta",{}): raise ServiceError("REVISION_UNSUPPORTED",409)
+                result=service.revisions.call_tool(params["name"],params["arguments"],token,principal,params.get("_meta",{}).get(REVISION_KEY)) if self.revision_negotiated else service.call_tool(params["name"],params["arguments"],token,principal)
                 return success({"content":[{"type":"text","text":canonical_json(result["data"])}],"structuredContent":result["data"],"isError":False,**({"_meta":result["meta"]} if "meta" in result else {})})
             except Exception as exc:
                 if isinstance(exc,ServiceError) and exc.status==400:

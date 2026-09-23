@@ -51,22 +51,43 @@ interface Tool { meta:Omit<ToolRegistration,"invoke">; invoke:ToolRegistration["
 /** A gate library, not a network proxy. Registry entries come from authenticated host adapters. */
 export class McpDispatchGate {
   authenticate(token:unknown):Promise<Principal> {return this.auth.authenticate(token);}
-  private readonly tools=new Map<string,Tool>();
+  private tools=new Map<string,Tool>();
+  private active=0;
+  private readonly usedRevisions=new Set<string>();
   private readonly auth:SecurityService;
   private readonly coordinator:OwnerCoordinator;
-  constructor(private readonly store:WorkflowStore, private readonly host:DispatchHost, private readonly registryRevision:string, registrations:ToolRegistration[]) {
+  constructor(private readonly store:WorkflowStore, private readonly host:DispatchHost, private currentRevision:string, registrations:ToolRegistration[]) {
+    const registryRevision=currentRevision;
     if(!(store.coordinator instanceof OwnerCoordinator)||!identifier(registryRevision)||!Array.isArray(registrations)||registrations.length>1024||[host.authenticate,host.now,host.snapshot,host.policy].some(v=>typeof v!=="function")) fail("INVALID_CONFIGURATION");
     this.coordinator=store.coordinator!;
     this.auth=new SecurityService({authenticate:t=>host.authenticate(t),now:()=>host.now(),resolve:()=>null});
+    this.usedRevisions.add(registryRevision);
+    this.tools=this.prepare(registrations);
+  }
+  get registryRevision():string {return this.currentRevision;}
+  private prepare(registrations:ToolRegistration[]):Map<string,Tool> {
+    if(!Array.isArray(registrations)||registrations.length>1024)fail("INVALID_CONFIGURATION");
+    const tools=new Map<string,Tool>();
     for(const r of registrations) {
+      if(!record(r))fail("INVALID_CONFIGURATION");
       const {invoke,...metadata}=r, meta=copy(metadata,"INVALID_CONFIGURATION") as Tool["meta"];
       if(Object.keys(meta).sort().join(",")!=="complete,inputSchema,name,outputSchema,readOnly,revision,server,sources"||!part(meta.server)||!part(meta.name)||!identifier(meta.revision)||typeof meta.readOnly!=="boolean"||typeof invoke!=="function") fail("INVALID_CONFIGURATION");
       try {checkSchema(meta.inputSchema);checkSchema(meta.outputSchema);}catch{fail("UNSUPPORTED_SCHEMA");}
       if(meta.inputSchema.type!=="object"||meta.outputSchema.type!=="object") fail("UNSUPPORTED_SCHEMA");
       const name=meta.server+"."+meta.name;
-      if(this.tools.has(name)) fail("INVALID_CONFIGURATION");
-      this.tools.set(name,{meta,invoke,caps:capabilities(meta.sources,meta.complete),name,uri:"mcp://"+meta.server+"/"+meta.name});
+      if(tools.has(name)) fail("INVALID_CONFIGURATION");
+      tools.set(name,{meta,invoke,caps:capabilities(meta.sources,meta.complete),name,uri:"mcp://"+meta.server+"/"+meta.name});
     }
+    return tools;
+  }
+  /** Host-only, fail-fast replacement. The host must separately publish matching authority. */
+  replaceRegistry(expectedRevision:string,nextRevision:string,registrations:ToolRegistration[]):void {
+    if(expectedRevision!==this.currentRevision)fail("REVISION_CONFLICT");
+    if(this.active)fail("REGISTRY_BUSY");
+    if(!identifier(nextRevision)||this.usedRevisions.has(nextRevision))fail("INVALID_REGISTRY_REVISION");
+    if(this.usedRevisions.size>=4096)fail("REVISION_EXHAUSTED");
+    const tools=this.prepare(registrations);
+    this.tools=tools;this.currentRevision=nextRevision;this.usedRevisions.add(nextRevision);
   }
   private check(options:CallOptions,expires=Number.MAX_SAFE_INTEGER):void {
     if(!options||!integer(options.deadline)||typeof options.cancelled!=="function") fail("INVALID_REQUEST");
@@ -96,7 +117,8 @@ export class McpDispatchGate {
     }
   }
   private async within<T>(token:unknown,sessionId:string,scope:string,options:CallOptions,work:(p:Principal,s:Record<string,unknown>,a:AuthoritySnapshot,allowed:Set<string>,fresh:()=>Promise<void>)=>Promise<T>,expected?:Principal):Promise<T> {
-    return this.boundary(async()=>{
+    this.active++;
+    try {return await this.boundary(async()=>{
       const p=await this.principal(token,scope,expected), actor:Actor={tenantId:p.tenantId,subjectId:p.subjectId};
       this.check(options);
       return this.coordinator.run(actor,async()=>{
@@ -114,7 +136,7 @@ export class McpDispatchGate {
         };
         return work(p,session,authority,affinity(node),fresh);
       });
-    });
+    });}finally{this.active--;}
   }
   async listTools(token:unknown,sessionId:string,options:CallOptions,expected?:Principal):Promise<Record<string,unknown>[]> {
     options={deadline:options?.deadline,cancelled:options?.cancelled};

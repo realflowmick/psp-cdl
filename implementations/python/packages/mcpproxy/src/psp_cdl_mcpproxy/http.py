@@ -10,6 +10,7 @@ import time
 from psp_cdl_core import canonical_json, parse_json
 from psp_cdl_mcp_server import MCP_VERSION
 from psp_cdl_mcp_server.http import endpoint_url, HTTP_LIMIT
+from psp_cdl_mcp_server.revision import REVISION_PROFILE
 from .peer import PinnedMcpClient, PeerError, json_copy
 
 def parse_sse(source):
@@ -44,11 +45,12 @@ class HttpMcpClient(PinnedMcpClient):
     @classmethod
     def connect(cls, value, credential):
         c = json_copy(value)
-        if type(c) is not dict or set(c)-{"endpoint","allowLoopbackHttp","serverInfo","timeoutMs","caPem"} or type(c.get("endpoint")) is not str or type(c.get("allowLoopbackHttp")) is not bool or type(c.get("serverInfo")) is not dict or set(c["serverInfo"]) != {"name","version"} or any(type(v) is not str for v in c["serverInfo"].values()) or type(c.get("timeoutMs")) is not int or not 1 <= c["timeoutMs"] <= 30_000 or "caPem" in c and type(c["caPem"]) is not str or not callable(credential): raise PeerError("INVALID_CONFIGURATION")
+        if type(c) is not dict or set(c)-{"endpoint","allowLoopbackHttp","serverInfo","timeoutMs","caPem","revisionProfile"} or type(c.get("endpoint")) is not str or type(c.get("allowLoopbackHttp")) is not bool or type(c.get("serverInfo")) is not dict or set(c["serverInfo"]) != {"name","version"} or any(type(v) is not str for v in c["serverInfo"].values()) or type(c.get("timeoutMs")) is not int or not 1 <= c["timeoutMs"] <= 30_000 or "caPem" in c and type(c["caPem"]) is not str or not callable(credential): raise PeerError("INVALID_CONFIGURATION")
+        if "revisionProfile" in c and c["revisionProfile"]!=REVISION_PROFILE: raise PeerError("INVALID_CONFIGURATION")
         try: peer = cls(c,credential)
         except Exception: raise PeerError("INVALID_CONFIGURATION") from None
         try:
-            peer._initialize(c["serverInfo"])
+            peer._initialize(c["serverInfo"],c.get("revisionProfile"))
             return peer
         except Exception:
             peer._closed.set()

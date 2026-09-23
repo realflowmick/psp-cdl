@@ -45,6 +45,9 @@
         },
         "caPem": {
           "type": "string"
+        },
+        "revisionProfile": {
+          "const": "PSP-MCP-REVISION-0.1"
         }
       }
     },

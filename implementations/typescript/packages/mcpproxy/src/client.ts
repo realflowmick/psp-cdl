@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {REVISION_PROFILE} from "@psp-cdl/mcp-server/revision";
 import {spawn,type ChildProcessWithoutNullStreams} from "node:child_process";
 import {isAbsolute} from "node:path";
 import {canonicalJson,parseJson,record} from "@psp-cdl/core";
@@ -8,7 +9,7 @@ export {PeerError} from "./peer.js";
 const LIMIT=1_048_576;
 export interface StdioPeerConfig {
   executable:string; args:string[]; env:Record<string,string>;
-  serverInfo:{name:string;version:string}; timeoutMs:number;
+  serverInfo:{name:string;version:string}; timeoutMs:number; revisionProfile?:typeof REVISION_PROFILE;
 }
 const fail=(code:string):never=>{throw new PeerError(code);};
 
@@ -33,11 +34,12 @@ export class StdioMcpClient extends PinnedMcpClient {
   }
   static async connect(configValue:StdioPeerConfig):Promise<StdioMcpClient> {
     const c=json(configValue) as StdioPeerConfig;
-    if(!record(c)||Object.keys(c).sort().join(",")!=="args,env,executable,serverInfo,timeoutMs"||!record(c.serverInfo)||Object.keys(c.serverInfo).sort().join(",")!=="name,version")fail("INVALID_CONFIGURATION");
+    if(!record(c)||Object.keys(c).filter(k=>k!=="revisionProfile").sort().join(",")!=="args,env,executable,serverInfo,timeoutMs"||!record(c.serverInfo)||Object.keys(c.serverInfo).sort().join(",")!=="name,version")fail("INVALID_CONFIGURATION");
     if(!record(c)||typeof c.executable!=="string"||!isAbsolute(c.executable)||!Array.isArray(c.args)||c.args.some(v=>typeof v!=="string"||v.includes("\0"))||!record(c.env)||Object.entries(c.env).some(([k,v])=>typeof v!=="string"||!k||/[=\0]/.test(k)||v.includes("\0"))||!record(c.serverInfo)||typeof c.serverInfo.name!=="string"||typeof c.serverInfo.version!=="string"||!Number.isSafeInteger(c.timeoutMs)||c.timeoutMs<1||c.timeoutMs>30_000) fail("INVALID_CONFIGURATION");
+    if(c.revisionProfile!==undefined&&c.revisionProfile!==REVISION_PROFILE)fail("INVALID_CONFIGURATION");
     const peer=new StdioMcpClient(c);
     try {
-      await peer.initialize(c.serverInfo);
+      await peer.initialize(c.serverInfo,c.revisionProfile);
       return peer;
     }catch(e){await peer.close();throw e;}
   }
