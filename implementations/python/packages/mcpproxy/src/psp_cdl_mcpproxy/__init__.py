@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
-"""MCP mediation, node-agent affinity, covenant checks, and provenance. Implementation begins in M4."""
+"""Experimental host-embedded MCP dispatch gate; complete mediation is pending."""
 from copy import deepcopy
+from .dispatch import McpDispatchGate, DispatchError, DISPATCH_PROFILE, binding_digest
 
 _MANIFEST = {
     "id": "mcpproxy",
-    "status": "scaffold",
+    "status": "experimental",
     "specifications": {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": []
+    "implementedFeatures": ["host-mcp-dispatch-gate-0.1"]
 }
 
 
@@ -24,4 +25,4 @@ class NotImplementedFeatureError(NotImplementedError):
 
 def require_implementation() -> None:
     """Fail before any operation or side effect."""
-    raise NotImplementedFeatureError("mcpproxy is a scaffold; no security operation was executed.")
+    raise NotImplementedFeatureError("Complete MCP proxy transport and durable effect dispatch are not implemented.")

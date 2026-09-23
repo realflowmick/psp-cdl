@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import re
 import uuid
+import threading
 from typing import Protocol
 
 from psp_cdl_core import canonical_json, validate_json
@@ -92,14 +93,42 @@ def validate_batch(tenant_id, checks, writes, expires_at):
         written.add(k)
 
 
+class OwnerCoordinator:
+    """Optional single-process, fail-fast exclusion shared by all writers and gates."""
+    def __init__(self):
+        self._busy = set()
+        self._lock = threading.Lock()
+
+    def run(self, actor, work):
+        if type(actor) is not dict or not identifier(actor.get("tenantId")) or not identifier(actor.get("subjectId")):
+            raise StoreError("INVALID_STATE")
+        key = (actor["tenantId"], actor["subjectId"])
+        with self._lock:
+            if key in self._busy:
+                raise StoreError("STATE_BUSY")
+            self._busy.add(key)
+        try:
+            return work()
+        finally:
+            with self._lock:
+                self._busy.remove(key)
+
+
 class WorkflowStore:
     """Authenticate and authorize transitions in the trusted host before calling."""
-    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence):
+    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None):
         if not identifier(backend.epoch) or type(resume_secret) is not bytes or len(resume_secret) < 32 or not callable(authorize_persistence):
             raise StoreError("INVALID_CONFIGURATION")
         self.backend = backend
         self._secret = resume_secret
         self._authorize = authorize_persistence
+        if coordinator is not None and not isinstance(coordinator, OwnerCoordinator):
+            raise StoreError("INVALID_CONFIGURATION")
+        self._coordinator = coordinator
+
+    @property
+    def coordinator(self):
+        return self._coordinator
 
     @property
     def epoch(self):
@@ -148,6 +177,12 @@ class WorkflowStore:
     def execute(self, actor_value, command_value, guard=None):
         # A competing commit can occur after the receipt miss but before a state read.
         actor, command = bounded(actor_value), bounded(command_value)
+        work = lambda: self._execute_retry(actor, command, guard)
+        if self.coordinator is not None and type(command) is dict and command.get("action") not in ("getSession", "getNode"):
+            return self.coordinator.run(actor, work)
+        return work()
+
+    def _execute_retry(self, actor, command, guard):
         try:
             return self._execute_once(actor, command, guard)
         except StoreError as exc:

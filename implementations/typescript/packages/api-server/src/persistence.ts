@@ -27,6 +27,18 @@ export type AccessGuard = (context:AccessContext)=>boolean|Promise<boolean>;
 export interface PersistenceHost {
   resumeSecret:Uint8Array;
   authorizePersistence(actor:Actor, writes:StoredRecord[]):boolean|Promise<boolean>;
+  coordinator?:OwnerCoordinator;
+}
+/** Optional single-process, fail-fast exclusion. Share across every writer and gate. */
+export class OwnerCoordinator {
+  private readonly busy=new Set<string>();
+  async run<T>(actor:Actor, work:()=>T|Promise<T>):Promise<T> {
+    if(!identifier(actor.tenantId)||!identifier(actor.subjectId)) throw new StoreError("INVALID_STATE");
+    const key=canonicalJson([actor.tenantId,actor.subjectId]);
+    if(this.busy.has(key)) throw new StoreError("STATE_BUSY");
+    this.busy.add(key);
+    try { return await work(); } finally { this.busy.delete(key); }
+  }
 }
 export type WorkflowCommand =
   | {action:"putNode";nodeId:string;nodeVersion:string;definition:Record<string,unknown>}
@@ -71,10 +83,13 @@ export function validateBatch(tenantId:string, checks:Comparison[], writes:Store
 /** Trusted-host API only: authenticate and authorize transitions before calling. */
 export class WorkflowStore {
   get epoch():string { return this.backend.epoch; }
+  readonly coordinator:OwnerCoordinator|undefined;
   private readonly secret:Uint8Array;
   constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
     this.secret=new Uint8Array(host.resumeSecret);
+    if(host.coordinator!==undefined&&!(host.coordinator instanceof OwnerCoordinator)) fail("INVALID_CONFIGURATION");
+    this.coordinator=host.coordinator;
   }
   private token(actor:Actor,id:string):string {
     const mac=createHmac("sha256",this.secret).update(canonicalJson([PERSISTENCE_PROFILE,this.backend.epoch,actor.tenantId,actor.subjectId,id])).digest("base64url");
@@ -104,6 +119,11 @@ export class WorkflowStore {
     // A winner may commit between our first receipt lookup and a state read.
     // One fresh attempt observes its receipt; unchanged expected versions still fail.
     const actor=bounded(actorValue) as Actor, command=bounded(commandValue);
+    const execute=()=>this.executeRetry(actor,command,guard);
+    if(this.coordinator&&record(command)&&!["getSession","getNode"].includes(command.action as string)) return this.coordinator.run(actor,execute);
+    return execute();
+  }
+  private async executeRetry(actor:Actor,command:unknown,guard?:AccessGuard):Promise<Record<string,unknown>> {
     try { return await this.executeOnce(actor,command,guard); }
     catch(e) {
       if(e instanceof StoreError&&["STATE_CONFLICT","CHECKPOINT_CONSUMED","INVALID_TRANSITION"].includes(e.code)) return this.executeOnce(actor,command,guard);
