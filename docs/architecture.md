@@ -70,8 +70,8 @@ explicit lockdown mode writes terminal metadata outside application state and
 rejects later conversational input before inference, with a host audit callback.
 Historical recovery requires current identity, authorization, retained policy
 origins and release checks. Compare-and-write serializes competing state commits;
-inference/tool execution is not exactly once. Other completion modes and streaming
-remain future work.
+inference/tool execution is not exactly once. The separate redirect profile described below extends completion; scoped
+continuation and streaming remain future work.
 
 The separate [refresh loop](llm-refresh.md) obtains signed host-approved replacements
 before inference and preserves the complete transcript for policy checks. Accepted
@@ -82,3 +82,5 @@ result; refreshing cannot authorize replay of that result. Signers, compatibilit
 approval, audit acceptance and retained policy origins remain host responsibilities.
 
 The opt-in [MCP prompt refresh adapter](llm-mcp-refresh.md) binds a host-only control channel to one approved peer/catalog and exact owner/session. It never registers refresh with the model dispatch gate. The remote service resolves signing authority independently; only the existing refresh loop can verify and approve a candidate for inference.
+
+The opt-in [redirect loop](llm-redirect.md) resolves a host-selected application locally, evaluates a separately bound CDL transfer decision, and atomically completes the source with a fresh same-owner target and immutable receipt. The target receives only output and retained policy evidence; its own host initializes fresh threat state, signed prompts and gate authority. Current-policy recovery returns historical routing information without creating or invoking another target.

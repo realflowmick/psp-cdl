@@ -102,3 +102,5 @@ The separate [refresh loop](llm-refresh.md) adds host-approved expiration/interv
 refresh with durable metadata and counters. Streaming, live providers, scoped/redirect execution,
 distributed reservations, retention/deletion and mutating tools remain pending.
 These checks do not establish full conformance or measured security effectiveness.
+
+A separate opt-in [redirect loop](llm-redirect.md) now supports atomic completion handoff. `DurableLlmLoop` itself still requires lockdown; scoped continuation and combined redirect/refresh are unsupported.

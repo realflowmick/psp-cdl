@@ -32,7 +32,7 @@ else:
                     raise RuntimeError("barrier timeout")
                 time.sleep(0.02)
         return True
-    store = WorkflowStore(backend, resume_secret=SECRET, authorize_persistence=permit, durable_turns=bool(options.get("durableTurns")), prompt_refresh=bool(options.get("promptRefresh")))
+    store = WorkflowStore(backend, resume_secret=SECRET, authorize_persistence=permit, durable_turns=bool(options.get("durableTurns")), prompt_refresh=bool(options.get("promptRefresh")), redirect_turns=bool(options.get("redirectTurns")))
     try:
         result = {"result": store.execute(options["actor"], options["command"])}
     except StoreError as exc:

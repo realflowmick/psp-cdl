@@ -29,6 +29,11 @@ const actor=(p:Principal)=>({tenantId:p.tenantId,subjectId:p.subjectId});
 
 /** Durable wrapper. A committed receipt is never an implicit permission to release it again. */
 export class DurableLlmLoop extends BufferedLlmLoop {
+  protected get completionPolicy():string {return "lockdown";}
+  protected async prepareCommit(_p:Principal,_binding:Record<string,unknown>,command:Record<string,unknown>,_options:DurableOptions):Promise<Record<string,unknown>> {return command;}
+  protected async authorizeCommit(p:Principal,_binding:Record<string,unknown>,context:AccessContext,_options:DurableOptions):Promise<void> {
+    if(await call(()=>this.durableHost.authorizeTransition(copy(p),copy(context)))!==true)fail("TRANSITION_DENIED");
+  }
   protected makeBuffered(host:LoopHost,_onPrompt:(prompt:Envelope)=>void,_token:unknown,_session:Record<string,unknown>,_options:DurableOptions):BufferedLlmLoop {return new BufferedLlmLoop(this.store,this.gate,host,this.provider);}
   protected turnCommand(command:Record<string,unknown>,_buffered:BufferedLlmLoop):Record<string,unknown> {return command;}
   constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly durableHost:DurableHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"}) {
@@ -55,7 +60,7 @@ export class DurableLlmLoop extends BufferedLlmLoop {
     if(!options||!integer(options.deadline)||typeof options.cancelled!=="function") fail("INVALID_REQUEST");
     return {deadline:options.deadline,cancelled:options.cancelled};
   }
-  private present(receipt:Record<string,unknown>,recovered:boolean):Record<string,unknown> {
+  protected present(receipt:Record<string,unknown>,recovered:boolean):Record<string,unknown> {
     return {...copy(receipt.output),receipt:{profile:DURABLE_LOOP_PROFILE,requestId:receipt.requestId,sessionVersion:receipt.sessionVersion,status:receipt.status,recovered}};
   }
   override async run(token:unknown,sessionId:string,request:unknown,options:DurableOptions):Promise<Record<string,unknown>> {
@@ -91,7 +96,7 @@ export class DurableLlmLoop extends BufferedLlmLoop {
         authorizeFinal:async(live,b,d)=>{
           try {
             if(await call(()=>this.host.authorizeFinal(copy(live),copy(b),copy(d)))!==true) return false;
-            const proposed=copy(await call(()=>this.durableHost.planTurn(copy(live),copy({...b,requestId:options.requestId,postCompletion:"lockdown"}),copy(d))),"INVALID_PLAN");
+            const proposed=copy(await call(()=>this.durableHost.planTurn(copy(live),copy({...b,requestId:options.requestId,postCompletion:this.completionPolicy}),copy(d))),"INVALID_PLAN");
             if(!record(proposed)||Object.keys(proposed).sort().join(",")!=="complete,retained,state"||!record(proposed.state)||!record(proposed.retained)||typeof proposed.complete!=="boolean") fail("INVALID_PLAN");
             plan=proposed as unknown as TurnPlan;binding=copy(b);data=copy(d);return true;
           }catch(e){planError=e;return false;}
@@ -109,13 +114,13 @@ export class DurableLlmLoop extends BufferedLlmLoop {
         await this.verify(live,binding!,prompt!);this.check(controls,expires);
       };
       let guardError:unknown;
-      const command=this.turnCommand({action:"commitTurn",requestId:options.requestId,sessionId,expectedVersion:options.expectedVersion,nodeId:session.nodeId,nodeVersion:session.nodeVersion,policyVersion:session.policyVersion,
-        state:plan.state,retained:plan.retained,complete:plan.complete,postCompletion:"lockdown",inputDigest,output},buffered);
+      const command=await this.prepareCommit(p,binding,this.turnCommand({action:"commitTurn",requestId:options.requestId,sessionId,expectedVersion:options.expectedVersion,nodeId:session.nodeId,nodeVersion:session.nodeVersion,policyVersion:session.policyVersion,
+        state:plan.state,retained:plan.retained,complete:plan.complete,postCompletion:this.completionPolicy,inputDigest,output},buffered),options);
       const receipt=await this.store.execute(owner,command,async context=>{
         try {
           if(context.replay) fail("TURN_ALREADY_COMMITTED");
           await fresh();
-          if(await call(()=>this.durableHost.authorizeTransition(copy(p),copy(context)))!==true) fail("TRANSITION_DENIED");
+          await this.authorizeCommit(p,binding!,context,options);
           await fresh();return true;
         }catch(e){guardError=e;return false;}
       }).catch(e=>{throw guardError??e;});
