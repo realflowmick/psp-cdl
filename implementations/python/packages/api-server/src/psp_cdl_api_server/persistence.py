@@ -101,6 +101,10 @@ class WorkflowStore:
         self._secret = resume_secret
         self._authorize = authorize_persistence
 
+    @property
+    def epoch(self):
+        return self.backend.epoch
+
     def _now(self):
         now = self.backend.now()
         if not integer(now):
@@ -141,18 +145,28 @@ class WorkflowStore:
             out["resumeToken"] = token
         return out
 
-    def execute(self, actor_value, command_value):
+    def execute(self, actor_value, command_value, guard=None):
         # A competing commit can occur after the receipt miss but before a state read.
         actor, command = bounded(actor_value), bounded(command_value)
         try:
-            return self._execute_once(actor, command)
+            return self._execute_once(actor, command, guard)
         except StoreError as exc:
             if exc.code in ("STATE_CONFLICT", "CHECKPOINT_CONSUMED", "INVALID_TRANSITION"):
-                return self._execute_once(actor, command)
+                return self._execute_once(actor, command, guard)
             raise
 
-    def _execute_once(self, actor_value, command_value):
+    def _execute_once(self, actor_value, command_value, guard=None):
         actor, c = bounded(actor_value), bounded(command_value)
+
+        def access(result, current=None, replay=False):
+            if guard is not None:
+                try:
+                    allowed = guard({"command": bounded(c), "current": None if current is None else bounded(current), "result": bounded(result), "replay": replay})
+                except Exception:
+                    raise StoreError("AUTHORIZATION_DENIED") from None
+                if allowed is not True:
+                    raise StoreError("AUTHORIZATION_DENIED")
+            return bounded(result)
         if type(actor) is not dict or set(actor) != {"tenantId", "subjectId"} or not identifier(actor["tenantId"]) or not identifier(actor["subjectId"]) or type(c) is not dict:
             raise StoreError("INVALID_STATE")
         fields = {
@@ -181,9 +195,11 @@ class WorkflowStore:
         if action == "getSession":
             s = self._owned(actor, "session", c["sessionId"])
             self._live(s, self._now())
-            return bounded(s["body"])
+            return access(s["body"], s["body"])
         if action == "getNode":
-            return bounded(self._node(actor, c["nodeId"], c["nodeVersion"])["body"])
+            node = self._node(actor, c["nodeId"], c["nodeVersion"])
+            return access(node["body"], node["body"])
+        current = None
         checks, writes, expires_at = [], [], MAX_INTEGER
         receipt_key = key("receipt", digest(canonical_json([actor["subjectId"], c["requestId"]]))) if "requestId" in c else None
         command_digest = digest(canonical_json(c))
@@ -199,6 +215,7 @@ class WorkflowStore:
             if r["body"]["digest"] != command_digest:
                 raise StoreError("IDEMPOTENCY_CONFLICT")
             self._live(r, self._now())
+            access(r["body"]["result"], replay=True)
             return self._result(actor, r["body"]["result"])
 
         cached = receipt_result()
@@ -210,7 +227,7 @@ class WorkflowStore:
             if old is not None:
                 if canonical_json(old["body"]["definition"]) != canonical_json(c["definition"]):
                     raise StoreError("NODE_CONFLICT")
-                return bounded(old["body"])
+                return access(old["body"], old["body"], True)
             result = {"tenantId": actor["tenantId"], "nodeId": c["nodeId"], "nodeVersion": c["nodeVersion"], "definition": c["definition"], "createdAt": now}
             checks, writes = [absent(k)], [row(k, result)]
         elif action == "createSession":
@@ -234,6 +251,7 @@ class WorkflowStore:
                     raise StoreError("CHECKPOINT_CONSUMED")
             s = self._owned(actor, "session", cp["body"]["sessionId"] if cp else c["sessionId"])
             self._live(s, now)
+            current = s["body"]
             if s["revision"] == MAX_INTEGER:
                 raise StoreError("VERSION_EXHAUSTED")
             if s["revision"] != (cp["body"]["sessionVersion"] if cp else c["expectedVersion"]):
@@ -278,12 +296,13 @@ class WorkflowStore:
             raise StoreError("PERSISTENCE_DENIED") from None
         if allowed is not True:
             raise StoreError("PERSISTENCE_DENIED")
+        access(result, current)
         if not self.backend.commit(actor["tenantId"], checks, writes, expires_at):
             if action == "putNode":
                 winner = self._node(actor, c["nodeId"], c["nodeVersion"])
                 if canonical_json(winner["body"]["definition"]) != canonical_json(c["definition"]):
                     raise StoreError("NODE_CONFLICT")
-                return bounded(winner["body"])
+                return access(winner["body"], winner["body"], True)
             retry = receipt_result()
             if retry is not None:
                 return retry

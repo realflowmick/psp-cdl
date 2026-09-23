@@ -61,6 +61,8 @@ jobs:
       - run: uv run --locked python scripts/generate-codec-vectors.py --check
       - run: uv run --locked python scripts/generate-service-contracts.py --check
       - run: uv run --locked python scripts/generate-persistence-schema.py --check
+      - run: uv run --locked python scripts/generate-workflow-contracts.py --check
+      - run: uv run --locked python scripts/generate-workflow-vectors.py --check
       - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks

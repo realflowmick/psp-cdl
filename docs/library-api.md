@@ -2,6 +2,8 @@
 
 For durable workflow state, see the [persistence API and storage options](persistence.md). Its replaceable store uses these core JSON codecs and leaves parsing independent of database I/O.
 
+For authenticated HTTP/MCP session and checkpoint operations, see the [workflow API](workflow-api.md) and [runnable examples](../examples/workflow/README.md). Hosts own authentication, transition approval, policy revisions and data-release views.
+
 The experimental TypeScript and Python packages implement the same [codec profile](../specs/profiles/PSP-CODEC-1.0.md), [signature profile](../specs/profiles/PSP-SIGNATURE-2.0.md) and [finite CDL profile](../specs/profiles/CDL-DETERMINISTIC-1.0.md). Their runtime does not read this repository or call a service. Use them directly from proxies, MCP servers, applications or model integration tooling. They do not implement an inference engine or workflow executor.
 
 ## Document round trips
@@ -83,4 +85,4 @@ Run `npm run conformance:profiles` or `python -m psp_cdl_test_harness --profiles
 
 `python scripts/check-packages.py` builds and installs local npm tarballs and Python wheels in ignored isolated consumer directories, then runs parsing, cryptographic and policy smoke checks without editable source imports. It requires Node/npm and uv on PATH, after installing the workspace dependencies. Nothing is published. TypeScript packages remain private and all versions are provisional. Downstream projects can install these local artifacts until a reviewed release.
 
-Read-only authenticated HTTP/MCP security adapters now consume these libraries; see the [service guide](service-api.md). The two proxy packages and stateful workflow services remain pending. Full RFC MUST coverage, authenticated service adapters, replay/session state, complete mediation, actual model isolation and measured attack resistance remain later work. A profile result is scoped library evidence, not full protocol certification.
+Authenticated HTTP/MCP security and opt-in workflow adapters now consume these libraries; see the [service guide](service-api.md) and [workflow API](workflow-api.md). Full RFC MUST coverage, remaining M3 tools, both proxy packages, complete mediation, inference-engine attention isolation and measured attack resistance remain later work. A profile result is scoped library evidence, not full protocol certification.

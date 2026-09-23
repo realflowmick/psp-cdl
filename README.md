@@ -5,7 +5,7 @@ Open standards and reference implementations for protecting LLM workflows, spons
 - **Prompt State Protocol (PSP)** describes signed prompt sections, workflow state, node/tool affinity, provenance, and session controls.
 - **Covenant Declaration Language (CDL)** describes data classifications, handling constraints, and processing capabilities.
 
-**Status: proposed standards; experimental reusable libraries.** TypeScript and Python implement PSP markup/object/JSON codecs, signatures and deterministic CDL policy evaluation. Reusable HTTP/MCP security adapters expose authenticated verification and policy evaluation; a portable state library adds durable SQLite sessions, nodes and single-use checkpoints. Proxies and public stateful workflow services remain pending. Library tests establish scoped behavior, not production readiness, full protocol conformance or measured security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
+**Status: proposed standards; experimental reusable libraries.** TypeScript and Python implement PSP markup/object/JSON codecs, signatures and deterministic CDL policy evaluation. Reusable HTTP/MCP adapters expose authenticated security checks and opt-in workflow operations on durable SQLite sessions, nodes and single-use checkpoints. Hosts supply identity, transition approval and permitted data views. Proxies and remaining M3 tools are pending. Library tests establish scoped behavior, not production readiness, full protocol conformance or measured security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
 
 ## Standards
 
@@ -64,3 +64,5 @@ The two standards, specification material, schemas, and shared conformance vecto
 The [service API guide](docs/service-api.md) covers the first read-only M3 slice: shared host-authorized services, HTTP adapters and MCP stdio tools in both languages. The same core/CDL libraries handle parsing, signatures and decisions across these entry points.
 
 The [persistence guide](docs/persistence.md) explains storage needs, SQLite/PostgreSQL options and the reusable host API. Both languages share one SQLite format and pass file/token interchange, restart and competing-update/resume tests. Storage adapters remain separate from public transports and host authentication.
+
+The [workflow API](docs/workflow-api.md) adds six opt-in HTTP/MCP session, node and checkpoint methods, host transition authorization and session-bound operation handles. Run the [paired examples](examples/workflow/README.md) for create → save → pause → authenticated resume. 41 shared workflow scenarios and real HTTP/stdio mutations execute in both language directions. This is an embeddable reference layer; managed product operations and customer experience belong to the host.

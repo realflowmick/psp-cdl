@@ -19,6 +19,11 @@ export interface AtomicBackend {
   commit(tenantId:string, checks:Comparison[], writes:StoredRecord[], expiresAt:number):boolean|Promise<boolean>;
 }
 export interface Actor { tenantId:string; subjectId:string }
+export interface AccessContext {
+  command:Record<string,unknown>; current:Record<string,unknown>|null;
+  result:Record<string,unknown>; replay:boolean;
+}
+export type AccessGuard = (context:AccessContext)=>boolean|Promise<boolean>;
 export interface PersistenceHost {
   resumeSecret:Uint8Array;
   authorizePersistence(actor:Actor, writes:StoredRecord[]):boolean|Promise<boolean>;
@@ -65,6 +70,7 @@ export function validateBatch(tenantId:string, checks:Comparison[], writes:Store
 
 /** Trusted-host API only: authenticate and authorize transitions before calling. */
 export class WorkflowStore {
+  get epoch():string { return this.backend.epoch; }
   private readonly secret:Uint8Array;
   constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
@@ -94,18 +100,26 @@ export class WorkflowStore {
     }
     return out;
   }
-  async execute(actorValue:Actor, commandValue:unknown):Promise<Record<string,unknown>> {
+  async execute(actorValue:Actor, commandValue:unknown, guard?:AccessGuard):Promise<Record<string,unknown>> {
     // A winner may commit between our first receipt lookup and a state read.
     // One fresh attempt observes its receipt; unchanged expected versions still fail.
     const actor=bounded(actorValue) as Actor, command=bounded(commandValue);
-    try { return await this.executeOnce(actor,command); }
+    try { return await this.executeOnce(actor,command,guard); }
     catch(e) {
-      if(e instanceof StoreError&&["STATE_CONFLICT","CHECKPOINT_CONSUMED","INVALID_TRANSITION"].includes(e.code)) return this.executeOnce(actor,command);
+      if(e instanceof StoreError&&["STATE_CONFLICT","CHECKPOINT_CONSUMED","INVALID_TRANSITION"].includes(e.code)) return this.executeOnce(actor,command,guard);
       throw e;
     }
   }
-  private async executeOnce(actorValue:Actor, commandValue:unknown):Promise<Record<string,unknown>> {
+  private async executeOnce(actorValue:Actor, commandValue:unknown, guard?:AccessGuard):Promise<Record<string,unknown>> {
     const actor=bounded(actorValue) as Actor, c=bounded(commandValue);
+    const access=async(result:Record<string,unknown>,current:Record<string,unknown>|null=null,replay=false)=>{
+      if(guard) {
+        let allowed:unknown;
+        try { allowed=await guard({command:bounded(c),current:current===null?null:bounded(current),result:bounded(result),replay}); } catch { fail("AUTHORIZATION_DENIED"); }
+        if(allowed!==true) fail("AUTHORIZATION_DENIED");
+      }
+      return bounded(result);
+    };
     if(!record(actor)||Object.keys(actor).length!==2||!identifier(actor.tenantId)||!identifier(actor.subjectId)||!record(c)) fail("INVALID_STATE");
     const fields:Record<string,string[]>={
       putNode:["nodeId","nodeVersion","definition"], getNode:["nodeId","nodeVersion"],
@@ -122,8 +136,9 @@ export class WorkflowStore {
     if(("state" in c&&!record(c.state))||("definition" in c&&!record(c.definition))||("expectedVersion" in c&&!positive(c.expectedVersion))||("expiresAt" in c&&!positive(c.expiresAt))||("status" in c&&!["running","completed"].includes(c.status as string))) fail("INVALID_COMMAND");
     if(c.action==="resumeCheckpoint"&&(typeof c.resumeToken!=="string"||c.resumeToken.length!==80)) fail("INVALID_TOKEN");
     const now=this.now();
-    if(c.action==="getSession") { const s=await this.owned(actor,"session",c.sessionId as string); this.live(s,this.now()); return bounded(s.body); }
-    if(c.action==="getNode") return bounded((await this.node(actor,c.nodeId as string,c.nodeVersion as string)).body);
+    if(c.action==="getSession") { const s=await this.owned(actor,"session",c.sessionId as string); this.live(s,this.now()); return access(s.body,s.body); }
+    if(c.action==="getNode") { const n=await this.node(actor,c.nodeId as string,c.nodeVersion as string); return access(n.body,n.body); }
+    let current:Record<string,unknown>|null=null;
     let checks:Comparison[]=[], writes:StoredRecord[]=[], result:Record<string,unknown>, expiresAt=Number.MAX_SAFE_INTEGER;
     const receiptKey=c.requestId?key("receipt",hash(canonicalJson([actor.subjectId,c.requestId]))):null;
     // A token is never included in a stored receipt, only in its command digest.
@@ -134,12 +149,13 @@ export class WorkflowStore {
       if(!r) return null;
       if(r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId) fail("NOT_FOUND");
       if(r.body.digest!==digest) fail("IDEMPOTENCY_CONFLICT");
-      this.live(r,this.now()); return this.result(actor,r.body.result as Record<string,unknown>);
+      this.live(r,this.now()); await access(r.body.result as Record<string,unknown>,null,true);
+      return this.result(actor,r.body.result as Record<string,unknown>);
     };
     const cached=await receiptResult(); if(cached) return cached;
     if(c.action==="putNode") {
       const k=nodeKey(c.nodeId as string,c.nodeVersion as string), old=await this.backend.read(actor.tenantId,k);
-      if(old) { if(!equal(old.body.definition,c.definition)) fail("NODE_CONFLICT"); return bounded(old.body); }
+      if(old) { if(!equal(old.body.definition,c.definition)) fail("NODE_CONFLICT"); return access(old.body,old.body,true); }
       result={tenantId:actor.tenantId,nodeId:c.nodeId,nodeVersion:c.nodeVersion,definition:c.definition,createdAt:now};
       checks=[absent(k)]; writes=[row(k,result)];
     } else if(c.action==="createSession") {
@@ -157,6 +173,7 @@ export class WorkflowStore {
         this.live(cp,now); if(cp.body.consumed) fail("CHECKPOINT_CONSUMED");
       }
       const s=await this.owned(actor,"session",(cp?.body.sessionId??c.sessionId) as string); this.live(s,now);
+      current=s.body;
       if(s.revision==Number.MAX_SAFE_INTEGER) fail("VERSION_EXHAUSTED");
       if(s.revision!==(cp?.body.sessionVersion??c.expectedVersion)) fail("STATE_CONFLICT");
       if(s.body.status!==(cp?"waiting":"running")) fail("INVALID_TRANSITION");
@@ -188,10 +205,11 @@ export class WorkflowStore {
     let allowed:unknown;
     try { allowed=await this.host.authorizePersistence(bounded(actor),bounded(writes)); } catch { fail("PERSISTENCE_DENIED"); }
     if(allowed!==true) fail("PERSISTENCE_DENIED");
+    await access(result,current);
     if(!await this.backend.commit(actor.tenantId,checks,writes,expiresAt)) {
       if(c.action==="putNode") {
         const winner=await this.node(actor,c.nodeId as string,c.nodeVersion as string);
-        if(!equal(winner.body.definition,c.definition)) fail("NODE_CONFLICT"); return bounded(winner.body);
+        if(!equal(winner.body.definition,c.definition)) fail("NODE_CONFLICT"); return access(winner.body,winner.body,true);
       }
       const retry=await receiptResult(); if(retry) return retry; fail("STATE_CONFLICT");
     }

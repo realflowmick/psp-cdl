@@ -31,4 +31,5 @@ result = subprocess.run(["node", "scripts/library-exchange.mjs", "--verify"], in
 print(result.stdout.strip())
 subprocess.run([sys.executable,"scripts/check-service-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-persistence-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-workflow-parity.py"],cwd=ROOT,check=True)
 print("Seven manifests and three harness modes agree; library profiles and both interchange directions passed. Full workflow conformance is pending.")

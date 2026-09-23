@@ -1,0 +1,1730 @@
+{
+  "profile": "PSP-WORKFLOW-SERVICE-0.1",
+  "license": "CC0-1.0",
+  "cases": [
+    {
+      "id": "projected-session",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 1,
+              "status": "running",
+              "view": {
+                "stage": "initial"
+              }
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "projected-node",
+      "steps": [
+        {
+          "operation": "getNode",
+          "request": {
+            "nodeId": "entry",
+            "nodeVersion": "1"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "nodeId": "entry",
+              "nodeVersion": "1",
+              "view": {
+                "stage": "entry"
+              }
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "create-and-retry",
+      "steps": [
+        {
+          "operation": "createSession",
+          "request": {
+            "requestId": "create",
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "expiresAt": 2000,
+            "state": {
+              "stage": "new"
+            }
+          },
+          "capture": "@created"
+        },
+        {
+          "operation": "createSession",
+          "request": {
+            "requestId": "create",
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "expiresAt": 2000,
+            "state": {
+              "stage": "new"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@created",
+              "version": 1,
+              "status": "running",
+              "view": {
+                "stage": "new"
+              }
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@created",
+              "version": 1,
+              "status": "running",
+              "view": {
+                "stage": "new"
+              }
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "wrong-owner",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "token": "test-other"
+        }
+      ],
+      "expected": [
+        {
+          "status": 404,
+          "body": {
+            "error": {
+              "code": "NOT_FOUND"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "wrong-tenant",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "token": "test-tenant"
+        }
+      ],
+      "expected": [
+        {
+          "status": 404,
+          "body": {
+            "error": {
+              "code": "NOT_FOUND"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "unauthenticated",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "token": "invalid"
+        }
+      ],
+      "expected": [
+        {
+          "status": 401,
+          "body": {
+            "error": {
+              "code": "UNAUTHENTICATED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "missing-scope",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "token": "test-reader"
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "FORBIDDEN"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "read-authority-denied",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "flags": {
+            "deny": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "denied",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "deny": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "throwing",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "throwAuthorize": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "truthy",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "truthy": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "revoked-during-authorization",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "revokeOnAuthorize": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "policy-changed-during-authorization",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "changePolicyOnAuthorize": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "persistence-denied",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "persist": false
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "PERSISTENCE_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "forged-tenantId",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            },
+            "tenantId": "other"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "forged-policyVersion",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            },
+            "policyVersion": "attacker"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "forged-approved",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            },
+            "approved": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "forged-action",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            },
+            "action": "putNode"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "bad-session-id",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "bad"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "stale-version",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 9,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STATE_CONFLICT"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "absent-node",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "missing",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 404,
+          "body": {
+            "error": {
+              "code": "NOT_FOUND"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "guard-copies-detached",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "mutateGuard": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "competing-write",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "raceOnAuthorize": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STATE_CONFLICT"
+            }
+          },
+          "version": 2,
+          "state": "racer",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "update-and-retry",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "retry-authority-rechecked",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          },
+          "flags": {
+            "denyReplay": true
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        },
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "request-id-conflict",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "different"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "IDEMPOTENCY_CONFLICT"
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "checkpoint-resume",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "stage": "resumed"
+            }
+          }
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "stage": "resumed"
+            }
+          }
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "another",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "stage": "resumed"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 3,
+              "status": "running",
+              "view": {
+                "stage": "resumed"
+              }
+            }
+          },
+          "version": 3,
+          "state": "resumed",
+          "statusAfter": "running"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 3,
+              "status": "running",
+              "view": {
+                "stage": "resumed"
+              }
+            }
+          },
+          "version": 3,
+          "state": "resumed",
+          "statusAfter": "running"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "CHECKPOINT_CONSUMED"
+            }
+          },
+          "version": 3,
+          "state": "resumed",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "checkpoint-retry",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "checkpoint-delivery-retry",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "flags": {
+            "deliverFail": true
+          }
+        },
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint",
+          "flags": {
+            "deliverFail": false
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 503,
+          "body": {
+            "error": {
+              "code": "CHECKPOINT_DELIVERY_FAILED"
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "resume-needs-host-approval",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "approved": true,
+              "stage": "resumed"
+            }
+          },
+          "flags": {
+            "allowResume": false
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "resume-token-not-a-wire-argument",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "stage": "resumed"
+            },
+            "resumeToken": "forged"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "INVALID_REQUEST"
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "expired-checkpoint",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@checkpoint",
+            "state": {
+              "stage": "resumed"
+            }
+          },
+          "flags": {
+            "now": 1500
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "EXPIRED"
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "expired-session",
+      "steps": [
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "flags": {
+            "now": 2000
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "EXPIRED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "stale-policy-checkpoint",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "flags": {
+            "policy": "policy-2"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 403,
+          "body": {
+            "error": {
+              "code": "AUTHORIZATION_DENIED"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "terminal-session",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "completed",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "after",
+            "sessionId": "@session",
+            "expectedVersion": 2,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "completed",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "completed"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "INVALID_TRANSITION"
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "completed"
+        }
+      ]
+    },
+    {
+      "id": "live-operation",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-SERVICE-0.1",
+            "operation_id": "@operation",
+            "policy_version": "policy-1",
+            "decision": "allow",
+            "reasonCodes": []
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "operation-wrong-owner",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          },
+          "token": "test-other"
+        }
+      ],
+      "expected": [
+        {
+          "status": 404,
+          "body": {
+            "error": {
+              "code": "NOT_FOUND"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "operation-invalidated-by-update",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "next",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "saved",
+              "hidden": "PRIVATE_STATE"
+            }
+          }
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "sessionId": "@session",
+              "version": 2,
+              "status": "running",
+              "view": {
+                "stage": "saved"
+              }
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STALE_OPERATION"
+            }
+          },
+          "version": 2,
+          "state": "saved",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "operation-invalidated-by-checkpoint",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "pause",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "capture": "@checkpoint"
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 200,
+          "body": {
+            "profile": "PSP-WORKFLOW-SERVICE-0.1",
+            "result": {
+              "checkpointId": "@checkpoint",
+              "sessionId": "@session",
+              "sessionVersion": 2,
+              "expiresAt": 1500
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        },
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STALE_OPERATION"
+            }
+          },
+          "version": 2,
+          "state": "initial",
+          "statusAfter": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "operation-invalidated-by-policy",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          },
+          "flags": {
+            "policy": "policy-2"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STALE_OPERATION"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    },
+    {
+      "id": "operation-expiry",
+      "steps": [
+        {
+          "issue": "@operation"
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@operation"
+          },
+          "flags": {
+            "now": 1800
+          }
+        }
+      ],
+      "expected": [
+        {
+          "status": 409,
+          "body": {
+            "error": {
+              "code": "STALE_OPERATION"
+            }
+          },
+          "version": 1,
+          "state": "initial",
+          "statusAfter": "running"
+        }
+      ]
+    }
+  ]
+}

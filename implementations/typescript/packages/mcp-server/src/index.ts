@@ -9,7 +9,8 @@ export const manifest = Object.freeze({
   },
   "implementedFeatures": [
     "mcp-security-tools-0.1",
-    "mcp-stdio-2025-11-25"
+    "mcp-stdio-2025-11-25",
+    "mcp-workflow-tools-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
