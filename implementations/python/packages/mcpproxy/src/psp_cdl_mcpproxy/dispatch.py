@@ -2,6 +2,7 @@
 """Host-embedded dispatch gate. No network listener or durable effect permits."""
 import hashlib
 import re
+from threading import Lock
 from psp_cdl_core import canonical_json
 from psp_cdl_cdl import aggregate_capabilities, evaluate_batch
 from psp_cdl_api_server.service import SecurityService, ServiceError, identifier
@@ -54,6 +55,17 @@ class McpDispatchGate:
             raise DispatchError("INVALID_CONFIGURATION")
         self._store, self._host, self._revision = store, host, registry_revision
         self._coordinator, self._auth, self._tools = store.coordinator, SecurityService(host), {}
+        self._registry_lock, self._active, self._used_revisions = Lock(), 0, {registry_revision}
+        self._tools = self._prepare(registrations)
+
+    @property
+    def registry_revision(self):
+        with self._registry_lock: return self._revision
+
+    @staticmethod
+    def _prepare(registrations):
+        if type(registrations) is not list or len(registrations)>1024: raise DispatchError("INVALID_CONFIGURATION")
+        tools={}
         for r in registrations:
             if type(r) is not dict: raise DispatchError("INVALID_CONFIGURATION")
             invoke = r.get("invoke")
@@ -66,8 +78,20 @@ class McpDispatchGate:
             except Exception: raise DispatchError("UNSUPPORTED_SCHEMA") from None
             if meta["inputSchema"]["type"] != "object" or meta["outputSchema"]["type"] != "object": raise DispatchError("UNSUPPORTED_SCHEMA")
             name = meta["server"] + "." + meta["name"]
-            if name in self._tools: raise DispatchError("INVALID_CONFIGURATION")
-            self._tools[name] = {"meta":meta, "invoke":invoke, "caps":capabilities(meta["sources"], meta["complete"]), "name":name, "uri":"mcp://"+meta["server"]+"/"+meta["name"]}
+            if name in tools: raise DispatchError("INVALID_CONFIGURATION")
+            tools[name] = {"meta":meta, "invoke":invoke, "caps":capabilities(meta["sources"], meta["complete"]), "name":name, "uri":"mcp://"+meta["server"]+"/"+meta["name"]}
+        return tools
+
+    def replace_registry(self, expected_revision, next_revision, registrations):
+        """Host-only compare-and-replace; matching authority is published separately."""
+        with self._registry_lock:
+            if expected_revision!=self._revision: raise DispatchError("REVISION_CONFLICT")
+            if self._active: raise DispatchError("REGISTRY_BUSY")
+            if not identifier(next_revision) or next_revision in self._used_revisions: raise DispatchError("INVALID_REGISTRY_REVISION")
+            if len(self._used_revisions)>=4096: raise DispatchError("REVISION_EXHAUSTED")
+            tools=self._prepare(registrations)
+            self._tools,self._revision=tools,next_revision
+            self._used_revisions.add(next_revision)
 
     def _check(self, options, expires=9007199254740991):
         if type(options) is not dict or not integer(options.get("deadline")) or not callable(options.get("cancelled")): raise DispatchError("INVALID_REQUEST")
@@ -89,6 +113,7 @@ class McpDispatchGate:
         return s
 
     def _within(self, token, session_id, scope, options, work, expected=None):
+        with self._registry_lock: self._active+=1
         try:
             p = self._principal(token, scope, expected)
             actor = {k:p[k] for k in ("tenantId", "subjectId")}
@@ -113,6 +138,8 @@ class McpDispatchGate:
         except StoreError as exc:
             raise DispatchError(exc.code if exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY") else "HOST_ERROR") from None
         except Exception: raise DispatchError("HOST_ERROR") from None
+        finally:
+            with self._registry_lock: self._active-=1
 
     def list_tools(self, token, session_id, options, expected=None):
         options = dict(options) if type(options) is dict else {}

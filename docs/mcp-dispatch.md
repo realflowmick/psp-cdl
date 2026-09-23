@@ -53,3 +53,5 @@ The coordinator is process-local and excludes all sessions of one tenant/subject
 Cancellation/deadlines are cooperative. Endpoint adapters must bound I/O and honor the supplied controls. A pending callback holds the reservation until it finishes; cancellation suppresses late output but cannot undo an already-dispatched request. Streaming is unsupported. The finite schema subset rejects unsupported keywords instead of claiming general MCP schema compatibility.
 
 Run `npm run check`, the Python unittest suite, `python scripts/check-parity.py` and `python scripts/check-packages.py`. Shared scenarios compare actual tool-spy counts, suppressed responses and provenance across languages; concurrency tests hold an endpoint while a second writer attempts a transition. These checks support the draft slice only.
+
+For explicitly negotiated atomic remote revision checks and host-approved registry replacement, opt into the separate [revision profile](mcp-revision.md). Its guarantees apply only when both peers and their host publication path use that extension. The base profile remains unchanged.

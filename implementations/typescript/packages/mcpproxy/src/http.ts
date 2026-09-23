@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {REVISION_PROFILE} from "@psp-cdl/mcp-server/revision";
 import {request as httpRequest} from "node:http";
 import {request as httpsRequest} from "node:https";
 import {canonicalJson,parseJson,record} from "@psp-cdl/core";
@@ -6,7 +7,7 @@ import {MCP_VERSION} from "@psp-cdl/mcp-server";
 import {endpointUrl,HTTP_LIMIT} from "@psp-cdl/mcp-server/http";
 import {PinnedMcpClient,PeerError,json} from "./peer.js";
 
-export interface HttpPeerConfig {endpoint:string;allowLoopbackHttp:boolean;serverInfo:{name:string;version:string};timeoutMs:number;caPem?:string}
+export interface HttpPeerConfig {endpoint:string;allowLoopbackHttp:boolean;serverInfo:{name:string;version:string};timeoutMs:number;caPem?:string;revisionProfile?:typeof REVISION_PROFILE}
 function fail(code:string):never {throw new PeerError(code);}
 /** Finite SSE response bodies only. No event redelivery or server-initiated messages. */
 export function parseSse(source:string):unknown {
@@ -37,10 +38,11 @@ export class HttpMcpClient extends PinnedMcpClient {
   private constructor(private readonly config:HttpPeerConfig,private readonly credential:(resource:string)=>string|Promise<string>){super();}
   static async connect(value:HttpPeerConfig,credential:(resource:string)=>string|Promise<string>):Promise<HttpMcpClient> {
     const c=json(value) as HttpPeerConfig;
-    if(!record(c)||Object.keys(c).some(k=>!["endpoint","allowLoopbackHttp","serverInfo","timeoutMs","caPem"].includes(k))||typeof c.endpoint!=="string"||typeof c.allowLoopbackHttp!=="boolean"||!record(c.serverInfo)||Object.keys(c.serverInfo).sort().join(",")!=="name,version"||typeof c.serverInfo.name!=="string"||typeof c.serverInfo.version!=="string"||!Number.isSafeInteger(c.timeoutMs)||c.timeoutMs<1||c.timeoutMs>30_000||c.caPem!==undefined&&typeof c.caPem!=="string"||typeof credential!=="function")fail("INVALID_CONFIGURATION");
+    if(!record(c)||Object.keys(c).some(k=>!["endpoint","allowLoopbackHttp","serverInfo","timeoutMs","caPem","revisionProfile"].includes(k))||typeof c.endpoint!=="string"||typeof c.allowLoopbackHttp!=="boolean"||!record(c.serverInfo)||Object.keys(c.serverInfo).sort().join(",")!=="name,version"||typeof c.serverInfo.name!=="string"||typeof c.serverInfo.version!=="string"||!Number.isSafeInteger(c.timeoutMs)||c.timeoutMs<1||c.timeoutMs>30_000||c.caPem!==undefined&&typeof c.caPem!=="string"||typeof credential!=="function")fail("INVALID_CONFIGURATION");
+    if(c.revisionProfile!==undefined&&c.revisionProfile!==REVISION_PROFILE)fail("INVALID_CONFIGURATION");
     try{endpointUrl(c.endpoint,c.allowLoopbackHttp);}catch{fail("INVALID_CONFIGURATION");}
     const client=new HttpMcpClient(c,credential);
-    try{await client.initialize(c.serverInfo);return client;}catch(e){client.closed=true;client.abort?.abort();throw e;}
+    try{await client.initialize(c.serverInfo,c.revisionProfile);return client;}catch(e){client.closed=true;client.abort?.abort();throw e;}
   }
   async close():Promise<void> {
     if(!this.closed&&!this.busy&&this.session){try{await this.exchange(undefined,"DELETE");}catch{/* No replay on failed termination. */}}

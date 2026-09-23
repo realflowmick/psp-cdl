@@ -7,6 +7,7 @@ import threading
 import time
 from psp_cdl_core import canonical_json, parse_json
 from psp_cdl_api_server.persistence import integer
+from psp_cdl_mcp_server.revision import REVISION_PROFILE
 from .peer import PinnedMcpClient, PeerError, json_copy
 
 LIMIT = 1_048_576
@@ -32,12 +33,13 @@ class StdioMcpClient(PinnedMcpClient):
     @classmethod
     def connect(cls, config):
         c = json_copy(config)
-        if type(c) is not dict or set(c) != {"executable","args","env","serverInfo","timeoutMs"} or type(c["serverInfo"]) is not dict or set(c["serverInfo"]) != {"name","version"}: raise PeerError("INVALID_CONFIGURATION")
+        if type(c) is not dict or (set(c)-{"revisionProfile"}) != {"executable","args","env","serverInfo","timeoutMs"} or type(c["serverInfo"]) is not dict or set(c["serverInfo"]) != {"name","version"}: raise PeerError("INVALID_CONFIGURATION")
         if type(c) is not dict or type(c.get("executable")) is not str or not os.path.isabs(c["executable"]) or type(c.get("args")) is not list or any(type(v) is not str or "\0" in v for v in c["args"]) or type(c.get("env")) is not dict or any(type(v) is not str or not k or "=" in k or "\0" in k or "\0" in v for k,v in c["env"].items()) or type(c.get("serverInfo")) is not dict or any(type(c["serverInfo"].get(k)) is not str for k in ("name", "version")) or not integer(c.get("timeoutMs")) or not 1 <= c["timeoutMs"] <= 30_000:
             raise PeerError("INVALID_CONFIGURATION")
+        if "revisionProfile" in c and c["revisionProfile"]!=REVISION_PROFILE: raise PeerError("INVALID_CONFIGURATION")
         peer = cls(c)
         try:
-            peer._initialize(c["serverInfo"])
+            peer._initialize(c["serverInfo"],c.get("revisionProfile"))
             return peer
         except Exception:
             peer.close()

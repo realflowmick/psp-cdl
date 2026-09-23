@@ -45,6 +45,7 @@ import {SecurityService} from '@psp-cdl/api-server';
 import {createHttpServer} from '@psp-cdl/api-server/http';
 import {McpServer} from '@psp-cdl/mcp-server';
 import {serveStdio} from '@psp-cdl/mcp-server/stdio';
+import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
 import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
@@ -89,6 +90,11 @@ try {
   await send({jsonrpc:'2.0',method:'notifications/initialized'},sid);
   const result=JSON.parse((await send({jsonrpc:'2.0',id:2,method:'tools/call',params:{name:'echo.read',arguments:{message:'installed-http'}}},sid)).body);
   assert.equal(result.result.structuredContent.message,'installed-http');http.close();
+  const p={...actor,scopes:['tools:list','tools:call']};
+  const revisions=new RevisionedToolRegistry({authenticate:()=>p,authorize:()=>true},[{name:'read',revision:'1',readOnly:true,inputSchema:schema,outputSchema:schema,invoke:a=>a}]);
+  const pre={...revisions.revision,toolRevision:'1',inputDigest:revisionDigest({message:'installed-revision'})};
+  assert.equal((await revisions.service().revisions.callTool('read',{message:'installed-revision'},'synthetic',p,pre)).data.message,'installed-revision');
+  gate.replaceRegistry('r1','r2',[]);assert.equal(gate.registryRevision,'r2');
 } finally {backend.close();}
 const source='${psp type=context}hello 🧪${/psp}';
 const document=core.documentFromJson(core.documentToJson(core.parseMarkup(source)));
@@ -125,6 +131,7 @@ import psp_cdl_mcpproxy as proxy
 from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
 assert callable(HttpMcpClient.connect)
 from psp_cdl_api_server.http import create_wsgi_app
+from psp_cdl_mcp_server.revision import RevisionedToolRegistry, revision_digest
 from psp_cdl_mcp_server.stdio import serve_stdio
 from psp_cdl_api_server.persistence import WorkflowStore, OwnerCoordinator
 from psp_cdl_api_server.sqlite import SqliteBackend
@@ -190,6 +197,12 @@ try:
     result=json.loads(send({'jsonrpc':'2.0','id':2,'method':'tools/call','params':{'name':'echo.read','arguments':{'message':'installed-http'}}},sid)['body'])
     assert result['result']['structuredContent']['message']=='installed-http'
     http.close()
+    p={**actor,'scopes':['tools:list','tools:call']}
+    revisions=RevisionedToolRegistry(SimpleNamespace(authenticate=lambda _:p,authorize=lambda *_:True),[{'name':'read','revision':'1','readOnly':True,'inputSchema':schema,'outputSchema':schema,'invoke':lambda a,_:a}])
+    pre={**revisions.revision,'toolRevision':'1','inputDigest':revision_digest({'message':'installed-revision'})}
+    assert revisions.service().revisions.call_tool('read',{'message':'installed-revision'},'synthetic',p,pre)['data']['message']=='installed-revision'
+    gate.replace_registry('r1','r2',[])
+    assert gate.registry_revision=='r2'
 finally:
     backend.close()
 '''
@@ -208,4 +221,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Six npm tarballs and six Python wheels passed isolated consumer checks, including mediated stdio and HTTP dispatch; no packages published.')
+print('Six npm tarballs and six Python wheels passed isolated consumer checks, including stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
