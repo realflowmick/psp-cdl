@@ -24,4 +24,10 @@ See [the decision record](../../docs/decisions/0002-signature-profile.md), [the 
 [Buffered Loop 0.1](PSP-LLM-LOOP-0.1.md) draft with atomic state/answer receipts,
 host-approved completion, explicitly configured lockdown and current-policy
 recovery. It leaves the published unmanaged default and existing loop behavior
-unchanged. Other completion modes and automatic refresh remain unsupported.
+unchanged. Other completion modes remain unsupported.
+
+[Automatic Prompt Refresh 0.1](PSP-PROMPT-REFRESH-0.1.md) adds an explicit embedded
+profile for host-approved expiration/interval refresh, durable version floors and
+atomic committed-turn counting. It uses host callbacks rather than the RFC's MCP
+refresh discovery contract; unsupported triggers and any refresh failure deny
+the invocation. Published RFC baselines remain unchanged.

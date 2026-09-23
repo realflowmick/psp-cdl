@@ -1,0 +1,1629 @@
+{
+  "profile": "PSP-PROMPT-REFRESH-0.1",
+  "license": "CC0-1.0",
+  "versions": [
+    [
+      "1.0.0",
+      "1.0.1",
+      -1
+    ],
+    [
+      "1.2.0",
+      "1.1.99",
+      1
+    ],
+    [
+      "1.0.0+one",
+      "v1.0.0+two",
+      0
+    ],
+    [
+      "1.0.0-alpha",
+      "1.0.0",
+      -1
+    ],
+    [
+      "1.0.0-alpha.9",
+      "1.0.0-alpha.10",
+      -1
+    ],
+    [
+      "1.0.0-1",
+      "1.0.0-alpha",
+      -1
+    ],
+    [
+      "1.0.0-a",
+      "1.0.0-a.1",
+      -1
+    ],
+    [
+      "999999999999999999999.0.0",
+      "1000000000000000000000.0.0",
+      -1
+    ]
+  ],
+  "cases": [
+    {
+      "id": "initialize-and-count",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "tools-do-not-count",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "released": 2,
+        "providerCalls": 3,
+        "toolCalls": 1,
+        "sessionVersion": 3,
+        "turnCount": 2,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "interval-before-next-turn",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "OK",
+          "OK"
+        ],
+        "released": 3,
+        "providerCalls": 4,
+        "toolCalls": 1,
+        "sessionVersion": 4,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          }
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-3",
+            "expectedVersion": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "new-loop-retains-counter",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "OK",
+          "OK"
+        ],
+        "released": 3,
+        "providerCalls": 4,
+        "toolCalls": 1,
+        "sessionVersion": 4,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          }
+        },
+        {
+          "action": "restart",
+          "options": {
+            "requestId": "turn-3",
+            "expectedVersion": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "expiration-at-grace",
+      "settings": {
+        "base": {
+          "now": 1100
+        }
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "expiration-before-grace",
+      "settings": {
+        "base": {
+          "now": 1099
+        }
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "expired-after-idle",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "released": 2,
+        "providerCalls": 3,
+        "toolCalls": 1,
+        "sessionVersion": 3,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "baseFlags": {
+            "now": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "interval-only-expiration-backstop",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "interval",
+            "refresh-interval": "10",
+            "refresh-grace": "0"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "released": 2,
+        "providerCalls": 3,
+        "toolCalls": 1,
+        "sessionVersion": 3,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "baseFlags": {
+            "now": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "default-expiration-and-grace",
+      "settings": {
+        "initial": {
+          "expires": 1400,
+          "attributes": {}
+        }
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "default-expiration-triggers",
+      "settings": {
+        "initial": {
+          "expires": 1400,
+          "attributes": {}
+        },
+        "base": {
+          "now": 1100
+        }
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "refresh-between-inferences",
+      "settings": {
+        "afterProviderTime": 1100
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "expires-during-provider",
+      "settings": {
+        "afterProviderTime": 1200
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 1,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "recovery-does-not-count",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "released": 2,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover"
+        }
+      ]
+    },
+    {
+      "id": "idempotent-input-does-not-count",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "TURN_ALREADY_COMMITTED"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run"
+        }
+      ]
+    },
+    {
+      "id": "lockdown-prevents-refresh",
+      "settings": {
+        "continueTurn": false
+      },
+      "expected": {
+        "codes": [
+          "OK",
+          "PSP_POST_COMPLETION_LOCKDOWN"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "baseFlags": {
+            "now": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "adaptive",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "adaptive"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "checkpoint",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "checkpoint"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "mixed-unsupported",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "expiration|adaptive"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "duplicate",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "expiration|expiration"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "missing-interval",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "interval"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "zero-interval",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-policy": "interval",
+            "refresh-interval": "0"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "leading-zero",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-grace": "01"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "newline",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-grace": "10\n"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "unsafe-integer",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-grace": "9007199254740992"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "unused-interval",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-interval": "2"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "INVALID_REFRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "endpoint",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-endpoint": "https://untrusted.invalid/"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "refresh-on",
+      "settings": {
+        "initial": {
+          "attributes": {
+            "refresh-on": "connector"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "explicit-store-opt-in",
+      "settings": {
+        "disabledRefresh": true
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION"
+      }
+    },
+    {
+      "id": "rollback",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "0.9.9"
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_ROLLBACK"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "same-version-change",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "1.0.0"
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_VERSION_CONFLICT"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "build-metadata-cannot-hide-change",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "1.0.0+build"
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_VERSION_CONFLICT"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "retrieval-failure",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "throwRefresh": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "denied-replacement",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "denyRefresh": true
+      },
+      "expected": {
+        "codes": [
+          "REFRESH_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "invalid-signature",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "tamperedRefresh": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wrong-scope",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "wrongRefreshScope": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "not-newly-issued",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshTimestamp": 1000
+      },
+      "expected": {
+        "codes": [
+          "REFRESH_NOT_FRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "does-not-clear-grace",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshExpires": 1200
+      },
+      "expected": {
+        "codes": [
+          "REFRESH_NOT_FRESH"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "refresh-cancel",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshCancel": true
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "refresh-authority-drift",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshDrift": true
+      },
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "same-version-resign",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "v1.0.0",
+        "refreshText": "System one."
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "major-approved",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "2.0.0"
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "2.0.0"
+      }
+    },
+    {
+      "id": "refresh-reserves-owner",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshRace": true
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "storage-denied",
+      "settings": {
+        "denyStorage": true
+      },
+      "expected": {
+        "codes": [
+          "PERSISTENCE_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "initial-approval-required",
+      "settings": {
+        "denyInitial": true
+      },
+      "expected": {
+        "codes": [
+          "REFRESH_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "audit-failure-after-install",
+      "settings": {
+        "denyRefreshAudit": true
+      },
+      "expected": {
+        "codes": [
+          "AUDIT_FAILED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "failed-turn-keeps-version-floor",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "finalDenied": true
+      },
+      "expected": {
+        "codes": [
+          "COMPLETION_DENIED",
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 3,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "flags": {
+            "finalDenied": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "lost-ack-counts-once",
+      "settings": {
+        "failAfterCommit": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR",
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "recover"
+        }
+      ]
+    },
+    {
+      "id": "after-refresh-policy-denial",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "denyPhase": "inference"
+      },
+      "expected": {
+        "codes": [
+          "POLICY_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "after-refresh-transition-denial",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "denyTransition": true
+      },
+      "expected": {
+        "codes": [
+          "TRANSITION_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "expires-during-tool",
+      "settings": {
+        "afterToolTime": 1200
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 1,
+        "toolCalls": 1,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "grace-during-tool",
+      "settings": {
+        "afterToolTime": 1100
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "refresh-identity-revoked",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshRevoke": true
+      },
+      "expected": {
+        "codes": [
+          "UNAUTHENTICATED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "audit-failure-retry-still-denies",
+      "settings": {
+        "denyRefreshAudit": true
+      },
+      "expected": {
+        "codes": [
+          "AUDIT_FAILED",
+          "AUDIT_FAILED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run"
+        }
+      ]
+    },
+    {
+      "id": "audit-failure-authorized-retry",
+      "settings": {
+        "denyRefreshAudit": true
+      },
+      "expected": {
+        "codes": [
+          "AUDIT_FAILED",
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "flags": {
+            "denyRefreshAudit": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "metadata-lost-ack-rebind",
+      "settings": {
+        "failAfterPromptCommit": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR",
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "flags": {
+            "failAfterPromptCommit": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "binding-cannot-change-content",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "STALE_PROMPT"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "flags": {
+            "bindingTemplate": {
+              "text": "Changed without refresh."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "binding-cannot-lower-version",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "STALE_PROMPT"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 0,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "flags": {
+            "bindingTemplate": {
+              "version": "0.9.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "expired-initial-cannot-supply-directives",
+      "settings": {
+        "initial": {
+          "expires": 1000
+        }
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": null,
+        "refreshCount": null,
+        "refreshCalls": 0,
+        "version": null
+      }
+    },
+    {
+      "id": "refresh-failure-at-expiration",
+      "settings": {},
+      "expected": {
+        "codes": [
+          "OK",
+          "HOST_ERROR"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "options": {
+            "requestId": "turn-2",
+            "expectedVersion": 2
+          },
+          "baseFlags": {
+            "now": 1200
+          },
+          "flags": {
+            "throwRefresh": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "refresh-retries-on-next-invocation",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "throwRefresh": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR",
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 2,
+        "version": "1.0.1"
+      },
+      "steps": [
+        {
+          "action": "run"
+        },
+        {
+          "action": "run",
+          "flags": {
+            "throwRefresh": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "major-incompatible",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "2.0.0",
+        "denyRefresh": true
+      },
+      "expected": {
+        "codes": [
+          "REFRESH_DENIED"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "same-version-trust-change",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "1.0.0",
+        "refreshText": "System one.",
+        "replacement": {
+          "trustLevel": 1
+        }
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_VERSION_CONFLICT"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "same-version-policy-change",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "1.0.0",
+        "refreshText": "System one.",
+        "replacement": {
+          "attributes": {
+            "refresh-policy": "expiration",
+            "refresh-grace": "100"
+          }
+        }
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_VERSION_CONFLICT"
+        ],
+        "released": 0,
+        "providerCalls": 0,
+        "toolCalls": 0,
+        "sessionVersion": 1,
+        "turnCount": 0,
+        "refreshCount": 0,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "same-version-normalized-text",
+      "settings": {
+        "base": {
+          "now": 1100
+        },
+        "refreshVersion": "1.0.0",
+        "refreshText": "\r\nSystem one.\t"
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "released": 1,
+        "providerCalls": 2,
+        "toolCalls": 1,
+        "sessionVersion": 2,
+        "turnCount": 1,
+        "refreshCount": 1,
+        "refreshCalls": 1,
+        "version": "1.0.0"
+      }
+    }
+  ]
+}

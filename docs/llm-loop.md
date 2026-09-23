@@ -77,7 +77,8 @@ Already-dispatched inference/tool reads cannot be undone.
 Completed and paused sessions reject before inference. A model's `final` response
 does not complete a session in this class. The separate opt-in
 [durable loop](llm-durable.md) adds atomic turns, host-approved completion,
-lockdown and authorized recovery. Scoped/redirect policy, automatic refresh,
+lockdown and authorized recovery. The separate [refresh loop](llm-refresh.md) adds
+expiration/interval refresh under host approval. Scoped/redirect policy,
 streaming, live-provider adapters and multi-worker coordination remain unsupported. A fresh
 host-authorized invocation can supply a new signed prompt after expiry. This
 slice establishes no model attention isolation, full topology conformance or

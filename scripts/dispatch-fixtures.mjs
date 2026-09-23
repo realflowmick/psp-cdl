@@ -10,7 +10,7 @@ export const suite=JSON.parse(readFileSync(new URL('../conformance/vectors/dispa
 export async function fixture(settings={}) {
   const flags={now:1000,...settings}, actor={tenantId:'tenant-a',subjectId:'subject-a'}, principal={...actor,scopes:['tools:list','tools:call']};
   const directory=mkdtempSync(join(tmpdir(),'psp-dispatch-')), backend=new SqliteBackend(join(directory,'state.sqlite'),'epoch-1',()=>flags.now);
-  const coordinator=new OwnerCoordinator(),store=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(7),authorizePersistence:()=>!flags.denyPersistence,coordinator,durableTurns:!!flags.durableTurns});
+  const coordinator=new OwnerCoordinator(),store=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(7),authorizePersistence:()=>!flags.denyPersistence,coordinator,durableTurns:!!flags.durableTurns,promptRefresh:!!flags.promptRefresh});
   let calls=0,busy=0,session;
   const update=()=>store.execute(actor,{action:'updateSession',requestId:'transition',sessionId:session.sessionId,expectedVersion:1,nodeId:'entry',nodeVersion:'1',policyVersion:'policy-1',status:'running',state:{stage:'changed'}});
   const close=()=>{backend.close();rmSync(directory,{recursive:true,force:true});};

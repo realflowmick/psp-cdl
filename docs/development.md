@@ -31,3 +31,11 @@ Service checks are part of both language suites and `scripts/check-parity.py`. T
 Workflow checks are also part of both language suites and the parity script. `python scripts/check-workflow-parity.py` runs 41 shared scenarios and actual workflow mutations over loopback HTTP and MCP stdio in both language directions. Run `python scripts/generate-workflow-contracts.py --check` and `python scripts/generate-workflow-vectors.py --check` to verify the draft artifacts. The [workflow examples](../examples/workflow/README.md) exercise the same reusable adapters. Use Node 24 (or supported Node 22.13+) rather than an older system Node on PATH.
 
 Buffered loop checks run in both language suites and `scripts/check-parity.py`. Run `python scripts/check-llm-parity.py` for the 69 shared mock-provider cases, and `python scripts/generate-llm-vectors.py --check` to verify draft expectations. Isolated package checks now execute a model/tool loop from installed tarballs and wheels.
+
+Prompt refresh checks run in the same suites and parity command. See
+[the refresh guide](llm-refresh.md) for the host API and limits. Isolate its 64
+shared cases, eight version comparisons, process-restart chains and five write
+races with `python scripts/check-refresh-parity.py`. Verify shared artifacts with
+`python scripts/generate-refresh-vectors.py --check` and
+`python scripts/generate-refresh-schema.py --check`. CI also runs both generators
+and refreshes prompts from installed npm tarballs and Python wheels.

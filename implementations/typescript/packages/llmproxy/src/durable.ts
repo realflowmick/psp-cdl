@@ -29,6 +29,8 @@ const actor=(p:Principal)=>({tenantId:p.tenantId,subjectId:p.subjectId});
 
 /** Durable wrapper. A committed receipt is never an implicit permission to release it again. */
 export class DurableLlmLoop extends BufferedLlmLoop {
+  protected makeBuffered(host:LoopHost,_onPrompt:(prompt:Envelope)=>void,_token:unknown,_session:Record<string,unknown>,_options:DurableOptions):BufferedLlmLoop {return new BufferedLlmLoop(this.store,this.gate,host,this.provider);}
+  protected turnCommand(command:Record<string,unknown>,_buffered:BufferedLlmLoop):Record<string,unknown> {return command;}
   constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly durableHost:DurableHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"}) {
     super(store,gate,durableHost,provider);
     if(!store.durableTurns||[durableHost.planTurn,durableHost.authorizeTransition,durableHost.audit,durableHost.authorizeRecovery,durableHost.recoveryPolicy].some(f=>typeof f!=="function")) fail("INVALID_CONFIGURATION");
@@ -96,7 +98,8 @@ export class DurableLlmLoop extends BufferedLlmLoop {
         }
       };
       let output:Record<string,unknown>;
-      try{output=await new BufferedLlmLoop(this.store,this.gate,wrapped,this.provider).run(token,sessionId,input,options);}catch(e){throw planError??e;}
+      const buffered=this.makeBuffered(wrapped,value=>{prompt=copy(value);},token,session,options);
+      try{output=await buffered.run(token,sessionId,input,options);}catch(e){throw planError??e;}
       if(!plan||!binding||!data||!prompt) return fail("INVALID_PLAN");
       const fresh=async(committedVersion?:unknown)=>{
         this.check(controls,expires);
@@ -106,8 +109,8 @@ export class DurableLlmLoop extends BufferedLlmLoop {
         await this.verify(live,binding!,prompt!);this.check(controls,expires);
       };
       let guardError:unknown;
-      const command={action:"commitTurn",requestId:options.requestId,sessionId,expectedVersion:options.expectedVersion,nodeId:session.nodeId,nodeVersion:session.nodeVersion,policyVersion:session.policyVersion,
-        state:plan.state,retained:plan.retained,complete:plan.complete,postCompletion:"lockdown",inputDigest,output};
+      const command=this.turnCommand({action:"commitTurn",requestId:options.requestId,sessionId,expectedVersion:options.expectedVersion,nodeId:session.nodeId,nodeVersion:session.nodeVersion,policyVersion:session.policyVersion,
+        state:plan.state,retained:plan.retained,complete:plan.complete,postCompletion:"lockdown",inputDigest,output},buffered);
       const receipt=await this.store.execute(owner,command,async context=>{
         try {
           if(context.replay) fail("TURN_ALREADY_COMMITTED");

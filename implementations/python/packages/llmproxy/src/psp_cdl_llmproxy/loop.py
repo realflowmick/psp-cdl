@@ -80,7 +80,7 @@ class BufferedLlmLoop:
         try:
             if type(policy) is not dict or type(policy.get("keys")) is not list or any(k.get("allowUnscoped") is not False for k in policy["keys"]):
                 raise LoopError("PROMPT_REJECTED")
-            e = verify_envelope(prompt, {**policy, "context":context, "allowedAttributes":list(context), "now":self._host.now()})
+            e = verify_envelope(prompt, {**policy, "context":context, "allowedAttributes":[*context,*self._prompt_attributes()], "now":self._host.now()})
             if e["signature"]["sectionType"] != "system" or e["signature"]["contentType"] != "text" or e["signature"].get("trustLevel", 2) not in (1, 2):
                 raise LoopError("PROMPT_REJECTED")
         except Exception: raise LoopError("PROMPT_REJECTED") from None
@@ -99,6 +99,15 @@ class BufferedLlmLoop:
         if decision != "allow": raise LoopError("OUTPUT_DENIED" if phase == "release" else "POLICY_DENIED")
         return context
 
+    def _prompt_attributes(self): return []
+
+    def _load_prompt(self,p,binding,options,reservation):
+        prompt=copy(callback(lambda:self._host.prompt(copy(p),copy(binding))),"PROMPT_REJECTED")
+        self._verify(p,binding,prompt)
+        return prompt
+
+    def _inference_prompt(self,p,binding,prompt,options,reservation): return prompt
+
     def run(self, token, session_id, request, options):
         try:
             value = copy(request)
@@ -108,7 +117,7 @@ class BufferedLlmLoop:
             p = self._principal(token)
             actor = {k:p[k] for k in ("tenantId", "subjectId")}
             self._check(options)
-            def initialize():
+            def initialize(reservation):
                 session = self._store.execute(actor, {"action":"getSession", "sessionId":session_id})
                 if session["status"] != "running": raise LoopError("INACTIVE_SESSION")
                 authority = self._snapshot(p, session)
@@ -117,23 +126,27 @@ class BufferedLlmLoop:
                            "nodeId":session["nodeId"], "nodeVersion":session["nodeVersion"], "epoch":self._store.epoch, "policyVersion":authority["policyVersion"],
                            "authorityRevision":authority["revision"], "providerId":self._provider["id"], "providerRevision":self._provider["revision"],
                            "registryRevision":authority["registryRevision"], "deadline":options["deadline"]}
-                prompt = copy(callback(lambda:self._host.prompt(copy(p), copy(binding))), "PROMPT_REJECTED")
-                self._verify(p, binding, prompt)
+                prompt = self._load_prompt(p,binding,options,reservation)
                 return session, authority, binding, prompt
-            session, authority, binding, prompt = self._coordinator.run(actor, initialize)
+            session, authority, binding, prompt = self._coordinator.run_reserved(actor, initialize)
             expires = min(authority["expires"], session["expiresAt"])
-            def fresh():
+            def fresh(check_prompt=True):
                 self._check(options, expires)
                 self._principal(token, p)
                 if canonical_json(self._store.execute(actor, {"action":"getSession", "sessionId":session_id})) != canonical_json(session): raise LoopError("STALE_SESSION")
                 if canonical_json(self._snapshot(p, session)) != canonical_json(authority): raise LoopError("STALE_AUTHORITY")
-                self._verify(p, binding, prompt)
+                if check_prompt:self._verify(p, binding, prompt)
                 self._check(options, expires)
             tools = self._gate.list_tools(token, session_id, options, p)
             messages = [{"role":"system", "content":prompt["data"]}, {"role":"user", "content":value["message"]}]
             for step in range(1, options["maxSteps"] + 1):
-                step_binding = {**binding, "step":step, "promptDigest":binding_digest(prompt)}
-                def infer():
+                step_binding = None
+                def infer(reservation):
+                    nonlocal prompt,step_binding
+                    fresh(False)
+                    prompt=self._inference_prompt(p,binding,prompt,options,reservation)
+                    messages[0]={"role":"system","content":prompt["data"]}
+                    step_binding={**binding,"step":step,"promptDigest":binding_digest(prompt)}
                     fresh()
                     provider_request = copy({"messages":messages, "tools":tools})
                     self._decide(p, step_binding, {"request":provider_request}, "inference", self._provider_caps)
@@ -158,7 +171,7 @@ class BufferedLlmLoop:
                     fresh()
                     return {"output":{"text":candidate["text"], "provenance":{"profile":LLM_LOOP_PROFILE, "providerId":self._provider["id"],
                             "providerRevision":self._provider["revision"], "outputDigest":binding_digest({"text":candidate["text"]}), "trustLevel":5, "steps":step}}}
-                result = self._coordinator.run(actor, infer)
+                result = self._coordinator.run_reserved(actor, infer)
                 if "output" in result: return result["output"]
                 candidate = result["candidate"]
                 guard_error = []
@@ -177,6 +190,8 @@ class BufferedLlmLoop:
                 except Exception:
                     if guard_error: raise guard_error[0]
                     raise
+                # Refresh cannot make a result produced under an expired prompt usable.
+                self._coordinator.run(actor, fresh)
                 messages.extend([{"role":"assistant", "call":{"name":candidate["name"], "arguments":candidate["arguments"]}}, {"role":"tool", "name":candidate["name"], "data":output["data"]}])
                 copy({"messages":messages, "tools":tools})
             raise LoopError("STEP_LIMIT")

@@ -10,6 +10,7 @@ from typing import Protocol
 
 from psp_cdl_core import canonical_json, validate_json
 from .service import identifier
+from .prompt_state import PROMPT_REFRESH_PROFILE, valid_prompt_state, compare_prompt_versions
 
 PERSISTENCE_PROFILE = "PSP-PERSISTENCE-0.1"
 MAX_STATE_BYTES = 1_048_576
@@ -96,27 +97,34 @@ def validate_batch(tenant_id, checks, writes, expires_at):
 class OwnerCoordinator:
     """Optional single-process, fail-fast exclusion shared by all writers and gates."""
     def __init__(self):
-        self._busy = set()
+        self._busy = {}
         self._lock = threading.Lock()
 
     def run(self, actor, work):
+        return self.run_reserved(actor, lambda _:work())
+
+    def owns(self, actor, reservation):
+        with self._lock: return reservation is not None and self._busy.get((actor["tenantId"],actor["subjectId"])) is reservation
+
+    def run_reserved(self, actor, work):
         if type(actor) is not dict or not identifier(actor.get("tenantId")) or not identifier(actor.get("subjectId")):
             raise StoreError("INVALID_STATE")
         key = (actor["tenantId"], actor["subjectId"])
         with self._lock:
             if key in self._busy:
                 raise StoreError("STATE_BUSY")
-            self._busy.add(key)
+            reservation=object()
+            self._busy[key]=reservation
         try:
-            return work()
+            return work(reservation)
         finally:
             with self._lock:
-                self._busy.remove(key)
+                del self._busy[key]
 
 
 class WorkflowStore:
     """Authenticate and authorize transitions in the trusted host before calling."""
-    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False):
+    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False, prompt_refresh=False):
         if not identifier(backend.epoch) or type(resume_secret) is not bytes or len(resume_secret) < 32 or not callable(authorize_persistence):
             raise StoreError("INVALID_CONFIGURATION")
         self.backend = backend
@@ -127,6 +135,8 @@ class WorkflowStore:
         self._coordinator = coordinator
         if type(durable_turns) is not bool: raise StoreError("INVALID_CONFIGURATION")
         self.durable_turns = durable_turns
+        if type(prompt_refresh) is not bool or prompt_refresh and not durable_turns: raise StoreError("INVALID_CONFIGURATION")
+        self.prompt_refresh=prompt_refresh
 
     @property
     def coordinator(self):
@@ -176,11 +186,18 @@ class WorkflowStore:
             out["resumeToken"] = token
         return out
 
-    def execute(self, actor_value, command_value, guard=None):
+    def execute(self, actor_value, command_value, guard=None, reservation=None):
         # A competing commit can occur after the receipt miss but before a state read.
         actor, command = bounded(actor_value), bounded(command_value)
+        if reservation is not None:
+            if type(actor) is not dict or type(command) is not dict or command.get("action")!="putPromptState" or self.coordinator is None or not self.coordinator.owns(actor,reservation): raise StoreError("INVALID_RESERVATION")
+            original=guard
+            def guard(context):
+                if not self.coordinator.owns(actor,reservation): raise StoreError("INVALID_RESERVATION")
+                ok=original(context) if original else True
+                return ok is True and self.coordinator.owns(actor,reservation)
         work = lambda: self._execute_retry(actor, command, guard)
-        if self.coordinator is not None and type(command) is dict and command.get("action") not in ("getSession", "getNode", "getTurn"):
+        if self.coordinator is not None and reservation is None and type(command) is dict and command.get("action") not in ("getSession", "getNode", "getTurn", "getPromptState"):
             return self.coordinator.run(actor, work)
         return work()
 
@@ -216,6 +233,7 @@ class WorkflowStore:
         }
         if self.durable_turns:
             fields.update(getTurn=["sessionId", "requestId"], commitTurn=["requestId", "sessionId", "expectedVersion", "nodeId", "nodeVersion", "policyVersion", "state", "inputDigest", "output", "retained", "complete", "postCompletion"])
+        if self.prompt_refresh: fields.update(getPromptState=["sessionId"],putPromptState=["sessionId","expectedVersion","refreshRevision","state"],commitRefreshedTurn=[*fields["commitTurn"],"refreshRevision"])
         action = c.get("action")
         names = fields.get(action) if type(action) is str else None
         if names is None or set(c) != {"action", *names}:
@@ -230,12 +248,42 @@ class WorkflowStore:
             raise StoreError("INVALID_COMMAND")
         if action == "resumeCheckpoint" and (type(c["resumeToken"]) is not str or len(c["resumeToken"]) != 80):
             raise StoreError("INVALID_TOKEN")
-        if action == "commitTurn":
+        if "refreshRevision" in c and not integer(c["refreshRevision"]): raise StoreError("INVALID_COMMAND")
+        if action=="putPromptState" and not valid_prompt_state(c["state"]): raise StoreError("INVALID_COMMAND")
+        if action in ("commitTurn","commitRefreshedTurn"):
             output = c["output"]
             provenance = output.get("provenance") if type(output) is dict else None
             if type(c["complete"]) is not bool or c["postCompletion"] != "lockdown" or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
                 raise StoreError("INVALID_COMMAND")
         now = self._now()
+        prompt_key=key("receipt",digest(canonical_json(["prompt-refresh",actor["subjectId"],c.get("sessionId")])))
+        if action=="getPromptState":
+            session=self._owned(actor,"session",c["sessionId"]);self._live(session,now)
+            r=self.backend.read(actor["tenantId"],prompt_key)
+            if r is None or r["body"].get("profile")!=PROMPT_REFRESH_PROFILE: raise StoreError("NOT_FOUND")
+            self._live(r,now)
+            return access({**r["body"],"revision":r["revision"]},session["body"])
+        if action=="putPromptState":
+            session=self._owned(actor,"session",c["sessionId"]);self._live(session,now)
+            if session["revision"]!=c["expectedVersion"]: raise StoreError("STATE_CONFLICT")
+            if session["body"]["status"]!="running": raise StoreError("INVALID_TRANSITION")
+            r=self.backend.read(actor["tenantId"],prompt_key)
+            old=r["body"]["state"] if r else None
+            state=c["state"]
+            if (r["revision"] if r else 0)!=c["refreshRevision"] or r and r["body"]["sessionVersion"]!=session["revision"]: raise StoreError("STATE_CONFLICT")
+            if r and r["revision"]==MAX_INTEGER: raise StoreError("VERSION_EXHAUSTED")
+            if old and (compare_prompt_versions(state["version"],old["version"])<0 or compare_prompt_versions(state["version"],old["version"])==0 and state["digest"]!=old["digest"]): raise StoreError("PROMPT_ROLLBACK")
+            if state["turnCount"]!=0 or state["refreshCount"]!=(old["refreshCount"]+1 if old else 0) or old and state["timestamp"]<=old["timestamp"]: raise StoreError("INVALID_TRANSITION")
+            body={**actor,"profile":PROMPT_REFRESH_PROFILE,"sessionId":c["sessionId"],"sessionVersion":session["revision"],"expiresAt":session["body"]["expiresAt"],"state":state}
+            revision=(r["revision"] if r else 0)+1
+            checks=[comparison(session),comparison(r) if r else absent(prompt_key)];writes=[row(prompt_key,body,revision)]
+            validate_batch(actor["tenantId"],checks,writes,session["body"]["expiresAt"])
+            try: allowed=self._authorize(bounded(actor),bounded(writes))
+            except Exception: raise StoreError("PERSISTENCE_DENIED") from None
+            if allowed is not True: raise StoreError("PERSISTENCE_DENIED")
+            result={**body,"revision":revision};access(result,r["body"] if r else None)
+            if not self.backend.commit(actor["tenantId"],checks,writes,session["body"]["expiresAt"]): raise StoreError("STATE_CONFLICT")
+            return bounded(result)
         if action == "getSession":
             s = self._owned(actor, "session", c["sessionId"])
             self._live(s, self._now())
@@ -311,7 +359,13 @@ class WorkflowStore:
             expires_at = s["body"]["expiresAt"]
             next_state = {**s["body"], "version": s["revision"] + 1, "updatedAt": now}
             checks = [comparison(s)]
-            if action == "commitTurn":
+            if action in ("commitTurn","commitRefreshedTurn"):
+                if action=="commitRefreshedTurn":
+                    r=self.backend.read(actor["tenantId"],prompt_key)
+                    if r is None or r["revision"]!=c["refreshRevision"] or r["body"]["sessionVersion"]!=s["revision"]: raise StoreError("STATE_CONFLICT")
+                    state=r["body"]["state"]
+                    if not valid_prompt_state(state) or state["turnCount"]==MAX_INTEGER or r["revision"]==MAX_INTEGER: raise StoreError("INVALID_STATE")
+                    checks.append(comparison(r));writes.append(row(prompt_key,{**r["body"],"sessionVersion":next_state["version"],"state":{**state,"turnCount":state["turnCount"]+1}},r["revision"]+1))
                 if any(c[k] != s["body"][k] for k in ("nodeId", "nodeVersion", "policyVersion")): raise StoreError("STATE_CONFLICT")
                 if c["complete"] and now > 253402300799: raise StoreError("INVALID_CLOCK")
                 next_state.update(state=c["state"], status="completed" if c["complete"] else "running")
@@ -344,7 +398,7 @@ class WorkflowStore:
             writes.append(row(key("session", s["id"]), next_state, s["revision"] + 1))
         if receipt_key:
             checks.append(absent(receipt_key))
-            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action == "commitTurn" else {})}))
+            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action in ("commitTurn","commitRefreshedTurn") else {})}))
         validate_batch(actor["tenantId"], checks, writes, expires_at)
         try:
             allowed = self._authorize(bounded(actor), bounded(writes))

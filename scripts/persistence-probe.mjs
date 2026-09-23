@@ -15,7 +15,7 @@ if(options.mode==='fixture') {
   process.exit(0);
 } else {
   const backend=new SqliteBackend(path,options.epoch??'peer-epoch',()=>options.now??100);
-  const store=new WorkflowStore(backend,{resumeSecret:secret,durableTurns:!!options.durableTurns,authorizePersistence:async()=>{
+  const store=new WorkflowStore(backend,{resumeSecret:secret,durableTurns:!!options.durableTurns,promptRefresh:!!options.promptRefresh,authorizePersistence:async()=>{
     if(options.barrier) {
       writeFileSync(options.barrier.ready,'ready');
       const deadline=Date.now()+15000;

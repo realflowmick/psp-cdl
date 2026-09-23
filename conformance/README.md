@@ -25,3 +25,14 @@ Run `npm run test:policy` for schema, matrix-coverage, reference and restricted 
 ## Read-only service slice
 
 [Service fixtures](vectors/services/profile-0.1.json) are draft expectations for 33 HTTP cases executed independently in both languages. `scripts/check-service-parity.py`, invoked by the existing parity check, also compares MCP transcripts and uses actual mixed-language HTTP/stdio peers. These are distinct from the 511 library-profile checks and from the five still-unimplemented full-workflow seed cases. No durable state, replay-safe mutation or proxy dispatch is exercised.
+
+## Automatic prompt refresh
+
+[Refresh vectors](vectors/llm/refresh-0.1.json) contain 64 draft behavioral cases
+and eight SemVer comparisons for [Prompt Refresh 0.1](../specs/profiles/PSP-PROMPT-REFRESH-0.1.md).
+Both language suites execute them. `scripts/check-refresh-parity.py` compares
+exact transcripts, metadata, audit events and turn commands, then exercises
+mixed-language process restarts, expired-prompt retrieval, rollback recovery and
+five metadata/turn races. These scoped checks do not establish full RFC refresh
+conformance or measured effectiveness. The original full-workflow harness remains
+explicitly unimplemented.

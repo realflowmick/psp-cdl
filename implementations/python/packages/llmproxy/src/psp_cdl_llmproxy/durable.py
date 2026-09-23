@@ -28,6 +28,8 @@ def actor(p): return {k:p[k] for k in ("tenantId", "subjectId")}
 
 
 class DurableLlmLoop(BufferedLlmLoop):
+    def _make_buffered(self,host,on_prompt,token,session,options): return BufferedLlmLoop(self._store,self._gate,host,self._provider)
+    def _turn_command(self,command,buffered): return command
     def __init__(self, store, gate, host, provider, configuration=None):
         super().__init__(store, gate, host, provider)
         if not store.durable_turns or any(not callable(getattr(host, k, None)) for k in ("plan_turn", "authorize_transition", "audit", "authorize_recovery", "recovery_policy")):
@@ -117,7 +119,8 @@ class DurableLlmLoop(BufferedLlmLoop):
                 return False
         wrapped = SimpleNamespace(authenticate=self._host.authenticate, now=self._host.now, snapshot=snapshot, prompt=prompt,
                                   verification=self._host.verification, policy=self._host.policy, authorize_final=authorize_final)
-        try: output = BufferedLlmLoop(self._store, self._gate, wrapped, self._provider).run(token, session_id, value, options)
+        buffered=self._make_buffered(wrapped,lambda prompt:captured.update(prompt=copy(prompt)),token,session,options)
+        try: output = buffered.run(token, session_id, value, options)
         except Exception:
             if plan_error: raise plan_error[-1]
             raise
@@ -144,6 +147,7 @@ class DurableLlmLoop(BufferedLlmLoop):
                 return False
         command = {"action":"commitTurn", "requestId":options["requestId"], "sessionId":session_id, "expectedVersion":options["expectedVersion"],
                    **{k:session[k] for k in ("nodeId", "nodeVersion", "policyVersion")}, **plan, "postCompletion":"lockdown", "inputDigest":input_digest, "output":output}
+        command=self._turn_command(command,buffered)
         try: receipt = self._store.execute(owner, command, guard)
         except Exception:
             if guard_error: raise guard_error[0]
