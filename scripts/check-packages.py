@@ -48,8 +48,8 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {BufferedLlmLoop,DurableLlmLoop,RefreshingLlmLoop,promptContext} from '@psp-cdl/llmproxy';
-import {StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
+import {BufferedLlmLoop,DurableLlmLoop,RefreshingLlmLoop,promptContext,McpPromptRefresher,mcpRefreshToolDefinition} from '@psp-cdl/llmproxy';
+import {PinnedMcpClient,StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 import {WorkflowService} from '@psp-cdl/api-server/workflow';
@@ -114,6 +114,18 @@ try {
   const refreshSession=await refreshStore.execute(actor,{action:'createSession',requestId:'refresh-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
   const signRefresh=(b,version,timestamp)=>crypto.signEnvelope('System '+version,{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test',timestamp,expires:9,version,sectionType:'system',contentType:'text',attributes:{...promptContext(b),'refresh-policy':'interval','refresh-interval':'1','refresh-grace':'0'}},new Uint8Array(32).fill(19));
   const refreshHost={...durableHost,prompt:(_p,b)=>signRefresh(b,'1.0.0',0),refresh:(_p,b)=>signRefresh(b,'1.0.1',1),authorizeRefresh:()=>true,auditRefresh:()=>true,planTurn:()=>({state:{},retained:{},complete:false})};
+  let refreshBinding;
+  const refreshPrincipal=await refreshHost.authenticate('consumer');
+  const refreshServer=new McpServer({authenticate:()=>refreshPrincipal,discover:()=>[mcpRefreshToolDefinition()],callTool:()=>({data:{prompt:core.serializeMarkup({kind:'document',children:[core.envelopeToSection(signRefresh(refreshBinding,'1.0.1',1))]},'canonical')}})},()=> 'consumer');
+  class RefreshPeer extends PinnedMcpClient {
+    async connect(){await this.initialize({name:'psp-cdl-reference',version:'0.1.0'});return this;}
+    async request(method,params){return (await refreshServer.handle(JSON.stringify({jsonrpc:'2.0',id:1,method,params}))).result;}
+    async notify(method,params){await refreshServer.handle(JSON.stringify({jsonrpc:'2.0',method,params}));}
+    async close(){}
+  }
+  const refreshPeer=await new RefreshPeer().connect();
+  const remoteRefresh=new McpPromptRefresher(refreshPeer,{principal:refreshPrincipal,sessionId:refreshSession.sessionId,approvedCatalogDigest:refreshPeer.catalogDigest,now:()=>1,cancelled:()=>false});
+  refreshHost.refresh=(p,b,r)=>{refreshBinding=b;return remoteRefresh.refresh(p,b,r);};
   const refreshing=new RefreshingLlmLoop(refreshStore,refreshGate,refreshHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:r=>({type:'final',text:r.messages[0].content})},{postCompletion:'lockdown'});
   for(let turn=1;turn<=2;turn++)assert.equal((await refreshing.run('consumer',refreshSession.sessionId,{message:'next'},{...controls,requestId:'refresh-'+turn,expectedVersion:turn})).text,'System '+(turn===1?'1.0.0':'1.0.1'));
   const refreshState=await refreshStore.execute(actor,{action:'getPromptState',sessionId:refreshSession.sessionId});
@@ -153,7 +165,7 @@ import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy
 import psp_cdl_llmproxy as llm
-from psp_cdl_mcpproxy.mcp import StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
+from psp_cdl_mcpproxy.mcp import PinnedMcpClient, StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
 assert callable(HttpMcpClient.connect)
 from psp_cdl_api_server.http import create_wsgi_app
 from psp_cdl_mcp_server.revision import RevisionedToolRegistry, revision_digest
@@ -262,7 +274,22 @@ try:
         def authorize_refresh(self,*_):return True
         def audit_refresh(self,*_):return True
         def plan_turn(self,*_):return {'state':{},'retained':{},'complete':False}
-    refreshing=llm.RefreshingLlmLoop(refresh_store,refresh_gate,RefreshHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':lambda r,_:{'type':'final','text':r['messages'][0]['content']}},{'postCompletion':'lockdown'})
+    refresh_host=RefreshHost();refresh_binding={};refresh_principal=refresh_host.authenticate('consumer')
+    class RefreshService:
+        def authenticate(self,_):return refresh_principal
+        def discover(self,*_):return [llm.mcp_refresh_tool_definition()]
+        def call_tool(self,*_):return {'data':{'prompt':core.serialize_markup({'kind':'document','children':[core.envelope_to_section(sign_refresh(refresh_binding,'1.0.1',1))]},'canonical')}}
+    refresh_server=mcp.McpServer(RefreshService(),lambda:'consumer')
+    class RefreshPeer(PinnedMcpClient):
+        def _request(self,method,params,cancelled=lambda:False):return refresh_server.handle(core.canonical_json({'jsonrpc':'2.0','id':1,'method':method,'params':params}))['result']
+        def _notify(self,method,params):refresh_server.handle(core.canonical_json({'jsonrpc':'2.0','method':method,'params':params}))
+        def close(self):pass
+    refresh_peer=RefreshPeer();refresh_peer._initialize({'name':'psp-cdl-reference','version':'0.1.0'})
+    remote_refresh=llm.McpPromptRefresher(refresh_peer,{'principal':refresh_principal,'sessionId':refresh_session['sessionId'],'approvedCatalogDigest':refresh_peer.catalog_digest,'now':lambda:1,'cancelled':lambda:False})
+    def remote_callback(p,b,r):
+        refresh_binding.clear();refresh_binding.update(b);return remote_refresh.refresh(p,b,r)
+    refresh_host.refresh=remote_callback
+    refreshing=llm.RefreshingLlmLoop(refresh_store,refresh_gate,refresh_host,{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':lambda r,_:{'type':'final','text':r['messages'][0]['content']}},{'postCompletion':'lockdown'})
     for turn in (1,2):assert refreshing.run('consumer',refresh_session['sessionId'],{'message':'next'},{**controls,'requestId':'refresh-'+str(turn),'expectedVersion':turn})['text']=='System '+('1.0.0' if turn==1 else '1.0.1')
     refresh_state=refresh_store.execute(actor,{'action':'getPromptState','sessionId':refresh_session['sessionId']})
     assert refresh_state['state']['turnCount']==1 and refresh_state['state']['refreshCount']==1

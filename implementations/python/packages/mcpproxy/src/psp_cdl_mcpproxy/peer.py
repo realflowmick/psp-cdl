@@ -7,6 +7,7 @@ from psp_cdl_mcp_server import MCP_VERSION
 from psp_cdl_mcp_server.revision import REVISION_PROFILE, REVISION_KEY, valid_catalog_revision
 from psp_cdl_api_server.service import identifier
 from .dispatch import binding_digest
+from .schema import check_schema, matches
 
 class PeerError(ValueError):
     def __init__(self, code):
@@ -43,7 +44,7 @@ class PinnedMcpClient:
         if type(result) is not dict or set(result) != ({"tools","_meta"} if self._required_revision else {"tools"}) or type(result["tools"]) is not list or len(result["tools"]) > 1024: raise PeerError("INVALID_DISCOVERY")
         seen = set()
         for t in result["tools"]:
-            if type(t) is not dict or type(t.get("name")) is not str or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", t["name"]) or t["name"] in seen or type(t.get("inputSchema")) is not dict or type(t.get("outputSchema")) is not dict: raise PeerError("INVALID_DISCOVERY")
+            if type(t) is not dict or type(t.get("name")) is not str or (t["name"]!="realflow.security.refresh" and not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", t["name"])) or t["name"] in seen or type(t.get("inputSchema")) is not dict or type(t.get("outputSchema")) is not dict: raise PeerError("INVALID_DISCOVERY")
             seen.add(t["name"])
         tools=json_copy(sorted(result["tools"],key=lambda t:t["name"]))
         revision=None
@@ -84,3 +85,24 @@ class PinnedMcpClient:
                     raise
             result.append({**a, "server":server, "invoke":invoke})
         return result
+
+    def bind_control_tool(self, approval, approved_catalog_digest, now):
+        """Host-only control channel; no model dispatch authority is granted."""
+        if approved_catalog_digest!=self._fingerprint: raise PeerError("CATALOG_NOT_APPROVED")
+        a=json_copy(approval)
+        if type(a) is not dict or set(a)!={"name","revision","inputSchema","outputSchema"}: raise PeerError("INVALID_CONFIGURATION")
+        try: check_schema(a["inputSchema"]);check_schema(a["outputSchema"])
+        except Exception: raise PeerError("UNSUPPORTED_SCHEMA") from None
+        invoke=self.registrations("host-control",[{**a,"readOnly":True,"sources":[],"complete":False}],now,approved_catalog_digest)[0]["invoke"]
+        def call(args, options):
+            data=json_copy(args)
+            if type(options) is not dict or not callable(options.get("cancelled")) or type(options.get("deadline")) is not int or abs(options["deadline"])>9007199254740991: raise PeerError("INVALID_CONFIGURATION")
+            def check():
+                if options["cancelled"]() is not False or now()>=options["deadline"]: raise PeerError("PEER_CANCELLED")
+            check()
+            if not matches(a["inputSchema"],data): raise PeerError("INVALID_CONTROL_INPUT")
+            result=invoke(data,options);check()
+            if not matches(a["outputSchema"],result):
+                self.close();raise PeerError("INVALID_CONTROL_OUTPUT")
+            return json_copy(result)
+        return call

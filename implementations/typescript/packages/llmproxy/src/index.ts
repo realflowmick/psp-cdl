@@ -9,7 +9,7 @@ export const manifest = Object.freeze({
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1"]
+  "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1", "mcp-prompt-refresh-discovery-0.1"]
 } as const);
 
 /** Full workflow execution remains unsupported; use a named library API. */
@@ -18,3 +18,4 @@ export function requireImplementation(): never {
 }
 Object.freeze(manifest.specifications);
 Object.freeze(manifest.implementedFeatures);
+export * from "./mcp-refresh.js";

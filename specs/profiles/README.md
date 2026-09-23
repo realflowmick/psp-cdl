@@ -31,3 +31,5 @@ profile for host-approved expiration/interval refresh, durable version floors an
 atomic committed-turn counting. It uses host callbacks rather than the RFC's MCP
 refresh discovery contract; unsupported triggers and any refresh failure deny
 the invocation. Published RFC baselines remain unchanged.
+
+[MCP Prompt Refresh 0.1](PSP-MCP-PROMPT-REFRESH-0.1.md) is an opt-in draft extension that supplies the host callback through approved MCP discovery with owner/session pinning, exact schemas and the existing loop verification gates.

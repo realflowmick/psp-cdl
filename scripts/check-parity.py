@@ -39,4 +39,5 @@ subprocess.run([sys.executable,"-u","scripts/check-revision-parity.py"],cwd=ROOT
 subprocess.run([sys.executable,"scripts/check-llm-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-durable-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-refresh-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-mcp-refresh-parity.py"],cwd=ROOT,check=True)
 print("Seven manifests and three harness modes agree; library profiles and both interchange directions passed. Full workflow conformance is pending.")

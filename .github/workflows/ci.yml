@@ -67,6 +67,8 @@ jobs:
       - run: uv run --locked python scripts/generate-durable-vectors.py --check
       - run: uv run --locked python scripts/generate-refresh-vectors.py --check
       - run: uv run --locked python scripts/generate-refresh-schema.py --check
+      - run: uv run --locked python scripts/generate-mcp-refresh-contract.py --check
+      - run: uv run --locked python scripts/generate-mcp-refresh-vectors.py --check
       - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks

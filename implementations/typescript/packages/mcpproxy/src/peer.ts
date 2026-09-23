@@ -5,6 +5,7 @@ import {identifier} from "@psp-cdl/api-server";
 import {REVISION_PROFILE,REVISION_KEY,validCatalogRevision,type CatalogRevision} from "@psp-cdl/mcp-server/revision";
 import {bounded} from "@psp-cdl/api-server/persistence";
 import {type ToolRegistration,bindingDigest} from "./dispatch.js";
+import {checkSchema,matches} from "./schema.js";
 export class PeerError extends Error {constructor(public readonly code:string){super(code);this.name="PeerError";}}
 type Approval=Omit<ToolRegistration,"server"|"invoke">;
 const fail=(code:string):never=>{throw new PeerError(code);};
@@ -34,7 +35,7 @@ export abstract class PinnedMcpClient {
     if(!record(result)||Object.keys(result).some(k=>k!=="tools"&&!(this.requiredRevision&&k==="_meta"))||!Array.isArray(result.tools)||result.tools.length>1024)fail("INVALID_DISCOVERY");
     const seen=new Set<string>();
     for(const t of result.tools) {
-      if(!record(t)||typeof t.name!=="string"||!/^[A-Za-z0-9_-]{1,64}$/.test(t.name)||/[^A-Za-z0-9_-]/.test(t.name)||seen.has(t.name)||!record(t.inputSchema)||!record(t.outputSchema))fail("INVALID_DISCOVERY");
+      if(!record(t)||typeof t.name!=="string"||t.name!=="realflow.security.refresh"&&(!/^[A-Za-z0-9_-]{1,64}$/.test(t.name)||/[^A-Za-z0-9_-]/.test(t.name))||seen.has(t.name)||!record(t.inputSchema)||!record(t.outputSchema))fail("INVALID_DISCOVERY");
       seen.add(t.name);
     }
     const tools=json([...result.tools].sort((a,b)=>a.name<b.name?-1:1)) as Record<string,unknown>[];
@@ -74,5 +75,22 @@ export abstract class PinnedMcpClient {
         }catch(e){await this.close();throw e;}
       }};
     });
+  }
+  /** Host-only control channel. This does not install a tool or grant model dispatch authority. */
+  bindControlTool(approval:Pick<Approval,"name"|"revision"|"inputSchema"|"outputSchema">,approvedCatalogDigest:string,now:()=>number):ToolRegistration["invoke"] {
+    if(approvedCatalogDigest!==this.fingerprint)fail("CATALOG_NOT_APPROVED");
+    const a=json(approval);
+    if(!record(a)||Object.keys(a).sort().join(",")!=="inputSchema,name,outputSchema,revision")fail("INVALID_CONFIGURATION");
+    try{checkSchema(a.inputSchema);checkSchema(a.outputSchema);}catch{fail("UNSUPPORTED_SCHEMA");}
+    const invoke=this.registrations("host-control",[{...a,readOnly:true,sources:[],complete:false} as Approval],now,approvedCatalogDigest)[0]!.invoke;
+    return async(args,options)=>{
+      const input=json(args);
+      if(!options||typeof options.cancelled!=="function"||!Number.isSafeInteger(options.deadline))fail("INVALID_CONFIGURATION");
+      const check=()=>{if(options.cancelled()!==false||now()>=options.deadline)fail("PEER_CANCELLED");};
+      check();if(!matches(a.inputSchema,input))fail("INVALID_CONTROL_INPUT");
+      const result=await invoke(input,options);check();
+      if(!matches(a.outputSchema,result)){await this.close();fail("INVALID_CONTROL_OUTPUT");}
+      return json(result);
+    };
   }
 }

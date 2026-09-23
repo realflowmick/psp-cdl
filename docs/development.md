@@ -39,3 +39,5 @@ races with `python scripts/check-refresh-parity.py`. Verify shared artifacts wit
 `python scripts/generate-refresh-vectors.py --check` and
 `python scripts/generate-refresh-schema.py --check`. CI also runs both generators
 and refreshes prompts from installed npm tarballs and Python wheels.
+
+MCP prompt refresh discovery checks run in both suites and the parity command. Isolate them with `python scripts/check-mcp-refresh-parity.py`; verify generated contracts and vectors with `python scripts/generate-mcp-refresh-contract.py --check` and `python scripts/generate-mcp-refresh-vectors.py --check`.
