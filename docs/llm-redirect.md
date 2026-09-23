@@ -87,5 +87,6 @@ bindings, owner isolation, source closure, retained evidence, callback mutation,
 rollback and withheld-output recovery. The parity harness also checks process
 restart, hot-journal recovery and competing/identical mixed-language commits.
 This is scoped experimental behavior, not a complete conformance or security
-effectiveness claim. Scoped continuation, refresh/redirect composition, remote
-handoff, automatic target inference, streaming and live providers remain pending.
+effectiveness claim. [Scoped continuation](llm-scoped.md) uses a separate opt-in
+API. Refresh/redirect composition, remote handoff, automatic target inference,
+streaming and live providers remain pending.

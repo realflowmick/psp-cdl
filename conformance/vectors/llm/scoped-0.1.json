@@ -1,0 +1,983 @@
+{
+  "profile": "PSP-LLM-SCOPED-0.1",
+  "status": "draft",
+  "cases": [
+    {
+      "id": "scoped-answer",
+      "flags": {},
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "explicit-threat-policy",
+      "flags": {},
+      "settings": {
+        "explicitPolicy": true
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "ingress-violation",
+      "flags": {
+        "denyIngress": true
+      },
+      "expected": {
+        "codes": [
+          "PSP_POST_COMPLETION_VIOLATION"
+        ],
+        "version": 3,
+        "providerCalls": 2,
+        "turnCount": 1,
+        "violationCount": 1
+      }
+    },
+    {
+      "id": "egress-violation",
+      "flags": {
+        "denyEgress": true
+      },
+      "expected": {
+        "codes": [
+          "PSP_POST_COMPLETION_VIOLATION"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 1
+      }
+    },
+    {
+      "id": "deny-then-answer",
+      "flags": {},
+      "steps": [
+        {
+          "flags": {
+            "denyIngress": true
+          }
+        },
+        {
+          "flags": {
+            "denyIngress": false
+          },
+          "options": {
+            "requestId": "scope-2",
+            "expectedVersion": 3
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "PSP_POST_COMPLETION_VIOLATION",
+          "OK"
+        ],
+        "version": 4,
+        "providerCalls": 3,
+        "turnCount": 2,
+        "violationCount": 1
+      }
+    },
+    {
+      "id": "two-answers",
+      "flags": {},
+      "steps": [
+        {},
+        {
+          "options": {
+            "requestId": "scope-2",
+            "expectedVersion": 3
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "version": 4,
+        "providerCalls": 4,
+        "turnCount": 2,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "answer-recovery",
+      "flags": {},
+      "steps": [
+        {},
+        {
+          "action": "recover"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "violation-recovery",
+      "flags": {
+        "denyIngress": true
+      },
+      "steps": [
+        {},
+        {
+          "action": "recover"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "PSP_POST_COMPLETION_VIOLATION",
+          "PSP_POST_COMPLETION_VIOLATION"
+        ],
+        "version": 3,
+        "providerCalls": 2,
+        "turnCount": 1,
+        "violationCount": 1
+      }
+    },
+    {
+      "id": "no-implicit-replay",
+      "flags": {},
+      "steps": [
+        {},
+        {}
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "TURN_ALREADY_COMMITTED"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "different-input-retry",
+      "flags": {},
+      "steps": [
+        {},
+        {
+          "request": {
+            "message": "different"
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "IDEMPOTENCY_CONFLICT"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "wrongScopedText",
+      "flags": {
+        "wrongScopedText": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "workflowPrompt",
+      "flags": {
+        "workflowPrompt": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "wrongScopedBinding",
+      "flags": {
+        "wrongScopedBinding": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "tamperedScoped",
+      "flags": {
+        "tamperedScoped": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "expiredScoped",
+      "flags": {
+        "expiredScoped": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "revokedPrompt",
+      "flags": {
+        "revokedPrompt": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "throwScopedPrompt",
+      "flags": {
+        "throwScopedPrompt": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "wrongBoundaryBinding",
+      "flags": {
+        "wrongBoundaryBinding": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_SCOPE_DECISION"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "badBoundary",
+      "flags": {
+        "badBoundary": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_SCOPE_DECISION"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "unknownBoundary",
+      "flags": {
+        "unknownBoundary": true
+      },
+      "expected": {
+        "codes": [
+          "UNSUPPORTED_SCOPE"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "throwBoundary",
+      "flags": {
+        "throwBoundary": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "boundaryCancel",
+      "flags": {
+        "boundaryCancel": true
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "boundaryRevoke",
+      "flags": {
+        "boundaryRevoke": true
+      },
+      "expected": {
+        "codes": [
+          "UNAUTHENTICATED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "boundaryDrift",
+      "flags": {
+        "boundaryDrift": true
+      },
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "boundaryExpiry",
+      "flags": {
+        "boundaryExpiry": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denyInference",
+      "flags": {
+        "denyInference": true
+      },
+      "expected": {
+        "codes": [
+          "POLICY_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denyRelease",
+      "flags": {
+        "denyRelease": true
+      },
+      "expected": {
+        "codes": [
+          "OUTPUT_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "scopedTool",
+      "flags": {
+        "scopedTool": true
+      },
+      "expected": {
+        "codes": [
+          "TOOL_NOT_ALLOWED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "scopedStream",
+      "flags": {
+        "scopedStream": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_RESPONSE"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "badScopedPlan",
+      "flags": {
+        "badScopedPlan": true
+      },
+      "expected": {
+        "codes": [
+          "INVALID_PLAN"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "throwScopedPlan",
+      "flags": {
+        "throwScopedPlan": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denyTransition",
+      "flags": {
+        "denyTransition": true
+      },
+      "expected": {
+        "codes": [
+          "TRANSITION_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denyStorage",
+      "flags": {
+        "denyStorage": true
+      },
+      "expected": {
+        "codes": [
+          "PERSISTENCE_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "failBeforeCommit",
+      "flags": {
+        "failBeforeCommit": true
+      },
+      "expected": {
+        "codes": [
+          "HOST_ERROR"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "changedScope",
+      "flags": {
+        "changedScope": true
+      },
+      "expected": {
+        "codes": [
+          "SCOPED_STATE_MISMATCH"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "failAfterCommit",
+      "flags": {
+        "failAfterCommit": true
+      },
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "failAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "HOST_ERROR",
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "cancelAfterCommit",
+      "flags": {
+        "cancelAfterCommit": true
+      },
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "cancelAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "CANCELLED",
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "driftAfterCommit",
+      "flags": {
+        "driftAfterCommit": true
+      },
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "driftAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY",
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denyAfterCommit",
+      "flags": {
+        "denyAfterCommit": true
+      },
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "denyAfterCommit": false
+          },
+          "baseFlags": {
+            "cancelled": false,
+            "drift": false
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OUTPUT_DENIED",
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "mutable-callback-inputs",
+      "flags": {
+        "mutateBoundary": true,
+        "mutateScopedPlan": true,
+        "mutateTransition": true
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "invalid-credential",
+      "flags": {},
+      "steps": [
+        {
+          "token": "bad"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "UNAUTHENTICATED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "cross-owner",
+      "flags": {},
+      "steps": [
+        {
+          "token": "test-other"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "cross-tenant",
+      "flags": {},
+      "steps": [
+        {
+          "token": "test-tenant"
+        }
+      ],
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "stale-request",
+      "flags": {},
+      "steps": [
+        {
+          "options": {
+            "expectedVersion": 1
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "STALE_SESSION"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "model-cannot-select-policy",
+      "flags": {},
+      "steps": [
+        {
+          "request": {
+            "message": "hello",
+            "postCompletion": "unmanaged"
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "INVALID_REQUEST"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "recovery-policy-denies",
+      "flags": {},
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "denyRecoveryPolicy": true
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "OUTPUT_DENIED"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "recovery-approval-denies",
+      "flags": {},
+      "steps": [
+        {},
+        {
+          "action": "recover",
+          "flags": {
+            "denyRecovery": true
+          }
+        }
+      ],
+      "expected": {
+        "codes": [
+          "OK",
+          "RECOVERY_DENIED"
+        ],
+        "version": 3,
+        "providerCalls": 3,
+        "turnCount": 1,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "store-opt-in",
+      "settings": {
+        "disabledScoped": true
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION"
+      }
+    },
+    {
+      "id": "missing-system",
+      "settings": {
+        "emptySystem": true
+      },
+      "expected": {
+        "code": "UNSUPPORTED_POST_COMPLETION"
+      }
+    },
+    {
+      "id": "missing-threat-state",
+      "settings": {
+        "badApplicationThreat": true
+      },
+      "expected": {
+        "code": "INVALID_SCOPED_STATE"
+      }
+    },
+    {
+      "id": "denial-storage-fails",
+      "flags": {
+        "denyIngress": true,
+        "denyStorage": true
+      },
+      "expected": {
+        "codes": [
+          "PERSISTENCE_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "denial-approval-fails",
+      "flags": {
+        "denyIngress": true,
+        "denyTransition": true
+      },
+      "expected": {
+        "codes": [
+          "TRANSITION_DENIED"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "no-write-scope",
+      "flags": {
+        "noWriteScope": true
+      },
+      "expected": {
+        "codes": [
+          "FORBIDDEN"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "no-model-scope",
+      "flags": {
+        "noModelScope": true
+      },
+      "expected": {
+        "codes": [
+          "FORBIDDEN"
+        ],
+        "version": 2,
+        "providerCalls": 2,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "provider-cancel",
+      "flags": {
+        "providerCancel": true
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "provider-authority-change",
+      "flags": {
+        "providerDrift": true
+      },
+      "expected": {
+        "codes": [
+          "STALE_AUTHORITY"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    },
+    {
+      "id": "provider-key-revocation",
+      "flags": {
+        "providerKeyRevoke": true
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "version": 2,
+        "providerCalls": 3,
+        "turnCount": 0,
+        "violationCount": 0
+      }
+    }
+  ]
+}

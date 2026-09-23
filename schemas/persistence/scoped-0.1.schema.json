@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflowcloud.org/psp/schemas/scoped-turns-0.1.json",
+  "title": "PSP Scoped Continuation 0.1 private store commands",
+  "$comment": "CC0-1.0. Explicit opt-in. Frozen workflow, scope binding, retained evidence and atomic revision/receipt rules enforced separately.",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "not": {
+        "pattern": "[^A-Za-z0-9._:-]"
+      }
+    },
+    "uuid": {
+      "type": "string",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "text",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "profile",
+            "providerId",
+            "providerRevision",
+            "outputDigest",
+            "trustLevel",
+            "steps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "const": "PSP-LLM-LOOP-0.1"
+            },
+            "providerId": {
+              "$ref": "#/$defs/id"
+            },
+            "providerRevision": {
+              "$ref": "#/$defs/id"
+            },
+            "outputDigest": {
+              "$ref": "#/$defs/digest"
+            },
+            "trustLevel": {
+              "const": 5
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32
+            }
+          }
+        }
+      }
+    },
+    "threatPolicy": {
+      "type": "object",
+      "required": [
+        "id",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "id",
+        "version",
+        "systemDigest",
+        "threatPolicy"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/id"
+        },
+        "systemDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "threatPolicy": {
+          "$ref": "#/$defs/threatPolicy"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "action",
+        "requestId",
+        "sessionId",
+        "expectedVersion",
+        "nodeId",
+        "nodeVersion",
+        "policyVersion",
+        "state",
+        "inputDigest",
+        "output",
+        "retained",
+        "complete",
+        "postCompletion",
+        "scope",
+        "threatState"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "commitScopedWorkflowTurn"
+        },
+        "requestId": {
+          "$ref": "#/$defs/id"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "nodeId": {
+          "$ref": "#/$defs/id"
+        },
+        "nodeVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "policyVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "state": {
+          "type": "object"
+        },
+        "inputDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "retained": {
+          "type": "object"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "postCompletion": {
+          "const": "scoped"
+        },
+        "scope": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/scope"
+            }
+          ]
+        },
+        "threatState": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "complete": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "scope": {
+                "$ref": "#/$defs/scope"
+              },
+              "threatState": {
+                "type": "object"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "scope": {
+                "type": "null"
+              },
+              "threatState": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "required": [
+        "action",
+        "requestId",
+        "sessionId",
+        "expectedVersion",
+        "nodeId",
+        "nodeVersion",
+        "policyVersion",
+        "inputDigest",
+        "output",
+        "retained",
+        "scopeDigest",
+        "threatState",
+        "violationPhase"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "commitScopedTurn"
+        },
+        "requestId": {
+          "$ref": "#/$defs/id"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/uuid"
+        },
+        "expectedVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "nodeId": {
+          "$ref": "#/$defs/id"
+        },
+        "nodeVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "policyVersion": {
+          "$ref": "#/$defs/id"
+        },
+        "inputDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "output": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/output"
+                },
+                {
+                  "properties": {
+                    "provenance": {
+                      "properties": {
+                        "steps": {
+                          "const": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "retained": {
+          "type": "object"
+        },
+        "scopeDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "threatState": {
+          "type": "object"
+        },
+        "violationPhase": {
+          "enum": [
+            null,
+            "ingress",
+            "egress"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "violationPhase": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "$ref": "#/$defs/output"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "output": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

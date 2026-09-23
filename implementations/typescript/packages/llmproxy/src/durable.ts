@@ -41,14 +41,14 @@ export class DurableLlmLoop extends BufferedLlmLoop {
     if(!store.durableTurns||[durableHost.planTurn,durableHost.authorizeTransition,durableHost.audit,durableHost.authorizeRecovery,durableHost.recoveryPolicy].some(f=>typeof f!=="function")) fail("INVALID_CONFIGURATION");
     if(!record(configuration)||Object.keys(configuration).join(",")!=="postCompletion"||configuration.postCompletion!=="lockdown") fail("UNSUPPORTED_POST_COMPLETION");
   }
-  private async identity(token:unknown,scope:string,expected?:Principal):Promise<Principal> {
+  protected async identity(token:unknown,scope:string,expected?:Principal):Promise<Principal> {
     const auth=new SecurityService({authenticate:t=>this.host.authenticate(t),now:()=>this.host.now(),resolve:()=>null});
     const p=await auth.authenticate(token);
     if(!p.scopes.includes(scope)||expected&&(p.tenantId!==expected.tenantId||p.subjectId!==expected.subjectId)) fail("FORBIDDEN");
     if(scope==="sessions:write"&&!p.scopes.includes("models:invoke")) fail("FORBIDDEN");
     return p;
   }
-  private async boundary<T>(fn:()=>Promise<T>):Promise<T> {
+  protected async boundary<T>(fn:()=>Promise<T>):Promise<T> {
     try{return await fn();}catch(e){
       if(e instanceof LoopError) throw e;
       if(e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)) return fail(e.code);
@@ -56,7 +56,7 @@ export class DurableLlmLoop extends BufferedLlmLoop {
       return fail("HOST_ERROR");
     }
   }
-  private controls(options:RecoveryOptions):RecoveryOptions {
+  protected controls(options:RecoveryOptions):RecoveryOptions {
     if(!options||!integer(options.deadline)||typeof options.cancelled!=="function") fail("INVALID_REQUEST");
     return {deadline:options.deadline,cancelled:options.cancelled};
   }

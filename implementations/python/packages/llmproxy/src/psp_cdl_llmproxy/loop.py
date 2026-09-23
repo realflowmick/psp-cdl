@@ -76,7 +76,7 @@ class BufferedLlmLoop:
 
     def _verify(self, p, binding, prompt):
         policy = callback(lambda:self._host.verification(copy(p), copy(binding)))
-        context = prompt_context(binding)
+        context = self._verification_context(binding)
         try:
             if type(policy) is not dict or type(policy.get("keys")) is not list or any(k.get("allowUnscoped") is not False for k in policy["keys"]):
                 raise LoopError("PROMPT_REJECTED")
@@ -98,6 +98,8 @@ class BufferedLlmLoop:
         if decision == "unsupported": raise LoopError("UNSUPPORTED_POLICY")
         if decision != "allow": raise LoopError("OUTPUT_DENIED" if phase == "release" else "POLICY_DENIED")
         return context
+
+    def _verification_context(self,binding):return prompt_context(binding)
 
     def _prompt_attributes(self): return []
 

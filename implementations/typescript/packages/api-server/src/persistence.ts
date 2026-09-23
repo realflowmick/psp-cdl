@@ -6,6 +6,8 @@ import {PROMPT_REFRESH_PROFILE,validPromptState,comparePromptVersions} from "./p
 import {REDIRECT_PROFILE,validRedirect} from "./redirect-state.js";
 export {REDIRECT_PROFILE,validRedirect,validRedirectTarget} from "./redirect-state.js";
 export {PROMPT_REFRESH_PROFILE,validPromptState,comparePromptVersions} from "./prompt-state.js";
+import {SCOPED_PROFILE,validScope,validScopedCompletion,validScopedOutput,validDigest,scopedDigest} from "./scoped-state.js";
+export {SCOPED_PROFILE,validScope,validScopedCompletion,validThreatPolicy,scopedDigest} from "./scoped-state.js";
 export type OwnerReservation=object;
 
 export const PERSISTENCE_PROFILE = "PSP-PERSISTENCE-0.1";
@@ -36,6 +38,7 @@ export interface PersistenceHost {
   durableTurns?:boolean;
   promptRefresh?:boolean;
   redirectTurns?:boolean;
+  scopedTurns?:boolean;
 }
 /** Optional single-process, fail-fast exclusion. Share across every writer and gate. */
 export class OwnerCoordinator {
@@ -53,6 +56,8 @@ export class OwnerCoordinator {
   }
 }
 export type WorkflowCommand =
+  | {action:"commitScopedWorkflowTurn";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;state:Record<string,unknown>;inputDigest:string;output:Record<string,unknown>;retained:Record<string,unknown>;complete:boolean;postCompletion:"scoped";scope:Record<string,unknown>|null;threatState:Record<string,unknown>|null}
+  | {action:"commitScopedTurn";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;inputDigest:string;scopeDigest:string;threatState:Record<string,unknown>;retained:Record<string,unknown>;output:Record<string,unknown>|null;violationPhase:"ingress"|"egress"|null}
   | {action:"commitRedirectTurn";requestId:string;sessionId:string;expectedVersion:number;nodeId:string;nodeVersion:string;policyVersion:string;state:Record<string,unknown>;inputDigest:string;output:Record<string,unknown>;retained:Record<string,unknown>;complete:boolean;postCompletion:"redirect";redirect:{target:string;nodeId:string;nodeVersion:string;policyVersion:string;expiresAt:number}|null}
   | {action:"putNode";nodeId:string;nodeVersion:string;definition:Record<string,unknown>}
   | {action:"getNode";nodeId:string;nodeVersion:string}
@@ -105,6 +110,7 @@ export class WorkflowStore {
   readonly durableTurns:boolean;
   readonly promptRefresh:boolean;
   readonly redirectTurns:boolean;
+  readonly scopedTurns:boolean;
   private readonly secret:Uint8Array;
   constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
@@ -117,6 +123,8 @@ export class WorkflowStore {
     this.promptRefresh=host.promptRefresh===true;
     if(host.redirectTurns!==undefined&&typeof host.redirectTurns!=="boolean"||host.redirectTurns&&(!this.durableTurns||this.promptRefresh))fail("INVALID_CONFIGURATION");
     this.redirectTurns=host.redirectTurns===true;
+    if(host.scopedTurns!==undefined&&typeof host.scopedTurns!=="boolean"||host.scopedTurns&&(!this.durableTurns||this.promptRefresh||this.redirectTurns))fail("INVALID_CONFIGURATION");
+    this.scopedTurns=host.scopedTurns===true;
   }
   private token(actor:Actor,id:string):string {
     const mac=createHmac("sha256",this.secret).update(canonicalJson([PERSISTENCE_PROFILE,this.backend.epoch,actor.tenantId,actor.subjectId,id])).digest("base64url");
@@ -187,6 +195,7 @@ export class WorkflowStore {
     });
     if(this.promptRefresh)Object.assign(fields,{getPromptState:["sessionId"],putPromptState:["sessionId","expectedVersion","refreshRevision","state"],commitRefreshedTurn:[...fields.commitTurn!,"refreshRevision"]});
     if(this.redirectTurns)fields.commitRedirectTurn=[...fields.commitTurn!,"redirect"];
+    if(this.scopedTurns)Object.assign(fields,{commitScopedWorkflowTurn:[...fields.commitTurn!,"scope","threatState"],commitScopedTurn:["requestId","sessionId","expectedVersion","nodeId","nodeVersion","policyVersion","inputDigest","scopeDigest","threatState","retained","output","violationPhase"]});
     const names=typeof c.action==="string"&&Object.hasOwn(fields,c.action)?fields[c.action]:undefined;
     if(!names||Object.keys(c).length!==names.length+1||names.some(n=>!Object.hasOwn(c,n))) fail("INVALID_COMMAND");
     for(const n of ["requestId","nodeId","nodeVersion","policyVersion"]) if(Object.hasOwn(c,n)&&!identifier(c[n])) fail("INVALID_COMMAND");
@@ -195,14 +204,17 @@ export class WorkflowStore {
     if(c.action==="resumeCheckpoint"&&(typeof c.resumeToken!=="string"||c.resumeToken.length!==80)) fail("INVALID_TOKEN");
     if("refreshRevision" in c&&!integer(c.refreshRevision))fail("INVALID_COMMAND");
     if(c.action==="putPromptState"&&!validPromptState(c.state))fail("INVALID_COMMAND");
-    if(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)) {
+    if(["commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn"].includes(c.action as string)) {
       const o=c.output,p=record(o)?o.provenance:null;
-      if(typeof c.complete!=="boolean"||c.postCompletion!==(c.action==="commitRedirectTurn"?"redirect":"lockdown")||!record(c.retained)||typeof c.inputDigest!=="string"||c.inputDigest.length!==64||!/^[0-9a-f]{64}$/.test(c.inputDigest)||
+      if(typeof c.complete!=="boolean"||c.postCompletion!==(c.action==="commitRedirectTurn"?"redirect":c.action==="commitScopedWorkflowTurn"?"scoped":"lockdown")||!record(c.retained)||typeof c.inputDigest!=="string"||c.inputDigest.length!==64||!/^[0-9a-f]{64}$/.test(c.inputDigest)||
         !record(o)||Object.keys(o).sort().join(",")!=="provenance,text"||typeof o.text!=="string"||!record(p)||
         Object.keys(p).sort().join(",")!=="outputDigest,profile,providerId,providerRevision,steps,trustLevel"||p.profile!=="PSP-LLM-LOOP-0.1"||p.trustLevel!==5||
         !identifier(p.providerId)||!identifier(p.providerRevision)||!positive(p.steps)||(p.steps as number)>32||p.outputDigest!==hash(canonicalJson({text:o.text}))) fail("INVALID_COMMAND");
       if(c.action==="commitRedirectTurn"&&(c.complete?!validRedirect(c.redirect)||c.redirect.nodeId===c.nodeId:c.redirect!==null))fail("INVALID_COMMAND");
     }
+    if(c.action==="commitScopedWorkflowTurn"&&(c.complete?!validScope(c.scope)||!record(c.threatState):c.scope!==null||c.threatState!==null))fail("INVALID_COMMAND");
+    if(c.action==="commitScopedTurn"&&(!validDigest(c.inputDigest)||!validDigest(c.scopeDigest)||!record(c.threatState)||!record(c.retained)||
+      (c.violationPhase===null?!validScopedOutput(c.output):!["ingress","egress"].includes(c.violationPhase as string)||c.output!==null)))fail("INVALID_COMMAND");
     const now=this.now();
     const promptKey=key("receipt",hash(canonicalJson(["prompt-refresh",actor.subjectId,c.sessionId??null])));
     if(c.action==="getPromptState") {
@@ -269,11 +281,22 @@ export class WorkflowStore {
       current=s.body;
       if(s.revision==Number.MAX_SAFE_INTEGER) fail("VERSION_EXHAUSTED");
       if(s.revision!==(cp?.body.sessionVersion??c.expectedVersion)) fail("STATE_CONFLICT");
-      if(s.body.status!==(cp?"waiting":"running")) fail("INVALID_TRANSITION");
+      if(s.body.status!==(cp?"waiting":c.action==="commitScopedTurn"?"completed":"running")) fail("INVALID_TRANSITION");
       expiresAt=s.body.expiresAt as number;
-      const next={...s.body,version:s.revision+1,updatedAt:now};
+      const next:Record<string,unknown>={...s.body,version:s.revision+1,updatedAt:now};
       checks=[check(s)];
-      if(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)) {
+      if(c.action==="commitScopedTurn") {
+        const previous=s.body.llmCompletion;
+        if(!validScopedCompletion(previous))fail("INVALID_TRANSITION");
+        if(c.nodeId!==s.body.nodeId||c.nodeVersion!==s.body.nodeVersion||c.policyVersion!==s.body.policyVersion||c.scopeDigest!==scopedDigest(previous.scope))fail("STATE_CONFLICT");
+        if(previous.turnCount===Number.MAX_SAFE_INTEGER||previous.violationCount===Number.MAX_SAFE_INTEGER)fail("VERSION_EXHAUSTED");
+        const denied=c.violationPhase!==null,turnCount=previous.turnCount+1,violationCount=previous.violationCount+(denied?1:0);
+        if(denied&&!equal(c.retained,previous.retained))fail("INVALID_COMMAND");
+        next.llmCompletion={...previous,threatState:c.threatState,retained:c.retained,turnCount,violationCount};
+        const signal=denied?{signal:"post_completion_violation",kind:"hard",phase:c.violationPhase,inputDigest:c.inputDigest,at:now}:null;
+        result={profile:"PSP-LLM-DURABLE-0.1",requestId:c.requestId,sessionId:s.id,sessionVersion:next.version,status:"completed",inputDigest:c.inputDigest,output:c.output,retained:c.retained,
+          scoped:{profile:SCOPED_PROFILE,scopeDigest:c.scopeDigest,turnCount,violationCount,outcome:denied?"violation":"answer",signal}};
+      } else if(["commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn"].includes(c.action as string)) {
         if(c.action==="commitRefreshedTurn") {
           const r=await this.backend.read(actor.tenantId,promptKey);
           if(!r||r.revision!==c.refreshRevision||r.body.sessionVersion!==s.revision)fail("STATE_CONFLICT");
@@ -285,6 +308,10 @@ export class WorkflowStore {
         Object.assign(next,{state:c.state,status:c.complete?"completed":"running"});
         if(c.complete) Object.assign(next,{llmCompletion:{profile:"PSP-LLM-DURABLE-0.1",policy:"lockdown",requestId:c.requestId,lockedAt:now}});
         result={profile:"PSP-LLM-DURABLE-0.1",requestId:c.requestId,sessionId:s.id,sessionVersion:next.version,status:c.complete?"completed":"running",inputDigest:c.inputDigest,output:c.output,retained:c.retained};
+        if(c.action==="commitScopedWorkflowTurn"&&c.complete) {
+          next.llmCompletion={profile:SCOPED_PROFILE,policy:"scoped",requestId:c.requestId,completedAt:now,scope:c.scope,threatState:c.threatState,retained:c.retained,turnCount:0,violationCount:0};
+          result.scoped={profile:SCOPED_PROFILE,scopeDigest:scopedDigest(c.scope),turnCount:0,violationCount:0,outcome:"completion",signal:null};
+        }
         if(c.action==="commitRedirectTurn"&&c.complete) {
           const target=c.redirect as Record<string,unknown>;
           if((target.expiresAt as number)<=this.now()||(target.expiresAt as number)>expiresAt)fail("INVALID_EXPIRY");
@@ -315,7 +342,7 @@ export class WorkflowStore {
       writes.push(row(key("session",s.id),next,s.revision+1));
     }
     if(receiptKey) {
-      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result,...(["commitTurn","commitRefreshedTurn","commitRedirectTurn"].includes(c.action as string)?{profile:"PSP-LLM-DURABLE-0.1"}:{})}));
+      checks.push(absent(receiptKey)); writes.push(row(receiptKey,{...actor,digest,expiresAt,result,...(["commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn","commitScopedTurn"].includes(c.action as string)?{profile:"PSP-LLM-DURABLE-0.1"}:{})}));
     }
     validateBatch(actor.tenantId,checks,writes,expiresAt);
     let allowed:unknown;

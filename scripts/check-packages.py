@@ -48,7 +48,7 @@ import {serveStdio} from '@psp-cdl/mcp-server/stdio';
 import {RevisionedToolRegistry,revisionDigest} from '@psp-cdl/mcp-server/revision';
 import {WorkflowStore,OwnerCoordinator} from '@psp-cdl/api-server/persistence';
 import {McpDispatchGate,bindingDigest} from '@psp-cdl/mcpproxy';
-import {BufferedLlmLoop,DurableLlmLoop,RedirectingLlmLoop,RefreshingLlmLoop,promptContext,McpPromptRefresher,mcpRefreshToolDefinition} from '@psp-cdl/llmproxy';
+import {BufferedLlmLoop,DurableLlmLoop,RedirectingLlmLoop,RefreshingLlmLoop,ScopedLlmLoop,scopedPromptContext,promptContext,McpPromptRefresher,mcpRefreshToolDefinition} from '@psp-cdl/llmproxy';
 import {PinnedMcpClient,StdioMcpClient,createMcpProxy,HttpMcpClient,McpHttpServer,createMcpProxyService} from '@psp-cdl/mcpproxy/mcp';
 assert.equal(typeof HttpMcpClient.connect,'function');
 import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
@@ -118,6 +118,20 @@ try {
   const redirected=await redirectLoop.run('consumer',redirectSession.sessionId,{message:'handoff'},{...controls,requestId:'redirect'});
   assert.equal((await redirectStore.execute(actor,{action:'getSession',sessionId:redirected.redirect.sessionId})).state.input.text,'installed-redirect');
   assert.deepEqual((await redirectLoop.recover('consumer',redirectSession.sessionId,'redirect',controls)).redirect,redirected.redirect);
+  const scopedStore=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true,scopedTurns:true});
+  const scopedSession=await scopedStore.execute(actor,{action:'createSession',requestId:'scoped-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
+  const scopedGate=new McpDispatchGate(scopedStore,host,'r1',[]),scopedRequests=[];
+  const scopedHost={...durableHost,applicationThreat:()=>({policy:{id:'application-threat',version:'1'},state:{score:7}}),
+    scopedPrompt:(_p,b)=>crypto.signEnvelope('Installed scoped SYSTEM',{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test',timestamp:0,expires:9,version:'1.0.0',sectionType:'system',contentType:'text',attributes:scopedPromptContext(b)},loopKey),
+    scopeBoundary:(_p,b,d)=>({bindingDigest:bindingDigest(b),decision:'allow',threatState:{score:d.threatState.score+1}}),planScopedTurn:(_p,_b,d)=>({retained:d.retained})};
+  const scopedLoop=new ScopedLlmLoop(scopedStore,scopedGate,scopedHost,{id:'mock',revision:'1',sources:[],complete:true,invoke:r=>{scopedRequests.push(r);return {type:'final',text:r.messages[0].content};}},{postCompletion:'scoped',scope:{id:'results',version:'1',system:'Installed scoped SYSTEM',threatPolicy:null}});
+  await scopedLoop.run('consumer',scopedSession.sessionId,{message:'finish'},{...controls,requestId:'scoped-complete'});
+  const scopedAnswer=await scopedLoop.run('consumer',scopedSession.sessionId,{message:'explain'},{...controls,requestId:'scoped-followup',expectedVersion:2});
+  assert.equal(scopedAnswer.text,'Installed scoped SYSTEM');assert.equal(scopedAnswer.receipt.status,'completed');
+  assert.deepEqual(scopedRequests[1].messages,[{role:'system',content:'Installed scoped SYSTEM'},{role:'assistant',content:'Synthetic system text'},{role:'user',content:'explain'}]);assert.deepEqual(scopedRequests[1].tools,[]);
+  const scopedState=await scopedStore.execute(actor,{action:'getSession',sessionId:scopedSession.sessionId});
+  assert.equal(scopedState.version,3);assert.equal(scopedState.llmCompletion.turnCount,1);assert.equal(scopedState.llmCompletion.threatState.score,9);assert.deepEqual(scopedState.state,{done:true});
+  assert.equal((await scopedLoop.recover('consumer',scopedSession.sessionId,'scoped-followup',controls)).text,'Installed scoped SYSTEM');assert.equal(scopedRequests.length,2);
   const refreshStore=new WorkflowStore(backend,{resumeSecret:new Uint8Array(32).fill(42),authorizePersistence:()=>true,coordinator:new OwnerCoordinator(),durableTurns:true,promptRefresh:true});
   const refreshGate=new McpDispatchGate(refreshStore,host,'r1',[]);
   const refreshSession=await refreshStore.execute(actor,{action:'createSession',requestId:'refresh-session',nodeId:'entry',nodeVersion:'1',policyVersion:'p1',expiresAt:10,state:{}});
@@ -284,6 +298,24 @@ try:
     redirected=redirect_loop.run('consumer',redirect_session['sessionId'],{'message':'handoff'},{**controls,'requestId':'redirect'})
     assert redirect_store.execute(actor,{'action':'getSession','sessionId':redirected['redirect']['sessionId']})['state']['input']['text']=='installed-redirect'
     assert redirect_loop.recover('consumer',redirect_session['sessionId'],'redirect',controls)['redirect']==redirected['redirect']
+    scoped_store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,scoped_turns=True)
+    scoped_session=scoped_store.execute(actor,{'action':'createSession','requestId':'scoped-session','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{}})
+    scoped_gate=proxy.McpDispatchGate(scoped_store,host,'r1',[]);scoped_requests=[]
+    class ScopedHost(DurableHost):
+        def application_threat(self,*_):return {'policy':{'id':'application-threat','version':'1'},'state':{'score':7}}
+        def scoped_prompt(self,p,b):return crypto.sign_envelope('Installed scoped SYSTEM',{'algorithm':'hmac-sha256','signatureVersion':'2.0','secretId':'test','timestamp':0,'expires':9,'version':'1.0.0','sectionType':'system','contentType':'text','attributes':llm.scoped_prompt_context(b)},bytes([19])*32)
+        def scope_boundary(self,p,b,d):return {'bindingDigest':proxy.binding_digest(b),'decision':'allow','threatState':{'score':d['threatState']['score']+1}}
+        def plan_scoped_turn(self,p,b,d):return {'retained':d['retained']}
+    def scoped_model(r,_):
+        scoped_requests.append(r);return {'type':'final','text':r['messages'][0]['content']}
+    scoped_loop=llm.ScopedLlmLoop(scoped_store,scoped_gate,ScopedHost(),{'id':'mock','revision':'1','sources':[],'complete':True,'invoke':scoped_model},{'postCompletion':'scoped','scope':{'id':'results','version':'1','system':'Installed scoped SYSTEM','threatPolicy':None}})
+    scoped_loop.run('consumer',scoped_session['sessionId'],{'message':'finish'},{**controls,'requestId':'scoped-complete'})
+    scoped_answer=scoped_loop.run('consumer',scoped_session['sessionId'],{'message':'explain'},{**controls,'requestId':'scoped-followup','expectedVersion':2})
+    assert scoped_answer['text']=='Installed scoped SYSTEM' and scoped_answer['receipt']['status']=='completed'
+    assert scoped_requests[1]['messages']==[{'role':'system','content':'Installed scoped SYSTEM'},{'role':'assistant','content':'Synthetic system text'},{'role':'user','content':'explain'}] and scoped_requests[1]['tools']==[]
+    scoped_state=scoped_store.execute(actor,{'action':'getSession','sessionId':scoped_session['sessionId']})
+    assert scoped_state['version']==3 and scoped_state['llmCompletion']['turnCount']==1 and scoped_state['llmCompletion']['threatState']['score']==9 and scoped_state['state']=={'done':True}
+    assert scoped_loop.recover('consumer',scoped_session['sessionId'],'scoped-followup',controls)['text']=='Installed scoped SYSTEM' and len(scoped_requests)==2
     refresh_store=WorkflowStore(backend,resume_secret=bytes([42])*32,authorize_persistence=lambda *_:True,coordinator=OwnerCoordinator(),durable_turns=True,prompt_refresh=True)
     refresh_gate=proxy.McpDispatchGate(refresh_store,host,'r1',[])
     refresh_session=refresh_store.execute(actor,{'action':'createSession','requestId':'refresh-session','nodeId':'entry','nodeVersion':'1','policyVersion':'p1','expiresAt':10,'state':{}})
@@ -333,4 +365,4 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
-print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh/redirect loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')
+print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh/redirect/scoped loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

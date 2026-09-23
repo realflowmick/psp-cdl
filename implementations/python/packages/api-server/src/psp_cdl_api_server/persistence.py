@@ -12,6 +12,7 @@ from psp_cdl_core import canonical_json, validate_json
 from .service import identifier
 from .prompt_state import PROMPT_REFRESH_PROFILE, valid_prompt_state, compare_prompt_versions
 from .redirect_state import REDIRECT_PROFILE, valid_redirect, valid_redirect_target
+from .scoped_state import SCOPED_PROFILE, valid_scope, valid_scoped_completion, valid_scoped_output, valid_digest, scoped_digest
 
 PERSISTENCE_PROFILE = "PSP-PERSISTENCE-0.1"
 MAX_STATE_BYTES = 1_048_576
@@ -125,7 +126,7 @@ class OwnerCoordinator:
 
 class WorkflowStore:
     """Authenticate and authorize transitions in the trusted host before calling."""
-    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False, prompt_refresh=False, redirect_turns=False):
+    def __init__(self, backend: AtomicBackend, *, resume_secret: bytes, authorize_persistence, coordinator=None, durable_turns=False, prompt_refresh=False, redirect_turns=False, scoped_turns=False):
         if not identifier(backend.epoch) or type(resume_secret) is not bytes or len(resume_secret) < 32 or not callable(authorize_persistence):
             raise StoreError("INVALID_CONFIGURATION")
         self.backend = backend
@@ -140,6 +141,8 @@ class WorkflowStore:
         self.prompt_refresh=prompt_refresh
         if type(redirect_turns) is not bool or redirect_turns and (not durable_turns or prompt_refresh): raise StoreError("INVALID_CONFIGURATION")
         self.redirect_turns=redirect_turns
+        if type(scoped_turns) is not bool or scoped_turns and (not durable_turns or prompt_refresh or redirect_turns):raise StoreError("INVALID_CONFIGURATION")
+        self.scoped_turns=scoped_turns
 
     @property
     def coordinator(self):
@@ -238,6 +241,7 @@ class WorkflowStore:
             fields.update(getTurn=["sessionId", "requestId"], commitTurn=["requestId", "sessionId", "expectedVersion", "nodeId", "nodeVersion", "policyVersion", "state", "inputDigest", "output", "retained", "complete", "postCompletion"])
         if self.prompt_refresh: fields.update(getPromptState=["sessionId"],putPromptState=["sessionId","expectedVersion","refreshRevision","state"],commitRefreshedTurn=[*fields["commitTurn"],"refreshRevision"])
         if self.redirect_turns: fields["commitRedirectTurn"]=[*fields["commitTurn"],"redirect"]
+        if self.scoped_turns:fields.update(commitScopedWorkflowTurn=[*fields["commitTurn"],"scope","threatState"],commitScopedTurn=["requestId","sessionId","expectedVersion","nodeId","nodeVersion","policyVersion","inputDigest","scopeDigest","threatState","retained","output","violationPhase"])
         action = c.get("action")
         names = fields.get(action) if type(action) is str else None
         if names is None or set(c) != {"action", *names}:
@@ -254,12 +258,14 @@ class WorkflowStore:
             raise StoreError("INVALID_TOKEN")
         if "refreshRevision" in c and not integer(c["refreshRevision"]): raise StoreError("INVALID_COMMAND")
         if action=="putPromptState" and not valid_prompt_state(c["state"]): raise StoreError("INVALID_COMMAND")
-        if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn"):
+        if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn"):
             output = c["output"]
             provenance = output.get("provenance") if type(output) is dict else None
-            if type(c["complete"]) is not bool or c["postCompletion"] != ("redirect" if action=="commitRedirectTurn" else "lockdown") or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
+            if type(c["complete"]) is not bool or c["postCompletion"] != ("redirect" if action=="commitRedirectTurn" else "scoped" if action=="commitScopedWorkflowTurn" else "lockdown") or type(c["retained"]) is not dict or type(c["inputDigest"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", c["inputDigest"]) or type(output) is not dict or set(output) != {"text", "provenance"} or type(output["text"]) is not str or type(provenance) is not dict or set(provenance) != {"profile", "providerId", "providerRevision", "outputDigest", "trustLevel", "steps"} or provenance["profile"] != "PSP-LLM-LOOP-0.1" or provenance["trustLevel"] != 5 or not identifier(provenance["providerId"]) or not identifier(provenance["providerRevision"]) or not positive(provenance["steps"]) or provenance["steps"] > 32 or provenance["outputDigest"] != digest(canonical_json({"text":output["text"]})):
                 raise StoreError("INVALID_COMMAND")
         if action=="commitRedirectTurn" and (not valid_redirect(c["redirect"]) or c["redirect"]["nodeId"]==c["nodeId"] if c["complete"] else c["redirect"] is not None): raise StoreError("INVALID_COMMAND")
+        if action=="commitScopedWorkflowTurn" and (not valid_scope(c["scope"]) or type(c["threatState"]) is not dict if c["complete"] else c["scope"] is not None or c["threatState"] is not None):raise StoreError("INVALID_COMMAND")
+        if action=="commitScopedTurn" and (not valid_digest(c["inputDigest"]) or not valid_digest(c["scopeDigest"]) or type(c["threatState"]) is not dict or type(c["retained"]) is not dict or (not valid_scoped_output(c["output"]) if c["violationPhase"] is None else c["violationPhase"] not in ("ingress","egress") or c["output"] is not None)):raise StoreError("INVALID_COMMAND")
         now = self._now()
         prompt_key=key("receipt",digest(canonical_json(["prompt-refresh",actor["subjectId"],c.get("sessionId")])))
         if action=="getPromptState":
@@ -359,12 +365,23 @@ class WorkflowStore:
                 raise StoreError("VERSION_EXHAUSTED")
             if s["revision"] != (cp["body"]["sessionVersion"] if cp else c["expectedVersion"]):
                 raise StoreError("STATE_CONFLICT")
-            if s["body"]["status"] != ("waiting" if cp else "running"):
+            if s["body"]["status"] != ("waiting" if cp else "completed" if action=="commitScopedTurn" else "running"):
                 raise StoreError("INVALID_TRANSITION")
             expires_at = s["body"]["expiresAt"]
             next_state = {**s["body"], "version": s["revision"] + 1, "updatedAt": now}
             checks = [comparison(s)]
-            if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn"):
+            if action=="commitScopedTurn":
+                previous=s["body"].get("llmCompletion")
+                if not valid_scoped_completion(previous):raise StoreError("INVALID_TRANSITION")
+                if any(c[k]!=s["body"][k] for k in ("nodeId","nodeVersion","policyVersion")) or c["scopeDigest"]!=scoped_digest(previous["scope"]):raise StoreError("STATE_CONFLICT")
+                if previous["turnCount"]==MAX_INTEGER or previous["violationCount"]==MAX_INTEGER:raise StoreError("VERSION_EXHAUSTED")
+                denied=c["violationPhase"] is not None;turn_count=previous["turnCount"]+1;violation_count=previous["violationCount"]+int(denied)
+                if denied and canonical_json(c["retained"])!=canonical_json(previous["retained"]):raise StoreError("INVALID_COMMAND")
+                next_state["llmCompletion"]={**previous,"threatState":c["threatState"],"retained":c["retained"],"turnCount":turn_count,"violationCount":violation_count}
+                signal={"signal":"post_completion_violation","kind":"hard","phase":c["violationPhase"],"inputDigest":c["inputDigest"],"at":now} if denied else None
+                result={"profile":"PSP-LLM-DURABLE-0.1","requestId":c["requestId"],"sessionId":s["id"],"sessionVersion":next_state["version"],"status":"completed","inputDigest":c["inputDigest"],"output":c["output"],"retained":c["retained"],
+                        "scoped":{"profile":SCOPED_PROFILE,"scopeDigest":c["scopeDigest"],"turnCount":turn_count,"violationCount":violation_count,"outcome":"violation" if denied else "answer","signal":signal}}
+            elif action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn"):
                 if action=="commitRefreshedTurn":
                     r=self.backend.read(actor["tenantId"],prompt_key)
                     if r is None or r["revision"]!=c["refreshRevision"] or r["body"]["sessionVersion"]!=s["revision"]: raise StoreError("STATE_CONFLICT")
@@ -376,6 +393,9 @@ class WorkflowStore:
                 next_state.update(state=c["state"], status="completed" if c["complete"] else "running")
                 if c["complete"]: next_state["llmCompletion"] = {"profile":"PSP-LLM-DURABLE-0.1", "policy":"lockdown", "requestId":c["requestId"], "lockedAt":now}
                 result = {"profile":"PSP-LLM-DURABLE-0.1", "requestId":c["requestId"], "sessionId":s["id"], "sessionVersion":next_state["version"], "status":next_state["status"], "inputDigest":c["inputDigest"], "output":c["output"], "retained":c["retained"]}
+                if action=="commitScopedWorkflowTurn" and c["complete"]:
+                    next_state["llmCompletion"]={"profile":SCOPED_PROFILE,"policy":"scoped","requestId":c["requestId"],"completedAt":now,"scope":c["scope"],"threatState":c["threatState"],"retained":c["retained"],"turnCount":0,"violationCount":0}
+                    result["scoped"]={"profile":SCOPED_PROFILE,"scopeDigest":scoped_digest(c["scope"]),"turnCount":0,"violationCount":0,"outcome":"completion","signal":None}
                 if action=="commitRedirectTurn" and c["complete"]:
                     target=c["redirect"]
                     if target["expiresAt"]<=self._now() or target["expiresAt"]>expires_at: raise StoreError("INVALID_EXPIRY")
@@ -414,7 +434,7 @@ class WorkflowStore:
             writes.append(row(key("session", s["id"]), next_state, s["revision"] + 1))
         if receipt_key:
             checks.append(absent(receipt_key))
-            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn") else {})}))
+            writes.append(row(receipt_key, {**actor, "digest": command_digest, "expiresAt": expires_at, "result": result, **({"profile":"PSP-LLM-DURABLE-0.1"} if action in ("commitTurn","commitRefreshedTurn","commitRedirectTurn","commitScopedWorkflowTurn","commitScopedTurn") else {})}))
         validate_batch(actor["tenantId"], checks, writes, expires_at)
         try:
             allowed = self._authorize(bounded(actor), bounded(writes))

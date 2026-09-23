@@ -81,13 +81,14 @@ export class BufferedLlmLoop {
     return a as unknown as LoopAuthority;
   }
   protected async verify(p:Principal,binding:Record<string,unknown>,prompt:Envelope):Promise<void> {
-    const policy=await callback(()=>this.host.verification(copy(p),copy(binding))),context=promptContext(binding);
+    const policy=await callback(()=>this.host.verification(copy(p),copy(binding))),context=this.verificationContext(binding);
     try {
       if(!policy||!Array.isArray(policy.keys)||policy.keys.some(k=>k.allowUnscoped!==false)) fail("PROMPT_REJECTED");
       const e=verifyEnvelope(prompt,{...policy,context,allowedAttributes:[...Object.keys(context),...this.promptAttributes()],now:this.host.now()});
       if(e.signature.sectionType!=="system"||e.signature.contentType!=="text"||![1,2].includes(e.signature.trustLevel??2)) fail("PROMPT_REJECTED");
     }catch{return fail("PROMPT_REJECTED");}
   }
+  protected verificationContext(binding:Record<string,unknown>):Record<string,string> {return promptContext(binding);}
   protected promptAttributes():string[] {return [];}
   protected async loadPrompt(p:Principal,binding:Record<string,unknown>,_options:LoopOptions,_reservation:OwnerReservation):Promise<Envelope> {
     const prompt=copy(await callback(()=>this.host.prompt(copy(p),copy(binding))),"PROMPT_REJECTED") as Envelope;
