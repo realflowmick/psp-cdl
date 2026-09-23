@@ -5,7 +5,7 @@ from psp_cdl_api_server import ServiceError
 from .dispatch import DispatchError
 
 
-def create_mcp_proxy(gate, credential, session_id, controls):
+def create_mcp_proxy_service(gate, session_id, controls):
     def protect(work):
         try: return work()
         except DispatchError as exc: raise ServiceError(exc.code,400 if exc.code in ("INVALID_REQUEST","INVALID_ARGUMENTS") else 403) from None
@@ -17,4 +17,8 @@ def create_mcp_proxy(gate, credential, session_id, controls):
                 result = gate.call_tool(token,session_id,{"name":name,"arguments":args},controls(),principal)
                 return {"data":result["data"],"meta":{"psp-cdl/provenance":result["provenance"]}}
             return protect(call)
-    return McpServer(Tools(),credential)
+    return Tools()
+
+
+def create_mcp_proxy(gate, credential, session_id, controls):
+    return McpServer(create_mcp_proxy_service(gate,session_id,controls),credential)

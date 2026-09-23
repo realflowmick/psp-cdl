@@ -1,0 +1,360 @@
+{
+  "profile": "PSP-MCP-HTTP-0.1",
+  "cases": [
+    {
+      "id": "successful-round-trip",
+      "expected": {
+        "status": 200,
+        "code": "OK",
+        "calls": 1,
+        "released": 1
+      }
+    },
+    {
+      "id": "missing-auth",
+      "headers": {
+        "authorization": null
+      },
+      "expected": {
+        "status": 401,
+        "code": "UNAUTHENTICATED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "wrong-audience-token",
+      "headers": {
+        "authorization": "Bearer downstream-only"
+      },
+      "expected": {
+        "status": 401,
+        "code": "UNAUTHENTICATED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "owner-switch",
+      "headers": {
+        "authorization": "Bearer test-other"
+      },
+      "expected": {
+        "status": 404,
+        "code": "NOT_FOUND",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "tenant-switch",
+      "headers": {
+        "authorization": "Bearer test-tenant"
+      },
+      "expected": {
+        "status": 404,
+        "code": "NOT_FOUND",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "origin",
+      "headers": {
+        "origin": "https://evil.example"
+      },
+      "expected": {
+        "status": 403,
+        "code": "ORIGIN_REJECTED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "host",
+      "headers": {
+        "host": "evil.example"
+      },
+      "expected": {
+        "status": 403,
+        "code": "HOST_REJECTED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "version",
+      "headers": {
+        "mcp-protocol-version": "2024-11-05"
+      },
+      "expected": {
+        "status": 400,
+        "code": "UNSUPPORTED_PROTOCOL",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "expired-session",
+      "headers": {
+        "mcp-session-id": "unknown"
+      },
+      "expected": {
+        "status": 404,
+        "code": "NOT_FOUND",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "accept",
+      "headers": {
+        "accept": "application/json"
+      },
+      "expected": {
+        "status": 406,
+        "code": "NOT_ACCEPTABLE",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "content-type",
+      "headers": {
+        "content-type": "text/plain"
+      },
+      "expected": {
+        "status": 415,
+        "code": "UNSUPPORTED_MEDIA_TYPE",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "encoding",
+      "headers": {
+        "content-encoding": "gzip"
+      },
+      "expected": {
+        "status": 415,
+        "code": "UNSUPPORTED_MEDIA_TYPE",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "resumption",
+      "headers": {
+        "last-event-id": "x"
+      },
+      "expected": {
+        "status": 400,
+        "code": "RESUMPTION_UNSUPPORTED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "duplicate-authorization",
+      "duplicate": true,
+      "expected": {
+        "status": 400,
+        "code": "INVALID_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "duplicate-json",
+      "raw": "{\"jsonrpc\":\"2.0\",\"id\":2,\"id\":3,\"method\":\"tools/call\"}",
+      "expected": {
+        "status": 400,
+        "code": "INVALID_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "batch",
+      "raw": "[]",
+      "expected": {
+        "status": 400,
+        "code": "INVALID_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "oversize",
+      "oversize": true,
+      "expected": {
+        "status": 413,
+        "code": "REQUEST_TOO_LARGE",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "missing-session",
+      "missingSession": true,
+      "expected": {
+        "status": 400,
+        "code": "SESSION_REQUIRED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "get-sse-unsupported",
+      "http": {
+        "method": "GET"
+      },
+      "expected": {
+        "status": 405,
+        "code": "METHOD_NOT_ALLOWED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "query-not-a-route",
+      "http": {
+        "path": "/mcp?token=secret"
+      },
+      "expected": {
+        "status": 404,
+        "code": "NOT_FOUND",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "dispatch-denial",
+      "settings": {
+        "policyDeny": true
+      },
+      "expected": {
+        "status": 200,
+        "code": "POLICY_DENIED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "output-denial",
+      "settings": {
+        "outputDeny": true
+      },
+      "expected": {
+        "status": 200,
+        "code": "OUTPUT_DENIED",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "no-scope",
+      "settings": {
+        "noScope": true
+      },
+      "expected": {
+        "status": 200,
+        "code": "FORBIDDEN",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "affinity-denial",
+      "settings": {
+        "agents": "mcp://other/read"
+      },
+      "expected": {
+        "status": 200,
+        "code": "TOOL_NOT_ALLOWED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "unknown-method",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "resources/read",
+        "params": {
+          "uri": "https://evil.example"
+        }
+      },
+      "expected": {
+        "status": 200,
+        "code": -32601,
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "notification-cannot-dispatch",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+          "name": "echo.read",
+          "arguments": {
+            "message": "hello"
+          }
+        }
+      },
+      "expected": {
+        "status": 202,
+        "code": "OK",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "late-cancel-ignored",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "notifications/cancelled",
+        "params": {
+          "requestId": 999
+        }
+      },
+      "expected": {
+        "status": 202,
+        "code": "OK",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "request-id-reuse",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "ping"
+      },
+      "expected": {
+        "status": 409,
+        "code": "DUPLICATE_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "bounded-retained-request-id",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "method": "ping"
+      },
+      "expected": {
+        "status": 400,
+        "code": "INVALID_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    }
+  ]
+}
