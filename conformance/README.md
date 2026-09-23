@@ -36,3 +36,4 @@ mixed-language process restarts, expired-prompt retrieval, rollback recovery and
 five metadata/turn races. These scoped checks do not establish full RFC refresh
 conformance or measured effectiveness. The original full-workflow harness remains
 explicitly unimplemented.
+MCP prompt-refresh discovery adds 29 shared boundary vectors and seven shared loop scenarios in `vectors/llm/mcp-refresh-0.1.json`. `scripts/check-mcp-refresh-parity.py` compares exact wire arguments and decisions and runs 32 real mixed-language stdio/HTTP calls, including authentication denial and observed catalog drift. This is scoped draft coverage; full workflow conformance remains pending.

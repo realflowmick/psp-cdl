@@ -1,0 +1,344 @@
+{
+  "profile": "PSP-MCP-PROMPT-REFRESH-0.1",
+  "license": "CC0-1.0",
+  "cases": [
+    {
+      "id": "normal",
+      "mode": "normal",
+      "expected": {
+        "code": "OK",
+        "calls": 1,
+        "released": 1
+      }
+    },
+    {
+      "id": "equivalent",
+      "mode": "equivalent",
+      "expected": {
+        "code": "OK",
+        "calls": 1,
+        "released": 1
+      }
+    },
+    {
+      "id": "missing",
+      "mode": "missing",
+      "expected": {
+        "code": "DISCOVERY_MISMATCH",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "duplicate",
+      "mode": "duplicate",
+      "expected": {
+        "code": "INVALID_DISCOVERY",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "schema",
+      "mode": "schema",
+      "expected": {
+        "code": "DISCOVERY_MISMATCH",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "unapproved",
+      "mode": "unapproved",
+      "expected": {
+        "code": "CATALOG_NOT_APPROVED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "owner",
+      "mode": "owner",
+      "expected": {
+        "code": "REFRESH_BINDING_MISMATCH",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "binding",
+      "mode": "binding",
+      "expected": {
+        "code": "REFRESH_BINDING_MISMATCH",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "session",
+      "mode": "session",
+      "expected": {
+        "code": "REFRESH_BINDING_MISMATCH",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "expired",
+      "mode": "expired",
+      "expected": {
+        "code": "PEER_CANCELLED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "cancelled",
+      "mode": "cancelled",
+      "expected": {
+        "code": "PEER_CANCELLED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "drift-before",
+      "mode": "drift-before",
+      "expected": {
+        "code": "DISCOVERY_CHANGED",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "drift-after",
+      "mode": "drift-after",
+      "expected": {
+        "code": "DISCOVERY_CHANGED",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "malformed",
+      "mode": "malformed",
+      "expected": {
+        "code": "INVALID_REFRESH_RESPONSE",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "multiple",
+      "mode": "multiple",
+      "expected": {
+        "code": "INVALID_REFRESH_RESPONSE",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "not-system",
+      "mode": "not-system",
+      "expected": {
+        "code": "INVALID_REFRESH_RESPONSE",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "nested",
+      "mode": "nested",
+      "expected": {
+        "code": "INVALID_REFRESH_RESPONSE",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "extra-output",
+      "mode": "extra-output",
+      "expected": {
+        "code": "INVALID_CONTROL_OUTPUT",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "missing-output",
+      "mode": "missing-output",
+      "expected": {
+        "code": "INVALID_CONTROL_OUTPUT",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "oversize-output",
+      "mode": "oversize-output",
+      "expected": {
+        "code": "INVALID_CONTROL_OUTPUT",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "bad-text",
+      "mode": "bad-text",
+      "expected": {
+        "code": "INVALID_JSON",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "expired-after",
+      "mode": "expired-after",
+      "expected": {
+        "code": "PEER_CANCELLED",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "cancelled-after",
+      "mode": "cancelled-after",
+      "expected": {
+        "code": "PEER_CANCELLED",
+        "calls": 1,
+        "released": 0
+      }
+    },
+    {
+      "id": "no-authority-on-wire",
+      "mode": "normal",
+      "request": {
+        "binding": {
+          "secret": "PRIVATE"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONTROL_INPUT",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "unsupported-trigger",
+      "mode": "normal",
+      "request": {
+        "trigger": "adaptive"
+      },
+      "expected": {
+        "code": "INVALID_CONTROL_INPUT",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "negative-turns",
+      "mode": "normal",
+      "request": {
+        "turn_count": -1
+      },
+      "expected": {
+        "code": "INVALID_CONTROL_INPUT",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "boolean-turns",
+      "mode": "normal",
+      "request": {
+        "turn_count": true
+      },
+      "expected": {
+        "code": "INVALID_CONTROL_INPUT",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "bad-version",
+      "mode": "normal",
+      "request": {
+        "current_version": "1.0"
+      },
+      "expected": {
+        "code": "INVALID_REFRESH_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    },
+    {
+      "id": "alias-version",
+      "mode": "normal",
+      "request": {
+        "current_version": "v1.0.0"
+      },
+      "expected": {
+        "code": "INVALID_REFRESH_REQUEST",
+        "calls": 0,
+        "released": 0
+      }
+    }
+  ],
+  "loopCases": [
+    {
+      "id": "valid",
+      "flags": {},
+      "code": "OK",
+      "providerCalls": 2
+    },
+    {
+      "id": "tampered",
+      "flags": {
+        "tamperedRefresh": true
+      },
+      "code": "PROMPT_REJECTED",
+      "providerCalls": 0
+    },
+    {
+      "id": "wrong-scope",
+      "flags": {
+        "wrongRefreshScope": true
+      },
+      "code": "PROMPT_REJECTED",
+      "providerCalls": 0
+    },
+    {
+      "id": "rollback",
+      "flags": {
+        "refreshVersion": "0.9.0"
+      },
+      "code": "PROMPT_ROLLBACK",
+      "providerCalls": 0
+    },
+    {
+      "id": "same-version",
+      "flags": {
+        "refreshVersion": "1.0.0"
+      },
+      "code": "PROMPT_VERSION_CONFLICT",
+      "providerCalls": 0
+    },
+    {
+      "id": "expired",
+      "flags": {
+        "refreshExpires": 1100,
+        "refreshTimestamp": 1099
+      },
+      "code": "PROMPT_REJECTED",
+      "providerCalls": 0
+    },
+    {
+      "id": "denied",
+      "flags": {
+        "denyRefresh": true
+      },
+      "code": "REFRESH_DENIED",
+      "providerCalls": 0
+    }
+  ]
+}

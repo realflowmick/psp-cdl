@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: Apache-2.0
+// Generated from scripts/generate-mcp-refresh-contract.py.
+export const refreshToolDefinition={
+  "name": "realflow.security.refresh",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "session_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "current_version": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "trigger": {
+        "type": "string",
+        "enum": [
+          "expiration",
+          "interval"
+        ]
+      },
+      "turn_count": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "required": [
+      "session_id",
+      "current_version",
+      "trigger",
+      "turn_count"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 262144
+      }
+    },
+    "required": [
+      "prompt"
+    ],
+    "additionalProperties": false
+  }
+};

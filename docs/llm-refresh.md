@@ -134,8 +134,10 @@ uv run --locked python scripts/generate-refresh-schema.py --check
 ```
 
 This embedded profile deliberately narrows PSP Core 3.2.0 §§21.9–21.17. It uses
-host callbacks and fails the invocation on refresh failure. MCP refresh discovery,
-custom refresh URLs, adaptive/checkpoint triggers, background timers, degraded
+host callbacks and fails the invocation on refresh failure. Custom refresh URLs,
+adaptive/checkpoint triggers, background timers, degraded
 continuation, notifications, scoped/redirect completion and streaming remain
 unsupported. These checks establish the stated reference behavior, not complete
 RFC conformance, attention improvements or measured security effectiveness.
+
+Hosts may opt into [MCP refresh discovery](llm-mcp-refresh.md) to implement the refresh callback with a separately approved peer. The original callback profile and all loop verification gates remain unchanged.

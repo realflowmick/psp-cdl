@@ -4,6 +4,7 @@ from copy import deepcopy
 from .loop import BufferedLlmLoop, LoopError, LLM_LOOP_PROFILE, prompt_context
 from .durable import DurableLlmLoop, LockdownError, DURABLE_LOOP_PROFILE
 from .refresh import RefreshingLlmLoop, PROMPT_REFRESH_PROFILE, compare_prompt_versions
+from .mcp_refresh import McpPromptRefresher, PromptRefreshError, MCP_PROMPT_REFRESH_PROFILE, mcp_refresh_tool_definition
 
 _MANIFEST = {
     "id": "llmproxy",
@@ -12,7 +13,7 @@ _MANIFEST = {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1"]
+    "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1", "mcp-prompt-refresh-discovery-0.1"]
 }
 
 

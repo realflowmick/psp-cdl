@@ -80,3 +80,5 @@ counters commit atomically. Only prompt metadata writes may borrow the loop's li
 owner reservation. Expiration during provider/tool execution suppresses the pending
 result; refreshing cannot authorize replay of that result. Signers, compatibility
 approval, audit acceptance and retained policy origins remain host responsibilities.
+
+The opt-in [MCP prompt refresh adapter](llm-mcp-refresh.md) binds a host-only control channel to one approved peer/catalog and exact owner/session. It never registers refresh with the model dispatch gate. The remote service resolves signing authority independently; only the existing refresh loop can verify and approve a candidate for inference.
