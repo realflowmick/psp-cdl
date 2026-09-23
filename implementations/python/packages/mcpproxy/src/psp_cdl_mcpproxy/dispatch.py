@@ -48,6 +48,7 @@ def affinity(node):
 
 class McpDispatchGate:
     """Only an authenticated host may construct the registry and select the session."""
+    def authenticate(self, token): return self._auth.authenticate(token)
     def __init__(self, store, host, registry_revision, registrations):
         if not isinstance(store.coordinator, OwnerCoordinator) or not identifier(registry_revision) or type(registrations) is not list or len(registrations) > 1024 or any(not callable(getattr(host, name, None)) for name in ("authenticate", "now", "snapshot", "policy")):
             raise DispatchError("INVALID_CONFIGURATION")
@@ -87,9 +88,9 @@ class McpDispatchGate:
         capabilities(s["releaseSources"], s["releaseComplete"])
         return s
 
-    def _within(self, token, session_id, scope, options, work):
+    def _within(self, token, session_id, scope, options, work, expected=None):
         try:
-            p = self._principal(token, scope)
+            p = self._principal(token, scope, expected)
             actor = {k:p[k] for k in ("tenantId", "subjectId")}
             self._check(options)
             def locked():
@@ -113,15 +114,15 @@ class McpDispatchGate:
             raise DispatchError(exc.code if exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY") else "HOST_ERROR") from None
         except Exception: raise DispatchError("HOST_ERROR") from None
 
-    def list_tools(self, token, session_id, options):
+    def list_tools(self, token, session_id, options, expected=None):
         options = dict(options) if type(options) is dict else {}
         def work(p, session, authority, allowed, fresh):
             result = [{"name":t["name"], "inputSchema":copy(t["meta"]["inputSchema"]), "outputSchema":copy(t["meta"]["outputSchema"])} for _, t in sorted(self._tools.items()) if t["meta"]["readOnly"] and t["uri"] in allowed]
             fresh()
             return copy(result, "INVALID_OUTPUT")
-        return self._within(token, session_id, "tools:list", options, work)
+        return self._within(token, session_id, "tools:list", options, work, expected)
 
-    def call_tool(self, token, session_id, request, options):
+    def call_tool(self, token, session_id, request, options, expected=None):
         options = dict(options) if type(options) is dict else {}
         def work(p, session, authority, allowed, fresh):
             r = copy(request)
@@ -142,11 +143,15 @@ class McpDispatchGate:
             decide("dispatch", r["arguments"], binding, tool["caps"])
             fresh()
             self._check(options, min(authority["expires"], session["expiresAt"]))
-            output = copy(callback(lambda:tool["invoke"](copy(r["arguments"]), dict(options)), "TOOL_FAILED"), "INVALID_OUTPUT")
+            try: raw = tool["invoke"](copy(r["arguments"]), dict(options))
+            except Exception:
+                self._check(options, min(authority["expires"], session["expiresAt"]))
+                raise DispatchError("TOOL_FAILED") from None
+            output = copy(raw, "INVALID_OUTPUT")
             self._check(options, min(authority["expires"], session["expiresAt"]))
             if not matches(tool["meta"]["outputSchema"], output): raise DispatchError("INVALID_OUTPUT")
             output_digest = binding_digest(output)
             decide("release", output, {**binding, "outputDigest":output_digest}, capabilities(authority["releaseSources"], authority["releaseComplete"]))
             fresh()
             return {"data":output, "provenance":{"profile":DISPATCH_PROFILE, "toolUri":tool["uri"], "toolRevision":tool["meta"]["revision"], "registryRevision":self._revision, "inputDigest":binding["inputDigest"], "outputDigest":output_digest, "trustLevel":5}}
-        return self._within(token, session_id, "tools:call", options, work)
+        return self._within(token, session_id, "tools:call", options, work, expected)

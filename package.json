@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "check:repo": "node scripts/check-repository.mjs",
-    "build": "npm run build --workspace @psp-cdl/core --workspace @psp-cdl/cdl --workspace @psp-cdl/llmproxy --workspace @psp-cdl/api-server --workspace @psp-cdl/mcpproxy --workspace @psp-cdl/mcp-server --workspace @psp-cdl/test-harness",
+    "build": "npm run build --workspace @psp-cdl/core --workspace @psp-cdl/cdl --workspace @psp-cdl/llmproxy --workspace @psp-cdl/api-server --workspace @psp-cdl/mcp-server --workspace @psp-cdl/mcpproxy --workspace @psp-cdl/test-harness",
     "test": "npm run test --workspaces",
     "check": "npm run check:repo && npm run build && npm test && npm run test:signatures && npm run test:policy",
     "conformance:inventory": "node implementations/typescript/packages/test-harness/dist/cli.js --inventory",

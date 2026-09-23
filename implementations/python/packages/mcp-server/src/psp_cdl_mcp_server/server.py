@@ -6,10 +6,21 @@ from .workflow_tools import WORKFLOW_TOOL_DEFINITIONS
 MCP_VERSION="2025-11-25"
 OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate", "realflow.sessions.create":"createSession", "realflow.sessions.get":"getSession", "realflow.sessions.update":"updateSession", "realflow.nodes.fetch":"getNode", "realflow.checkpoints.create":"createCheckpoint", "realflow.checkpoints.resume":"resumeCheckpoint"}
 
+
+class SecurityTools:
+    def __init__(self, service): self.service = service
+    def authenticate(self, token): return self.service.authenticate(token)
+    def discover(self, token, principal):
+        return [t for t in [*TOOL_DEFINITIONS, *WORKFLOW_TOOL_DEFINITIONS] if OPERATIONS[t["name"]] in self.service.operations and scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
+    def call_tool(self, name, args, token, principal):
+        if name not in OPERATIONS or OPERATIONS[name] not in self.service.operations:
+            raise ServiceError("Invalid tool or arguments", 400)
+        return {"data":self.service.invoke(OPERATIONS[name], args, token, principal)}
+
 class McpServer:
     """One peer per instance; credentials come from the trusted process launcher."""
     def __init__(self,service: SecurityService,credential):
-        self.service,self.credential=service,credential
+        self.service,self.credential=SecurityTools(service) if hasattr(service,"operations") else service,credential
         self.phase,self.identity="new",None
 
     def handle(self,source):
@@ -61,15 +72,15 @@ class McpServer:
                 if set(params)-{"_meta"}:
                     return fail(-32602,"Invalid params")
                 # Detach tool schemas so callers cannot alter future discovery.
-                tools=[t for t in [*TOOL_DEFINITIONS, *WORKFLOW_TOOL_DEFINITIONS] if OPERATIONS[t["name"]] in self.service.operations and scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
+                tools=self.service.discover(token,principal)
                 return success({"tools":parse_json(canonical_json(tools))})
             if method!="tools/call":
                 return fail(-32601,"Method not found")
-            if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or params["name"] not in OPERATIONS or OPERATIONS[params["name"]] not in self.service.operations or type(params.get("arguments")) is not dict:
+            if set(params)-{"name","arguments","_meta"} or type(params.get("name")) is not str or type(params.get("arguments")) is not dict:
                 return fail(-32602,"Invalid tool or arguments")
             try:
-                result=self.service.invoke(OPERATIONS[params["name"]],params["arguments"],token,principal)
-                return success({"content":[{"type":"text","text":canonical_json(result)}],"structuredContent":result,"isError":False})
+                result=self.service.call_tool(params["name"],params["arguments"],token,principal)
+                return success({"content":[{"type":"text","text":canonical_json(result["data"])}],"structuredContent":result["data"],"isError":False,**({"_meta":result["meta"]} if "meta" in result else {})})
             except Exception as exc:
                 if isinstance(exc,ServiceError) and exc.status==400:
                     return fail(-32602,exc.code)

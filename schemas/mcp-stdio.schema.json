@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://psp-cdl.org/schemas/mcp-stdio-0.1.json",
+  "$comment":"CC0-1.0. PSP-MCP-STDIO-0.1 draft: trusted launcher configuration and successful proxy result. JSON-RPC follows MCP 2025-11-25.",
+  "$ref":"#/$defs/peerConfig",
+  "$defs":{
+    "peerConfig":{"type":"object","additionalProperties":false,"required":["executable","args","env","serverInfo","timeoutMs"],"properties":{
+      "executable":{"type":"string","minLength":1},"args":{"type":"array","items":{"type":"string"}},"env":{"type":"object","additionalProperties":{"type":"string"}},
+      "serverInfo":{"type":"object","additionalProperties":false,"required":["name","version"],"properties":{"name":{"type":"string"},"version":{"type":"string"}}},
+      "timeoutMs":{"type":"integer","minimum":1,"maximum":30000}
+    }},
+    "proxyResult":{"type":"object","additionalProperties":false,"required":["content","structuredContent","isError","_meta"],"properties":{
+      "content":{"type":"array","minItems":1,"maxItems":1,"items":{"type":"object","additionalProperties":false,"required":["type","text"],"properties":{"type":{"const":"text"},"text":{"type":"string"}}}},
+      "structuredContent":{"type":"object"},"isError":{"const":false},"_meta":{"type":"object","additionalProperties":false,"required":["psp-cdl/provenance"],"properties":{"psp-cdl/provenance":{"$ref":"https://psp-cdl.org/schemas/mcp-dispatch-0.1.json#/$defs/provenance"}}}
+    }}
+  }
+}

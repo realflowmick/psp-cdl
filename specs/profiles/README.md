@@ -15,3 +15,5 @@ See [the decision record](../../docs/decisions/0002-signature-profile.md), [the 
 [Service Profile 0.1](PSP-SERVICE-0.1.md) is a project draft for the first read-only authenticated HTTP/MCP slice. [ADR 0005](../../docs/decisions/0005-authenticated-service-slice.md) records its scope; it does not replace the missing RFC-PSP-API or assert full mandatory-tool coverage.
 
 [MCP Dispatch Profile 0.1](PSP-MCP-DISPATCH-0.1.md) is a project draft for the first host-embedded read-only dispatch gate. It specifies exact flat affinity, immutable authenticated host registrations, finite schemas, coordinated local dispatch and buffered output checks. Full MCP transport mediation and durable effect dispatch remain pending.
+
+[MCP Stdio Mediation Profile 0.1](PSP-MCP-STDIO-0.1.md) is the opt-in draft extension for launcher-authenticated stdio caller/proxy/downstream connections, pinned discovery, bounded I/O and checked structured responses. Remote HTTP/OAuth, hot registry updates, wire-level cancellation and complete topology claims remain unsupported.
