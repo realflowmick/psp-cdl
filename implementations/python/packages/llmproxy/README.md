@@ -7,3 +7,5 @@ Status: **experimental**. `BufferedLlmLoop` implements the opt-in PSP-LLM-LOOP-0
 License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.
 
 `RedirectingLlmLoop` adds opt-in atomic completion handoff. See [the redirect guide](../../../../docs/llm-redirect.md) for host approval, retained CDL evidence, recovery and unsupported modes.
+
+`ScopedLlmLoop` adds opt-in post-completion conversation with replacement signed SYSTEM text, host boundary decisions and durable threat/violation receipts. See [the scoped guide](../../../../docs/llm-scoped.md).

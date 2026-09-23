@@ -103,4 +103,4 @@ refresh with durable metadata and counters. Streaming, live providers, scoped/re
 distributed reservations, retention/deletion and mutating tools remain pending.
 These checks do not establish full conformance or measured security effectiveness.
 
-A separate opt-in [redirect loop](llm-redirect.md) now supports atomic completion handoff. `DurableLlmLoop` itself still requires lockdown; scoped continuation and combined redirect/refresh are unsupported.
+A separate opt-in [redirect loop](llm-redirect.md) now supports atomic completion handoff. `DurableLlmLoop` itself still requires lockdown; [scoped continuation](llm-scoped.md) is another separate opt-in API. Combined redirect/refresh remains unsupported.

@@ -43,3 +43,5 @@ and refreshes prompts from installed npm tarballs and Python wheels.
 MCP prompt refresh discovery checks run in both suites and the parity command. Isolate them with `python scripts/check-mcp-refresh-parity.py`; verify generated contracts and vectors with `python scripts/generate-mcp-refresh-contract.py --check` and `python scripts/generate-mcp-refresh-vectors.py --check`.
 
 Completion redirect checks run in both suites and the parity command. Isolate the 42 shared cases, two-way restart recovery and two commit races with `python scripts/check-redirect-parity.py`. Verify generated artifacts with `python scripts/generate-redirect-schema.py --check` and `python scripts/generate-redirect-vectors.py --check`. Installed package checks also execute a handoff and recover its descriptor.
+
+Scoped continuation checks run in both suites and `check-parity.py`. Isolate its shared cases, process-restart continuation/recovery and three mixed-language commit races with `python scripts/check-scoped-parity.py`. Verify contracts with `python scripts/generate-scoped-schema.py --check` and `python scripts/generate-scoped-vectors.py --check`.

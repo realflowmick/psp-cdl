@@ -16,7 +16,8 @@ export const manifest = Object.freeze({
     "session-operation-bindings",
     "durable-turn-store-0.1",
     "prompt-refresh-store-0.1",
-    "redirect-turn-store-0.1"
+    "redirect-turn-store-0.1",
+    "scoped-turn-store-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
