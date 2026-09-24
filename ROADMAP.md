@@ -2,7 +2,7 @@
 
 The repository setup is milestone M0. The following milestones define implementation work and acceptance gates, not completed security features. The [current progress and actionable backlog](docs/backlog.md) records merged slices, remaining issues and dependencies. GitHub issues #2-#9 remain open milestone trackers; `.github/bootstrap-issues.json` is the original provisioning seed, not the current progress register.
 
-**Next implementation slice:** [opt-in buffered live-provider adapters (#33)](https://github.com/realflowmick/psp-cdl/issues/33). Requirements review and core hardening form a parallel track. Streaming remains unsupported until its [separate streaming contract (#44)](https://github.com/realflowmick/psp-cdl/issues/44) is implemented and tested. This sequence does not waive any milestone completion gate below.
+**Current work:** #33 has a [buffered-provider implementation PR](https://github.com/realflowmick/psp-cdl/pull/53) awaiting review. The [requirements/parser review](specs/reviews/PSP-CDL-REVIEW-0.1.md) and [API/editorial proposal](specs/errata/PSP-CDL-EDITORIAL-0.1.md) now supply draft material for #34/#35; normative adoption remains pending. #36 differential fuzzing and #39 isolated fixture servers are the selected implementation work. Streaming remains unsupported until its [separate streaming contract (#44)](https://github.com/realflowmick/psp-cdl/issues/44) is implemented and tested. No milestone completion gate is waived.
 
 | Milestone | Work | Completion gate |
 | --- | --- | --- |

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "status": "draft-proposal",
+  "accepted": false,
+  "review": {
+    "start": null,
+    "end": null,
+    "maintainerDisposition": null
+  },
+  "references": [
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 116,
+      "quote": "- Network protocols or API design (see RFC-PSP-API)",
+      "status": "absent-document",
+      "target": "current"
+    },
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_1_1.md",
+      "line": 112,
+      "quote": "- Network protocols or API design (see RFC-PSP-API)",
+      "status": "absent-document",
+      "target": "historical"
+    }
+  ],
+  "requiredTools": [
+    {
+      "name": "realflow.sessions.create",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/sessions/create"
+    },
+    {
+      "name": "realflow.sessions.get",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/sessions/get"
+    },
+    {
+      "name": "realflow.sessions.update",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/sessions/update"
+    },
+    {
+      "name": "realflow.sessions.list",
+      "status": "missing-interface",
+      "issue": 37
+    },
+    {
+      "name": "realflow.nodes.fetch",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/nodes/fetch"
+    },
+    {
+      "name": "realflow.checkpoints.create",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/checkpoints/create"
+    },
+    {
+      "name": "realflow.checkpoints.resume",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/workflow-0.1.openapi.json",
+      "path": "/v1/checkpoints/resume"
+    },
+    {
+      "name": "realflow.security.verify",
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/security-0.1.openapi.json",
+      "path": "/v1/security/verify"
+    },
+    {
+      "name": "realflow.security.decrypt",
+      "status": "missing-interface",
+      "issue": 38
+    },
+    {
+      "name": "realflow.security.scan",
+      "status": "missing-interface",
+      "issue": 38
+    },
+    {
+      "name": "realflow.security.process",
+      "status": "missing-interface",
+      "issue": 38
+    }
+  ],
+  "editorialCorrections": [
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 5905,
+      "old": "#### 21.5.4 Checkpoint Operations",
+      "proposed": "#### 22.5.4 Checkpoint Operations"
+    },
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 5943,
+      "old": "#### 21.5.5 Security Operations",
+      "proposed": "#### 22.5.5 Security Operations"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1562,
+      "old": "### 12.2 Identity-Based Covenants",
+      "proposed": "### 11.2 Identity-Based Covenants"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1594,
+      "old": "### 12.3 Identity-Based Capabilities",
+      "proposed": "### 11.3 Identity-Based Capabilities"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1619,
+      "old": "### 12.4 Covenant-Capability Matching",
+      "proposed": "### 11.4 Covenant-Capability Matching"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1632,
+      "old": "### 12.5 Hierarchical Role Declarations",
+      "proposed": "### 11.5 Hierarchical Role Declarations"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1658,
+      "old": "### 12.6 Anonymous vs Authenticated",
+      "proposed": "### 11.6 Anonymous vs Authenticated"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1676,
+      "old": "### 12.7 PSP Identity Context",
+      "proposed": "### 11.7 PSP Identity Context"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1789,
+      "old": "### 12.8 Standard RBAC Vocabulary",
+      "proposed": "### 11.8 Standard RBAC Vocabulary"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1824,
+      "old": "### 12.9 LLM Reasoning Pattern",
+      "proposed": "### 11.9 LLM Reasoning Pattern"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1849,
+      "old": "### 12.10 Integration with Other Covenants",
+      "proposed": "### 11.10 Integration with Other Covenants"
+    }
+  ]
+}
