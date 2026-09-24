@@ -73,6 +73,7 @@ jobs:
       - run: uv run --locked python scripts/generate-redirect-vectors.py --check
       - run: uv run --locked python scripts/generate-scoped-schema.py --check
       - run: uv run --locked python scripts/generate-scoped-vectors.py --check
+      - run: uv run --locked python scripts/generate-provider-artifacts.py --check
       - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks
