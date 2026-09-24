@@ -58,6 +58,15 @@ jobs:
       - run: npm run build
       - run: uv sync --locked --all-packages
       - run: uv run --locked python scripts/check-parity.py
+      - name: Retain synthetic minimized regression
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: parity-fuzz-reproducer
+          path: .artifacts/fuzz-failure.json
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: ignore
       - run: uv run --locked python scripts/generate-codec-vectors.py --check
       - run: uv run --locked python scripts/generate-service-contracts.py --check
       - run: uv run --locked python scripts/generate-persistence-schema.py --check
