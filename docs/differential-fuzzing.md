@@ -37,6 +37,8 @@ oracle comparisons). Reproduce using the same seed/count; inspect the minimized
 case and add its reviewed expected result to the public shared corpus before
 fixing either library. Signature/object failures retain their small original
 case. Artifacts and logs stay out of Git. Committed cases are synthetic.
+Failed CI runs retain only the synthetic minimized reproducer for 14 days;
+ambient logs, fixture spy files and credentials are not included in that upload.
 
 The result hash fingerprints output, not security effectiveness. Uncovered:
 full workflow graph grammar, inference-engine behavior, encryption, arbitrary
