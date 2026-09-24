@@ -109,6 +109,42 @@
         "status": "ok",
         "canonical": "${psp type=\"extension\" x=\"one\" /}"
       }
+    },
+    {
+      "id": "surrogate-before-later-syntax",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"\\ud801\""
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_UNICODE"
+      }
+    },
+    {
+      "id": "duplicate-before-missing-value",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"a\":0,\"a\":"
+      },
+      "expected": {
+        "status": "error",
+        "code": "DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "syntax-before-later-surrogate",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{bad:\"\\ud801\"}"
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_JSON"
+      }
     }
   ]
 }

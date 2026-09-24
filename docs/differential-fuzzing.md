@@ -43,3 +43,10 @@ full workflow graph grammar, inference-engine behavior, encryption, arbitrary
 schema combinators, unbounded vocabulary, all Unicode/numeric values and
 independent security review. The five workflow seed vectors remain unexecuted.
 Fuzz success does not close the normative review gate in #34.
+
+Seed 360035 exposed a validation-order mismatch: `{"\ud801"` returned
+`INVALID_JSON` in Python and `INVALID_UNICODE` in TypeScript. The reduced case
+and duplicate-before-missing-value/syntax-before-surrogate companions are retained
+in the corpus. Python now validates bounded tokens as encountered, matching the
+existing TypeScript error order. Accepted JSON grammar and Unicode rejection are
+unchanged; invalid multi-error inputs can receive a more specific error code.
