@@ -29,6 +29,8 @@ The redirect slice adds 42 shared scenarios plus SQL rollback, owner-reservation
 
 ## Execution order
 
+The selected #36 slice now supplies [seeded differential fuzzing](docs/differential-fuzzing.md), shared regression expectations and two-way wire exchange for existing profiles. Sustained CI is bounded and reproducible; unreviewed RFC grammar changes remain blocked on #34.
+
 1. **Add a buffered provider adapter.** [#33](https://github.com/realflowmick/psp-cdl/issues/33) defines paired adapters, host-owned credentials and authority, bounded I/O, explicit budget/cancellation controls and offline fake-provider cases. Live smoke runs require separate operator opt-in; this task does not enable streaming.
 2. **Close standards and core coverage gaps in parallel.** Complete the [normative inventory and parser review (#34)](https://github.com/realflowmick/psp-cdl/issues/34), resolve [API/editorial errata (#35)](https://github.com/realflowmick/psp-cdl/issues/35), and extend [differential fuzzing and reviewed grammar coverage (#36)](https://github.com/realflowmick/psp-cdl/issues/36). Preserve published baselines and explicit blocked/unsupported outcomes.
 3. **Complete service and mediation contracts.** The [backlog](docs/backlog.md#remaining-work) separates lifecycle operations, remaining security tools, isolated test servers, PostgreSQL, distributed coordination, mutating dispatch recovery and host OAuth integration. Define shared contracts and synthetic vectors before changing behavior in either language.
