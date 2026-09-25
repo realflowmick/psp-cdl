@@ -1,0 +1,621 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/topology-matrix.schema.json",
+  "title": "Draft offline workflow fixture matrix (not full conformance)",
+  "$comment": "CC0-1.0. Reuses result.schema.json for every result.",
+  "type": "object",
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z_]+$"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "providerCalls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "isolation-probes-blocked",
+                  "read",
+                  "export"
+                ]
+              },
+              "recordId": {
+                "enum": [
+                  null,
+                  "public",
+                  "restricted"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "recordId"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 128
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 2
+        },
+        "providerToolMessages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4
+        },
+        "sessionVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "authorityLeak": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "codes",
+        "providerCalls",
+        "events",
+        "outputs",
+        "providerToolMessages",
+        "sessionVersion",
+        "authorityLeak"
+      ]
+    },
+    "case": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,64}$"
+            },
+            "kind": {
+              "enum": [
+                "workflow",
+                "bypass"
+              ]
+            },
+            "seed": {
+              "enum": [
+                "CDL-001",
+                "CDL-002",
+                "PSP-001",
+                "PSP-002",
+                "PSP-003",
+                null
+              ]
+            },
+            "input": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "agents": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "mcp://reference/allowed"
+                    ]
+                  },
+                  "minItems": 1,
+                  "maxItems": 1
+                },
+                "requestedAgent": {
+                  "enum": [
+                    "mcp://reference/allowed",
+                    "mcp://reference/other",
+                    "mcp://reference/export"
+                  ]
+                },
+                "recordId": {
+                  "enum": [
+                    "public",
+                    "restricted"
+                  ]
+                },
+                "token": {
+                  "enum": [
+                    "test-owner",
+                    "test-tenant"
+                  ]
+                },
+                "covenants": {
+                  "const": [
+                    "no-training"
+                  ]
+                },
+                "capabilities": {
+                  "type": "array",
+                  "items": {
+                    "const": "used-for-model-training"
+                  },
+                  "maxItems": 1
+                },
+                "perturbation": {
+                  "enum": [
+                    "none",
+                    "cancel-before-dispatch",
+                    "cancel-after-read",
+                    "stale-state",
+                    "replay-old-prompt",
+                    "display-denial"
+                  ]
+                },
+                "kid": {
+                  "const": "synthetic-unknown"
+                },
+                "trustedKeys": {
+                  "const": []
+                }
+              },
+              "required": [
+                "agents",
+                "requestedAgent",
+                "recordId",
+                "token",
+                "covenants",
+                "capabilities",
+                "perturbation"
+              ],
+              "dependentRequired": {
+                "kid": [
+                  "trustedKeys"
+                ],
+                "trustedKeys": [
+                  "kid"
+                ]
+              }
+            },
+            "expected": {
+              "$ref": "#/$defs/observation"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "seed",
+            "input",
+            "expected"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,64}$"
+            },
+            "kind": {
+              "const": "blocked"
+            },
+            "seed": {
+              "enum": [
+                "CDL-001",
+                "CDL-002",
+                "PSP-001",
+                "PSP-002",
+                "PSP-003",
+                null
+              ]
+            },
+            "input": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "declaration": {
+                  "const": "PII no-training"
+                }
+              },
+              "required": [
+                "declaration"
+              ]
+            },
+            "expected": {
+              "type": "null"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "seed",
+            "input",
+            "expected",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "const": "CC0-1.0"
+        },
+        "profile": {
+          "const": "PSP-WORKFLOW-MATRIX-0.1"
+        },
+        "configuration": {
+          "const": {
+            "userMessage": "Read the synthetic report.",
+            "provider": "scripted-read-then-echo",
+            "clock": 1000,
+            "deadline": 1800,
+            "maxSteps": 4,
+            "transport": "stdio",
+            "peerMode": "benign",
+            "hostAliases": {
+              "mcp://reference/allowed": "read",
+              "mcp://reference/other": "read"
+            },
+            "profiles": [
+              "PSP-LLM-LOOP-0.1",
+              "PSP-MCP-DISPATCH-0.1",
+              "CDL-DETERMINISTIC-1.0",
+              "PSP-SIGNATURE-2.0"
+            ]
+          }
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/case"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "license",
+        "profile",
+        "configuration",
+        "cases"
+      ]
+    },
+    "adapter": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "observation": {
+                "$ref": "#/$defs/observation"
+              }
+            },
+            "required": [
+              "id",
+              "observation"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "error": {
+                "const": "ADAPTER_ERROR"
+              }
+            },
+            "required": [
+              "id",
+              "error"
+            ]
+          }
+        ]
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "topology": {
+          "enum": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        "peerImplementation": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "variant": {
+          "enum": [
+            "mediated",
+            "bypass-control"
+          ]
+        },
+        "seed": {
+          "enum": [
+            "CDL-001",
+            "CDL-002",
+            "PSP-001",
+            "PSP-002",
+            "PSP-003",
+            null
+          ]
+        },
+        "enforcementPoints": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "host-inference",
+              "host-dispatch",
+              "host-output"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "result": {
+          "$ref": "result.schema.json"
+        },
+        "observation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/observation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "topology",
+        "peerImplementation",
+        "variant",
+        "seed",
+        "enforcementPoints",
+        "result",
+        "observation"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+                "result": {
+                  "type": "object",
+                  "properties": {
+                  "status": {
+                    "enum": [
+                      "passed",
+                      "failed"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "observation": {
+                "$ref": "#/$defs/observation"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "observation": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "profile": {
+          "const": "PSP-WORKFLOW-MATRIX-0.1"
+        },
+        "scope": {
+          "const": "offline-topology-b-fixtures"
+        },
+        "fullConformance": {
+          "const": false
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sourceTree": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "modified": {
+              "type": "boolean"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ]
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "modified",
+            "sha256",
+            "files"
+          ]
+        },
+        "corpusSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "python": {
+              "type": "string"
+            },
+            "platform": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "node",
+            "python",
+            "platform"
+          ]
+        },
+        "configuration": {
+          "const": {
+            "userMessage": "Read the synthetic report.",
+            "provider": "scripted-read-then-echo",
+            "clock": 1000,
+            "deadline": 1800,
+            "maxSteps": 4,
+            "transport": "stdio",
+            "peerMode": "benign",
+            "hostAliases": {
+              "mcp://reference/allowed": "read",
+              "mcp://reference/other": "read"
+            },
+            "profiles": [
+              "PSP-LLM-LOOP-0.1",
+              "PSP-MCP-DISPATCH-0.1",
+              "CDL-DETERMINISTIC-1.0",
+              "PSP-SIGNATURE-2.0"
+            ]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "passed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unsupported": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "passed",
+            "failed",
+            "blocked",
+            "unsupported",
+            "skipped",
+            "error"
+          ]
+        },
+        "scopePassed": {
+          "type": "boolean"
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "profile",
+        "scope",
+        "fullConformance",
+        "commit",
+        "sourceTree",
+        "corpusSha256",
+        "inventorySha256",
+        "runtime",
+        "configuration",
+        "summary",
+        "scopePassed",
+        "cells"
+      ]
+    }
+  }
+}

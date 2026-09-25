@@ -58,6 +58,15 @@ jobs:
       - run: npm run build
       - run: uv sync --locked --all-packages
       - run: uv run --locked python scripts/check-parity.py
+      - name: Retain offline workflow matrix
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: workflow-matrix
+          path: .artifacts/workflow-matrix.json
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: ignore
       - name: Retain synthetic minimized regression
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
