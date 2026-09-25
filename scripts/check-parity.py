@@ -10,6 +10,7 @@ from library_exchange import emit_bundle, verify_bundle
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, "scripts/check-requirements.py"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/generate-api-review.py", "--check"], cwd=ROOT, check=True)
+subprocess.run([sys.executable, "scripts/generate-api-candidate.py", "--check"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/differential-fuzz.py", "--cases", "512"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/check-evaluation-parity.py"], cwd=ROOT, check=True)
 project = json.loads((ROOT / "project.json").read_text(encoding="utf-8"))

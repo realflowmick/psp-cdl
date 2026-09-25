@@ -18,6 +18,8 @@ The [3.1.1 baseline](specs/psp/RFC-PSP-CORE-v3_1_1.md) remains archived. The [si
 
 Read the [remaining specification issues](specs/errata/README.md) before implementing cryptography or claiming interoperability. RFC-PSP-API is referenced by PSP but was not supplied; local API contracts will be drafts until reviewed. These are project RFCs, not IETF or IANA approvals.
 
+The [API 1.0.0 adoption candidate](specs/api/RFC-PSP-API-v1_0_0-candidate.md) now brings all eleven required tools, compatibility decisions and versioned editorial corrections into one review. Its [adoption record](specs/api/adoption-1.0.0.json) separates public comment from final acceptance. Existing wire contracts and published RFCs retain their current status.
+
 ## Repository map
 
 ```text

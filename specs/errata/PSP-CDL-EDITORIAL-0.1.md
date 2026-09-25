@@ -2,6 +2,10 @@
 
 Status: **draft proposal**, 2026-09-24. CC0-1.0. No published RFC is modified.
 
+The later [API/editorial candidate 0.2](PSP-API-EDITORIAL-0.2.md) selects a new
+normative API proposal instead of the reference-deletion option below. This
+document remains the historical proposal; neither option is adopted yet.
+
 ## PSP-E006: absent normative API
 
 PSP Core 3.2.0 line 116, under Scope, refers to `RFC-PSP-API`. No such supplied
