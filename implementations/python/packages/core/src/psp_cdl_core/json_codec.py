@@ -2,6 +2,7 @@
 """Bounded, duplicate-aware JSON and RFC 8785 canonical serialization."""
 import json
 import math
+import re
 from typing import Any
 
 import rfc8785
@@ -81,49 +82,89 @@ def parse_json(source: str) -> Any:
     unicode_valid(source)
     if len(source.encode("utf-8")) > MAX_BYTES:
         raise PspError("LIMIT_EXCEEDED")
-    # Bound nesting before the native decoder sees adversarial nesting.
-    quoted = escaped = False
-    depth = 0
-    for char in source:
-        if quoted:
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                quoted = False
-        elif char == '"':
-            quoted = True
-        elif char in "[{":
-            depth += 1
-            if depth > MAX_DEPTH + 1:
-                raise PspError("LIMIT_EXCEEDED")
-        elif char in "]}":
-            depth -= 1
+    # Validate tokens as encountered, before consuming later syntax. Native
+    # object_pairs_hook runs too late to preserve duplicate/Unicode precedence.
+    position = count = 0
 
-    def pairs(items: list[tuple[str, Any]]) -> dict:
-        result = {}
-        for key, value in items:
-            if key in result:
-                raise PspError("DUPLICATE_KEY")
-            result[key] = value
-        return result
+    def fail(code="INVALID_JSON"):
+        raise PspError(code, offset=len(source[:position].encode("utf-8")))
 
-    def number(token: str) -> int | float:
-        if not any(c in token for c in ".eE") and len(token.lstrip("-")) > 16:
-            raise PspError("INVALID_NUMBER")
-        value = float(token) if any(c in token for c in ".eE") else int(token)
-        return validate_json(value)
+    def whitespace():
+        nonlocal position
+        while position < len(source) and source[position] in "\t\n\r ":
+            position += 1
 
-    def constant(_token: str) -> Any:
-        raise PspError("INVALID_JSON")
+    def string():
+        nonlocal position
+        start = position
+        position += 1
+        while position < len(source):
+            char = source[position]
+            position += 1
+            if char == '"':
+                try:
+                    result = json.loads(source[start:position])
+                except json.JSONDecodeError:
+                    fail()
+                unicode_valid(result)
+                return result
+            if char == "\\":
+                position += 1
+        fail()
 
-    try:
-        value = json.loads(source, object_pairs_hook=pairs, parse_int=number, parse_float=number, parse_constant=constant)
-    except (json.JSONDecodeError, RecursionError) as exc:
-        offset = len(source[:exc.pos].encode("utf-8")) if isinstance(exc, json.JSONDecodeError) else None
-        raise PspError("INVALID_JSON", offset=offset) from exc
-    return validate_json(value)
+    def value(depth):
+        nonlocal position, count
+        count += 1
+        if depth > MAX_DEPTH or count > MAX_VALUES:
+            fail("LIMIT_EXCEEDED")
+        whitespace()
+        char = source[position:position+1]
+        if char == '"':
+            return string()
+        if char in ("{", "["):
+            position += 1
+            whitespace()
+            is_object = char == "{"
+            end = "}" if is_object else "]"
+            result = {} if is_object else []
+            if source[position:position+1] == end:
+                position += 1
+                return result
+            while position < len(source):
+                whitespace()
+                if is_object:
+                    if source[position:position+1] != '"': fail()
+                    key = string()
+                    if key in result: fail("DUPLICATE_KEY")
+                    whitespace()
+                    char = source[position:position+1]
+                    position += 1
+                    if char != ":": fail()
+                    result[key] = value(depth + 1)
+                else:
+                    result.append(value(depth + 1))
+                whitespace()
+                char = source[position:position+1]
+                position += 1
+                if char == end: return result
+                if char != ",": fail()
+            fail()
+        for literal, parsed in (("true", True), ("false", False), ("null", None)):
+            if source.startswith(literal, position):
+                position += len(literal)
+                return parsed
+        match = re.match(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", source[position:])
+        if not match: fail()
+        token = match[0]
+        position += len(token)
+        fractional = any(c in token for c in ".eE")
+        if not fractional and len(token.lstrip("-")) > 16: fail("INVALID_NUMBER")
+        return validate_json(float(token) if fractional else int(token))
+
+    result = value(0)
+    whitespace()
+    if position != len(source): fail()
+    return result
 
 
 def canonical_json(value: Any) -> str:

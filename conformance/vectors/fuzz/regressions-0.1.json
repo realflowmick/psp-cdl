@@ -1,0 +1,150 @@
+{
+  "profile": "PSP-CODEC-1.0; PSP-SIGNATURE-2.0; CDL-DETERMINISTIC-1.0",
+  "notice": "Synthetic reviewed-profile edge cases; no draft errata adopted. Expected keys are exact assertions in addition to complete cross-runtime comparison.",
+  "cases": [
+    {
+      "id": "decoded-duplicate-name",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"a\":1,\"\\u0061\":2}"
+      },
+      "expected": {
+        "status": "error",
+        "code": "DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "no-unicode-normalization",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"é\":1,\"é\":2}"
+      },
+      "expected": {
+        "status": "ok",
+        "canonical": "{\"é\":2,\"é\":1}"
+      }
+    },
+    {
+      "id": "negative-zero",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "-0.0"
+      },
+      "expected": {
+        "status": "ok",
+        "canonical": "0"
+      }
+    },
+    {
+      "id": "utf16-key-order",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"דּ\":2,\"😀\":1}"
+      },
+      "expected": {
+        "status": "ok",
+        "canonical": "{\"😀\":1,\"דּ\":2}"
+      }
+    },
+    {
+      "id": "escaped-lone-surrogate",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "\"\\ud800\""
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_UNICODE"
+      }
+    },
+    {
+      "id": "unknown-negation",
+      "requirement": "CDL-TOKEN-002",
+      "case": {
+        "op": "policy",
+        "value": "!unreviewed-custom-term"
+      },
+      "expected": {
+        "status": "error",
+        "code": "UNSUPPORTED_TERM"
+      }
+    },
+    {
+      "id": "ascii-whitespace-only",
+      "requirement": "CDL-PARSE-001",
+      "case": {
+        "op": "policy",
+        "value": "no-persist no-training"
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_DECLARATION"
+      }
+    },
+    {
+      "id": "duplicate-type",
+      "requirement": "PSP-PARSE-001",
+      "case": {
+        "op": "markup",
+        "source": "${psp type=context type=system/}"
+      },
+      "expected": {
+        "status": "error",
+        "code": "DUPLICATE_ATTRIBUTE"
+      }
+    },
+    {
+      "id": "unknown-extension-preserved",
+      "requirement": "PSP-PARSE-001",
+      "case": {
+        "op": "markup",
+        "source": "${psp type=extension x=one/}"
+      },
+      "expected": {
+        "status": "ok",
+        "canonical": "${psp type=\"extension\" x=\"one\" /}"
+      }
+    },
+    {
+      "id": "surrogate-before-later-syntax",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"\\ud801\""
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_UNICODE"
+      }
+    },
+    {
+      "id": "duplicate-before-missing-value",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{\"a\":0,\"a\":"
+      },
+      "expected": {
+        "status": "error",
+        "code": "DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "syntax-before-later-surrogate",
+      "requirement": "PSP-JSON-001",
+      "case": {
+        "op": "json",
+        "source": "{bad:\"\\ud801\"}"
+      },
+      "expected": {
+        "status": "error",
+        "code": "INVALID_JSON"
+      }
+    }
+  ]
+}
