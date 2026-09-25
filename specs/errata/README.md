@@ -18,5 +18,11 @@ PSP-E001 through PSP-E004 are resolved in PSP Core 3.2.0 and signature profile 2
 | PSP-E009 | §24 original-version and degraded-expiry rules conflict with §§17/21 compatibility and expiry rules | Draft correction; retain monotonic host approval and fail-closed expiry |
 
 The [requirements/parser review](../reviews/PSP-CDL-REVIEW-0.1.md) audits all uppercase normative keywords in the current RFCs and records explicit remaining gaps. The [API/editorial proposal](PSP-CDL-EDITORIAL-0.1.md) maps all eleven required tools and eleven heading corrections. New decisions remain draft pending public comment and maintainer disposition; published RFCs are unchanged.
+The [API adoption candidate](../api/RFC-PSP-API-v1_0_0-candidate.md) and [companion editorial proposal 0.2](PSP-API-EDITORIAL-0.2.md) advance #35 toward a new normative API, with explicit compatibility choices and a [separate review/decision record](../api/adoption-1.0.0.json). This replaces the earlier proposed reference-deletion option for the current review; neither option has been adopted.
 
 Resolutions: [PSP Signature Profile 2.0](../profiles/PSP-SIGNATURE-2.0.md), [CDL Deterministic Policy Profile 1.0](../profiles/CDL-DETERMINISTIC-1.0.md), [PSP Trust and Enforcement Profile 1.0](../profiles/PSP-TRUST-1.0.md). Requirement implementation status remains unimplemented until production code passes the relevant conformance cases. These resolutions do not assert support for every term in the larger CDL vocabulary.
+
+The [security tools implementation draft](../profiles/PSP-SECURITY-TOOLS-0.1.md)
+selects authenticated encrypt-then-sign AES-GCM and host-controlled plaintext
+release. Sign-then-encrypt routing/AAD, encrypted USER sections, offsets and
+recursive plaintext formats remain unsupported pending review under #35/#38.

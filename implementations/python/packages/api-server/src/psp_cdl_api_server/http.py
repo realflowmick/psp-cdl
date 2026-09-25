@@ -5,7 +5,7 @@ from http import HTTPStatus
 from psp_cdl_core import canonical_json, parse_json
 from .service import MAX_REQUEST_BYTES, SecurityService, ServiceError
 
-ROUTES={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate", "/v1/sessions/create":"createSession", "/v1/sessions/get":"getSession", "/v1/sessions/update":"updateSession", "/v1/nodes/fetch":"getNode", "/v1/checkpoints/create":"createCheckpoint", "/v1/checkpoints/resume":"resumeCheckpoint"}
+ROUTES={"/v1/security/verify":"verify","/v1/security/scan":"scan","/v1/security/decrypt":"decrypt","/v1/security/process":"process","/v1/policy/evaluate":"evaluate", "/v1/sessions/create":"createSession", "/v1/sessions/get":"getSession", "/v1/sessions/update":"updateSession", "/v1/nodes/fetch":"getNode", "/v1/checkpoints/create":"createCheckpoint", "/v1/checkpoints/resume":"resumeCheckpoint", "/v1/sessions/list":"listSessions", "/v1/sessions/cancel":"cancelSession", "/v1/sessions/purge":"purgeSession"}
 
 def response(status,value):
     headers={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}

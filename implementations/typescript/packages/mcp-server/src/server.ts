@@ -3,11 +3,13 @@ import { canonicalJson, parseJson, record } from "@psp-cdl/core";
 import { MAX_REQUEST_BYTES, SecurityService, ServiceError, scopeFor, type Operation, type Principal } from "@psp-cdl/api-server";
 import { toolDefinitions } from "./tools.js";
 import { workflowToolDefinitions } from "./workflow-tools.js";
+import { lifecycleToolDefinitions } from "./lifecycle-tools.js";
+import { securityExtensionTools } from "./security-tools-extension.js";
 import {REVISION_PROFILE,REVISION_KEY,type RevisionService} from "./revision.js";
 export const MCP_VERSION="2025-11-25";
-const operations:Record<string,Operation>={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate",
+const operations:Record<string,Operation>={"realflow.security.verify":"verify","realflow.security.scan":"scan","realflow.security.decrypt":"decrypt","realflow.security.process":"process","realflow.policy.evaluate":"evaluate",
   "realflow.sessions.create":"createSession","realflow.sessions.get":"getSession","realflow.sessions.update":"updateSession",
-  "realflow.nodes.fetch":"getNode","realflow.checkpoints.create":"createCheckpoint","realflow.checkpoints.resume":"resumeCheckpoint"};
+  "realflow.nodes.fetch":"getNode","realflow.checkpoints.create":"createCheckpoint","realflow.checkpoints.resume":"resumeCheckpoint", "realflow.sessions.list":"listSessions", "realflow.sessions.cancel":"cancelSession", "realflow.sessions.purge":"purgeSession"};
 export interface McpToolService {
   revisions?:RevisionService;
   authenticate(token:unknown):Promise<Principal>|Principal;
@@ -18,7 +20,7 @@ function toolService(service:SecurityService|McpToolService):McpToolService {
   if(!("operations" in service)) return service;
   return {
     authenticate:t=>service.authenticate(t),
-    discover:(_t,p)=>[...toolDefinitions,...workflowToolDefinitions].filter(t=>service.operations.includes(operations[t.name]!)&&p.scopes.includes(scopeFor(operations[t.name]!))),
+    discover:(_t,p)=>[...toolDefinitions,...workflowToolDefinitions,...lifecycleToolDefinitions,...securityExtensionTools].filter(t=>service.operations.includes(operations[t.name]!)&&p.scopes.includes(scopeFor(operations[t.name]!))),
     callTool:async(name,args,token,p)=>{
       if(!Object.hasOwn(operations,name)||!service.operations.includes(operations[name]!)) throw new ServiceError("Invalid tool or arguments",400);
       return {data:await service.invoke(operations[name]!,args,token,p)};

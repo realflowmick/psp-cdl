@@ -28,9 +28,9 @@ export function workflowError(error:unknown):ServiceError {
   if(error instanceof ServiceError) return error;
   if(error instanceof StoreError) {
     const code=error.code;
-    const status=code==="NOT_FOUND"?404:["AUTHORIZATION_DENIED","PERSISTENCE_DENIED","INVALID_TOKEN"].includes(code)?403:
+    const status=code==="NOT_FOUND"?404:["AUTHORIZATION_DENIED","PERSISTENCE_DENIED","RETENTION_DENIED","INVALID_TOKEN"].includes(code)?403:
       ["INVALID_COMMAND","INVALID_STATE","INVALID_EXPIRY"].includes(code)?400:code==="STORE_BUSY"?503:
-      ["STATE_BUSY","STATE_CONFLICT","NODE_CONFLICT","IDEMPOTENCY_CONFLICT","INVALID_TRANSITION","CHECKPOINT_CONSUMED","EXPIRED","CHECKPOINT_KEY_CHANGED","VERSION_EXHAUSTED"].includes(code)?409:500;
+      ["STATE_BUSY","STATE_CONFLICT","NODE_CONFLICT","IDEMPOTENCY_CONFLICT","INVALID_TRANSITION","CHECKPOINT_CONSUMED","EXPIRED","CHECKPOINT_KEY_CHANGED","VERSION_EXHAUSTED","RECEIPT_RETIRED"].includes(code)?409:500;
     return new ServiceError(status===500?"INTERNAL_ERROR":code,status);
   }
   return new ServiceError("INTERNAL_ERROR",500);
@@ -66,7 +66,7 @@ export class WorkflowService extends SecurityService {
       if(expectedIdentity&&(principal.tenantId!==expectedIdentity.tenantId||principal.subjectId!==expectedIdentity.subjectId)) throw new ServiceError("FORBIDDEN",403);
       if(!Object.hasOwn(workflowFields,operation)) throw new ServiceError("UNSUPPORTED_OPERATION",404);
       if(!principal.scopes.includes(scopeFor(operation))) throw new ServiceError("FORBIDDEN",403);
-      const input=request(operation,value), command:Record<string,unknown>={action:operation,...input};
+      const input=request(operation as WorkflowOperation,value), command:Record<string,unknown>={action:operation,...input};
       if(operation==="createSession"||operation==="updateSession") {
         command.policyVersion=await this.workflowHost.policyVersion(validateJson(principal) as unknown as Principal);
         if(!identifier(command.policyVersion)) throw new ServiceError("INTERNAL_ERROR",500);
@@ -93,7 +93,7 @@ export class WorkflowService extends SecurityService {
       }
       // Never pass control records to model-facing projection callbacks. Select data only.
       const data=operation==="getNode"?result.definition:result.state;
-      const view=validateJson(await this.workflowHost.present(validateJson(live) as unknown as Principal,operation,validateJson(data) as Record<string,unknown>));
+      const view=validateJson(await this.workflowHost.present(validateJson(live) as unknown as Principal,operation as WorkflowOperation,validateJson(data) as Record<string,unknown>));
       if(!record(view)) throw new ServiceError("INTERNAL_ERROR",500);
       const output=operation==="getNode"?{nodeId:result.nodeId,nodeVersion:result.nodeVersion,view}:
         {sessionId:result.sessionId,version:result.version,status:result.status,view};

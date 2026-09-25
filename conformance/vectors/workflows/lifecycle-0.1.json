@@ -1,0 +1,925 @@
+{
+  "profile": "PSP-LIFECYCLE-0.1",
+  "cases": [
+    {
+      "id": "owner-list",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "all"
+          },
+          "expect": {
+            "status": 200
+          },
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "test-other-isolation",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "all"
+          },
+          "expect": {
+            "status": 200
+          },
+          "token": "test-other",
+          "count": 0
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          },
+          "token": "test-other"
+        }
+      ]
+    },
+    {
+      "id": "test-tenant-isolation",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "all"
+          },
+          "expect": {
+            "status": 200
+          },
+          "token": "test-tenant",
+          "count": 0
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          },
+          "token": "test-tenant"
+        }
+      ]
+    },
+    {
+      "id": "list-boundaries",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 0,
+            "status": "all"
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        },
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 51,
+            "status": "all"
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        },
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 1.5,
+            "status": "all"
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        },
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": true,
+            "status": "all"
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        }
+      ]
+    },
+    {
+      "id": "strict-fields",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "all",
+            "tenantId": "tenant-a"
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "approved": true
+          },
+          "expect": {
+            "status": 400,
+            "error": "INVALID_COMMAND"
+          }
+        }
+      ]
+    },
+    {
+      "id": "scope-filter",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 403,
+            "error": "FORBIDDEN"
+          },
+          "token": "test-reader"
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 403,
+            "error": "FORBIDDEN"
+          },
+          "token": "test-reader"
+        }
+      ]
+    },
+    {
+      "id": "cancel-and-retry",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          },
+          "state": "cancelled",
+          "version": 2
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          },
+          "state": "cancelled",
+          "version": 2
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "new",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 409,
+            "error": "INVALID_TRANSITION"
+          }
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 409,
+            "error": "IDEMPOTENCY_CONFLICT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cancel-invalidates-handle",
+      "steps": [
+        {
+          "issue": "@op"
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "evaluate",
+          "request": {
+            "operation_id": "@op"
+          },
+          "expect": {
+            "status": 409,
+            "error": "INVALID_TRANSITION"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cancel-invalidates-checkpoint",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "cp",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "expect": {
+            "status": 200
+          },
+          "capture": "@cp"
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@cp",
+            "state": {}
+          },
+          "expect": {
+            "status": 409,
+            "error": "STATE_CONFLICT"
+          }
+        },
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "cp",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "expect": {
+            "status": 409,
+            "error": "INVALID_TRANSITION"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cancel-blocks-commit",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "status": "running",
+            "state": {
+              "stage": "changed"
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "STATE_CONFLICT"
+          }
+        }
+      ]
+    },
+    {
+      "id": "completed-cannot-cancel",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "status": "completed",
+            "state": {
+              "stage": "changed"
+            }
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 409,
+            "error": "INVALID_TRANSITION"
+          }
+        }
+      ]
+    },
+    {
+      "id": "persistence-denies-cancel",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 403,
+            "error": "PERSISTENCE_DENIED"
+          },
+          "flags": {
+            "persist": false
+          },
+          "state": "running",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "id": "authorization-denies-cancel",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 403,
+            "error": "AUTHORIZATION_DENIED"
+          },
+          "flags": {
+            "deny": true
+          },
+          "state": "running",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "id": "revocation-during-authorization",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 403,
+            "error": "AUTHORIZATION_DENIED"
+          },
+          "flags": {
+            "revokeOnAuthorize": true
+          },
+          "version": 1
+        }
+      ]
+    },
+    {
+      "id": "detached-authorization",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          },
+          "flags": {
+            "mutateGuard": true
+          },
+          "state": "cancelled",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "active-purge-rejected",
+      "steps": [
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 409,
+            "error": "INVALID_TRANSITION"
+          }
+        }
+      ]
+    },
+    {
+      "id": "retention-denies-purge",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 403,
+            "error": "RETENTION_DENIED"
+          },
+          "flags": {
+            "retention": false
+          },
+          "state": "cancelled",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "persistence-denies-tombstones",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 403,
+            "error": "PERSISTENCE_DENIED"
+          },
+          "flags": {
+            "persist": false
+          },
+          "state": "cancelled",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "payload-cleanup-and-replay",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 200
+          },
+          "state": "purged",
+          "version": 3,
+          "cleaned": 1,
+          "more": false
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 200
+          },
+          "state": "purged",
+          "version": 3
+        },
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          }
+        },
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "all"
+          },
+          "expect": {
+            "status": 200
+          },
+          "count": 0
+        }
+      ]
+    },
+    {
+      "id": "completed-cleanup",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "status": "completed",
+            "state": {
+              "stage": "changed"
+            }
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 200
+          },
+          "more": true
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge-2",
+            "sessionId": "@session",
+            "expectedVersion": 3
+          },
+          "expect": {
+            "status": 200
+          },
+          "more": false
+        }
+      ]
+    },
+    {
+      "id": "waiting-cleanup-at-expiry",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "cp",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "expect": {
+            "status": 200
+          },
+          "capture": "@cp"
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 200
+          },
+          "flags": {
+            "now": 2000
+          },
+          "more": true
+        },
+        {
+          "operation": "resumeCheckpoint",
+          "request": {
+            "requestId": "resume",
+            "checkpointId": "@cp",
+            "state": {}
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          }
+        }
+      ]
+    },
+    {
+      "id": "expiry-is-strict",
+      "steps": [
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "expired"
+          },
+          "expect": {
+            "status": 200
+          },
+          "flags": {
+            "now": 1999
+          },
+          "count": 0
+        },
+        {
+          "operation": "listSessions",
+          "request": {
+            "after": null,
+            "limit": 10,
+            "status": "expired"
+          },
+          "expect": {
+            "status": 200
+          },
+          "flags": {
+            "now": 2000
+          },
+          "count": 1
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          },
+          "state": "purged"
+        }
+      ]
+    },
+    {
+      "id": "late-cancel",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          },
+          "flags": {
+            "now": 2000
+          },
+          "state": "cancelled"
+        }
+      ]
+    },
+    {
+      "id": "update-wins-cancel-race",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 409,
+            "error": "STATE_CONFLICT"
+          },
+          "flags": {
+            "winUpdate": true
+          },
+          "state": "running",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "resume-wins-cancel-race",
+      "steps": [
+        {
+          "operation": "createCheckpoint",
+          "request": {
+            "requestId": "cp",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "expiresAt": 1500
+          },
+          "expect": {
+            "status": 200
+          },
+          "capture": "@cp"
+        },
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 409,
+            "error": "STATE_CONFLICT"
+          },
+          "flags": {
+            "winResume": true
+          },
+          "state": "running",
+          "version": 3
+        }
+      ]
+    },
+    {
+      "id": "cdl-retention-conflict",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 403,
+            "error": "RETENTION_DENIED"
+          },
+          "flags": {
+            "retentionCdlConflict": true
+          },
+          "state": "cancelled",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "read-suppressed-after-concurrent-purge",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "status": "completed",
+            "state": {
+              "stage": "changed"
+            }
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          },
+          "flags": {
+            "purgeOnRead": true
+          },
+          "state": "purged",
+          "version": 3
+        }
+      ]
+    }
+  ]
+}

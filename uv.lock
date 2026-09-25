@@ -154,12 +154,14 @@ name = "psp-cdl-api-server"
 version = "0.1.0.dev0"
 source = { editable = "implementations/python/packages/api-server" }
 dependencies = [
+    { name = "cryptography" },
     { name = "psp-cdl-cdl" },
     { name = "psp-cdl-core" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = "==50.0.1" },
     { name = "psp-cdl-cdl", editable = "implementations/python/packages/cdl" },
     { name = "psp-cdl-core", editable = "implementations/python/packages/core" },
 ]

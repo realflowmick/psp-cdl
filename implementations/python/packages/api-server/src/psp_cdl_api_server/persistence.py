@@ -165,7 +165,7 @@ class WorkflowStore:
 
     def _owned(self, actor, kind, record_id):
         r = self.backend.read(actor["tenantId"], key(kind, record_id))
-        if r is None or r["body"].get("subjectId") != actor["subjectId"] or r["body"].get("tenantId") != actor["tenantId"]:
+        if r is None or r["body"].get("subjectId") != actor["subjectId"] or r["body"].get("tenantId") != actor["tenantId"] or r["body"].get("status") == "purged" or r["body"].get("tombstone") is True:
             raise StoreError("NOT_FOUND")
         return r
 
@@ -184,6 +184,10 @@ class WorkflowStore:
 
     def _result(self, actor, result):
         out = bounded(result)
+        if out.get("sessionId"):
+            session = self._owned(actor, "session", out["sessionId"])
+            if session["body"].get("status") == "cancelled":
+                raise StoreError("INVALID_TRANSITION")
         if out.get("checkpointId"):
             cp = self._owned(actor, "checkpoint", out["checkpointId"])
             token = self._token(actor, out["checkpointId"])
@@ -270,10 +274,14 @@ class WorkflowStore:
         prompt_key=key("receipt",digest(canonical_json(["prompt-refresh",actor["subjectId"],c.get("sessionId")])))
         if action=="getPromptState":
             session=self._owned(actor,"session",c["sessionId"]);self._live(session,now)
+            if session["body"].get("status") == "cancelled": raise StoreError("INVALID_TRANSITION")
             r=self.backend.read(actor["tenantId"],prompt_key)
             if r is None or r["body"].get("profile")!=PROMPT_REFRESH_PROFILE: raise StoreError("NOT_FOUND")
             self._live(r,now)
-            return access({**r["body"],"revision":r["revision"]},session["body"])
+            out=access({**r["body"],"revision":r["revision"]},session["body"])
+            latest=self._owned(actor,"session",c["sessionId"])
+            if latest["body"].get("status") == "cancelled": raise StoreError("INVALID_TRANSITION")
+            return out
         if action=="putPromptState":
             session=self._owned(actor,"session",c["sessionId"]);self._live(session,now)
             if session["revision"]!=c["expectedVersion"]: raise StoreError("STATE_CONFLICT")
@@ -298,16 +306,20 @@ class WorkflowStore:
         if action == "getSession":
             s = self._owned(actor, "session", c["sessionId"])
             self._live(s, self._now())
-            return access(s["body"], s["body"])
+            if s["body"].get("status") == "cancelled": raise StoreError("INVALID_TRANSITION")
+            return self._result(actor, access(s["body"], s["body"]))
         if action == "getNode":
             node = self._node(actor, c["nodeId"], c["nodeVersion"])
             return access(node["body"], node["body"])
         if action == "getTurn":
+            session = self._owned(actor, "session", c["sessionId"])
+            if session["body"].get("status") == "cancelled":
+                raise StoreError("INVALID_TRANSITION")
             receipt = self.backend.read(actor["tenantId"], key("receipt", digest(canonical_json([actor["subjectId"], c["requestId"]]))))
             if receipt is None or receipt["body"].get("subjectId") != actor["subjectId"] or receipt["body"].get("tenantId") != actor["tenantId"] or receipt["body"].get("profile") != "PSP-LLM-DURABLE-0.1" or type(receipt["body"].get("result")) is not dict or receipt["body"]["result"].get("sessionId") != c["sessionId"]:
                 raise StoreError("NOT_FOUND")
             self._live(receipt, self._now())
-            return access(receipt["body"]["result"], replay=True)
+            return self._result(actor, access(receipt["body"]["result"], replay=True))
         current = None
         checks, writes, expires_at = [], [], MAX_INTEGER
         receipt_key = key("receipt", digest(canonical_json([actor["subjectId"], c["requestId"]]))) if "requestId" in c else None
@@ -323,6 +335,12 @@ class WorkflowStore:
                 raise StoreError("NOT_FOUND")
             if r["body"]["digest"] != command_digest:
                 raise StoreError("IDEMPOTENCY_CONFLICT")
+            if r["body"].get("tombstone") is True:
+                raise StoreError("RECEIPT_RETIRED")
+            if r["body"]["result"].get("sessionId"):
+                session = self._owned(actor, "session", r["body"]["result"]["sessionId"])
+                if session["body"].get("status") == "cancelled":
+                    raise StoreError("INVALID_TRANSITION")
             self._live(r, self._now())
             access(r["body"]["result"], replay=True)
             return self._result(actor, r["body"]["result"])

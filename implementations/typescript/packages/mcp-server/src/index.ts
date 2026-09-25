@@ -11,7 +11,7 @@ export const manifest = Object.freeze({
     "mcp-security-tools-0.1",
     "mcp-stdio-2025-11-25",
     "mcp-workflow-tools-0.1",
-    "host-tool-service-adapter", "mcp-streamable-http-0.1", "mcp-revision-0.1"
+    "host-tool-service-adapter", "mcp-streamable-http-0.1", "mcp-revision-0.1", "mcp-lifecycle-tools-0.1", "mcp-security-tools-extension-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);

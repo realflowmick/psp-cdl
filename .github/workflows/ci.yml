@@ -72,6 +72,11 @@ jobs:
       - run: uv run --locked python scripts/generate-persistence-schema.py --check
       - run: uv run --locked python scripts/generate-workflow-contracts.py --check
       - run: uv run --locked python scripts/generate-workflow-vectors.py --check
+      - run: uv run --locked python scripts/generate-lifecycle-contracts.py --check
+      - run: uv run --locked python scripts/generate-lifecycle-vectors.py --check
+      - run: uv run --locked python scripts/generate-security-tools-contracts.py --check
+      - run: uv run --locked python scripts/generate-security-tools-vectors.py --check
+      - run: uv run --locked python scripts/generate-api-candidate.py --check
       - run: uv run --locked python scripts/generate-llm-vectors.py --check
       - run: uv run --locked python scripts/generate-durable-vectors.py --check
       - run: uv run --locked python scripts/generate-refresh-vectors.py --check

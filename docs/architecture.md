@@ -94,3 +94,15 @@ The opt-in [MCP prompt refresh adapter](llm-mcp-refresh.md) binds a host-only co
 The opt-in [redirect loop](llm-redirect.md) resolves a host-selected application locally, evaluates a separately bound CDL transfer decision, and atomically completes the source with a fresh same-owner target and immutable receipt. The target receives only output and retained policy evidence; its own host initializes fresh threat state, signed prompts and gate authority. Current-policy recovery returns historical routing information without creating or invoking another target.
 
 The opt-in [scoped continuation loop](llm-scoped.md) keeps the workflow completed and its application state frozen. It verifies replacement SYSTEM text against a durable scope descriptor, checks ingress and egress through host-owned deterministic policy, and atomically writes separate threat/evidence state with an answer or hard-violation receipt. The model sees the completed answer and current question, never authoritative threat state. Completed sessions remain unavailable to generic workflow writers, old loops and MCP dispatch.
+
+The opt-in [lifecycle service](lifecycle.md) adds bounded owner listing, terminal
+cancellation and host-approved paged payload cleanup on the same atomic backend.
+Revision checks and retained replay tombstones prevent stale commits/receipts
+from reviving purged sessions; disk erasure and distributed fencing remain host
+or future integration work.
+
+The opt-in [security tools service](security-tools.md) composes strict scans,
+signature verification, host-owned encryption grants and deterministic CDL
+plaintext release. It optionally delegates workflow/lifecycle operations after
+identity pinning. It buffers UTF-8 plaintext as data with transformation
+provenance and performs no inference, dispatch, logging or persistence.

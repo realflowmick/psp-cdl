@@ -7,7 +7,7 @@ name = "psp-cdl-api-server"
 version = "0.1.0.dev0"
 description = "Versioned HTTP service contracts, authentication, and tenant isolation"
 requires-python = ">=3.12"
-dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-cdl==0.1.0.dev0"]
+dependencies = ["psp-cdl-core==0.1.0.dev0", "psp-cdl-cdl==0.1.0.dev0", "cryptography==50.0.1"]
 license = "Apache-2.0"
 readme = "README.md"
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3"]

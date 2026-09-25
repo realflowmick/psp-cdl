@@ -24,7 +24,7 @@ def identifier(value):
     return type(value) is str and len(value)<=128 and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*",value) is not None
 
 def scope_for(operation):
-    return {"verify":"security:verify", "evaluate":"policy:evaluate", "createSession":"sessions:write", "getSession":"sessions:read", "updateSession":"sessions:write", "getNode":"nodes:read", "createCheckpoint":"checkpoints:write", "resumeCheckpoint":"checkpoints:resume"}.get(operation)
+    return {"verify":"security:verify", "evaluate":"policy:evaluate", "createSession":"sessions:write", "getSession":"sessions:read", "updateSession":"sessions:write", "getNode":"nodes:read", "createCheckpoint":"checkpoints:write", "resumeCheckpoint":"checkpoints:resume", "listSessions":"sessions:read", "cancelSession":"sessions:cancel", "purgeSession":"sessions:purge", "scan":"security:scan", "decrypt":"security:decrypt", "process":"security:process"}.get(operation)
 
 def request_object(value, fields):
     try:

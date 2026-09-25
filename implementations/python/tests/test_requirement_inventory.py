@@ -35,8 +35,8 @@ class InventoryTests(unittest.TestCase):
         for path in (ROOT / "conformance/vectors").glob("*.json"):
             self.assertIn(json.loads(path.read_text(encoding="utf-8"))["requirement"], ids)
 
-    def test_api_review_keeps_absent_interfaces_and_adoption_pending(self):
+    def test_api_review_keeps_draft_counterparts_and_adoption_pending(self):
         actual = json.loads((ROOT / "specs/errata/api-editorial-0.1.json").read_text(encoding="utf-8"))
         self.assertEqual(load("generate-api-review").generate(), actual)
-        self.assertEqual(sum(r["status"] == "missing-interface" for r in actual["requiredTools"]), 4)
+        self.assertEqual(sum(r["status"] == "missing-interface" for r in actual["requiredTools"]), 0)
         self.assertFalse(actual["accepted"])

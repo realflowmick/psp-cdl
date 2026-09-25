@@ -384,4 +384,8 @@ class Tools:
 serve_stdio(mcp.McpServer(Tools(),lambda:'synthetic'))
 ''',encoding='utf-8')
 run([sys.executable, '-I', '-c', python_source, str(PYTHON)], CONSUMER)
+shutil.copyfile(ROOT/'scripts/package-service-check.mjs', CONSUMER/'service-check.mjs')
+run(['node', 'service-check.mjs'], CONSUMER)
+service_source="import sys\nsys.path.insert(0,sys.argv[1])\n"+(ROOT/'scripts/package_service_check.py').read_text(encoding='utf-8')
+run([sys.executable, '-I', '-c', service_source, str(PYTHON)], CONSUMER)
 print('Seven npm tarballs and seven Python wheels passed isolated consumer checks, including buffered/durable/refresh/redirect/scoped loops, recovery/lockdown, stdio/HTTP dispatch, revision leases and registry replacement; no packages published.')

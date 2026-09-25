@@ -2,6 +2,9 @@
 
 Status: **draft proposal**, 2026-09-24. CC0-1.0. No published RFC is modified.
 
+The later [API/editorial candidate 0.2](PSP-API-EDITORIAL-0.2.md) selects a new
+normative API proposal instead of the reference-deletion option below. This
+document remains the historical proposal; neither option is adopted yet.
 ## PSP-E006: absent normative API
 
 PSP Core 3.2.0 line 116, under Scope, refers to `RFC-PSP-API`. No such supplied
@@ -32,16 +35,17 @@ the frozen source and current OpenAPI paths.
 | realflow.sessions.create | Workflow 0.1 POST /v1/sessions/create |
 | realflow.sessions.get | Workflow 0.1 POST /v1/sessions/get |
 | realflow.sessions.update | Workflow 0.1 POST /v1/sessions/update |
-| realflow.sessions.list | Missing; lifecycle issue #37 |
+| realflow.sessions.list | Lifecycle 0.1 POST /v1/sessions/list; paired HTTP/stdio evidence in scripts/check-lifecycle-parity.py |
 | realflow.nodes.fetch | Workflow 0.1 POST /v1/nodes/fetch |
 | realflow.checkpoints.create | Workflow 0.1 POST /v1/checkpoints/create |
 | realflow.checkpoints.resume | Workflow 0.1 POST /v1/checkpoints/resume |
 | realflow.security.verify | Security 0.1 POST /v1/security/verify |
-| realflow.security.decrypt | Missing; key custody and crypto contract, #38 |
-| realflow.security.scan | Missing; bounded scan contract, #38 |
-| realflow.security.process | Missing; composition/error/partial-result contract, #38 |
+| realflow.security.decrypt | Security Tools 0.1 POST /v1/security/decrypt; selected encrypt-then-sign AES-GCM contract |
+| realflow.security.scan | Security Tools 0.1 POST /v1/security/scan; strict bounded diagnostics |
+| realflow.security.process | Security Tools 0.1 POST /v1/security/process; buffered all-or-nothing content release |
 
-Seven tool names have draft counterparts; four have no interface. Name matching
+All eleven tool names have draft counterparts. `scripts/check-security-tools-parity.py`
+exercises each over actual HTTP/MCP stdio in both language directions. Name matching
 does not prove wire compatibility. Workflow drafts use camelCase, host-scoped
 projected data and private checkpoint handoff; RFC examples use snake_case,
 full workflow state and model-visible resume tokens/links. Security verification
@@ -80,3 +84,6 @@ Decision register: existing profile errata remain as recorded; this proposal's
 acceptance, public review dates, comment dispositions and migration revision
 are **pending maintainer review**. The minimum 14-day public-comment requirement
 in [GOVERNANCE](../../GOVERNANCE.md) applies before normative adoption.
+The [security tools draft](../profiles/PSP-SECURITY-TOOLS-0.1.md) records #38
+encryption and release choices plus explicit unsupported cases. Tool-name
+coverage does not adopt the absent normative API or complete M3.

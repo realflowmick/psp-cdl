@@ -22,33 +22,33 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 #33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
 #34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
 and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
-Their normative acceptance gates remain open. #36 and #39 are the selected next
-implementation tasks; the queue below records the original planned ordering.
+The [API 1.0.0 candidate](api-adoption.md) now advances #35 with combined contracts, compatibility choices and a separate adoption record. Its public-comment and maintainer-decision gates remain open. #36/#39 have prepared implementation
+slices. The #37/#38 service drafts are in [PR #57](https://github.com/realflowmick/psp-cdl/pull/57).
+The queue below records the original planned ordering.
 
-#33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
-#34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
-and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
-Their normative acceptance gates remain open. #36 and #39 are the selected next
-implementation tasks; the queue below records the original planned ordering.
-## Current implementation slice (review pending)
+The working slices now include [bounded differential fuzzing](differential-fuzzing.md)
+and [paired isolated MCP fixtures](../evaluation/FIXTURE-SERVERS.md). The fuzz
+corpus retains a discovered malformed-JSON validation-order regression. Fixture
+checks compare actual tool effects in all four language combinations, including
+a successful bypass control. Merge/review status is distinct from this implementation progress.
 
-**[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** now has a paired [OpenAI Chat draft implementation](llm-provider.md) for maintainer review. It pins one API/model snapshot and adds bounded TLS I/O, host-owned credentials, conservative token/call budgets and cancellation. 93 shared offline cases cover mapping, tenant isolation, stale prompts and output denial; 28 actual local HTTPS checks cover the transport boundary. The separately invoked paid live smoke is **not run**. This is proposed work, not an addition to the merged-progress table above.
+**[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** is awaiting review in PR #53. Its offline checks and paired adapter contract are recorded in that PR. A live smoke run requires separate operator opt-in; credentials and authoritative policy/session state remain host-owned.
 
 Streaming remains rejected by this slice. [#44](https://github.com/realflowmick/psp-cdl/issues/44) separately defines streaming release semantics and tests the actual output sink. This clarifies the original LLMProxy issue's stale ordering without weakening the M5 completion gate. Neither an adapter nor a live smoke check is an effectiveness study.
 
 ## Remaining work
 
-**Review** identifies an implemented slice awaiting maintainer review. **Parallel** work can begin alongside it; requirement-dependent behavior waits for review. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication. A dash means no new issue prerequisite, not that contracts or tests can be skipped.
+**Review** identifies prepared slices awaiting checks, merge or normative disposition; requirement-dependent behavior waits for review. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication. A dash means no new issue prerequisite, not that contracts or tests can be skipped.
 
 | Queue | Milestone | Task | Dependency or scope gate |
 | --- | --- | --- | --- |
 | Review | M5 | [#33 Buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33) | Existing buffered loop; explicit operator opt-in for live calls |
-| Parallel | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | Preserve RFC baselines and record profile/errata decisions |
-| Parallel | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | Normative review process; local API contracts remain drafts |
-| Parallel | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |
-| Parallel | M3 | [#39 Isolated governed/adversarial MCP servers](https://github.com/realflowmick/psp-cdl/issues/39) | Synthetic data, bounded I/O and network isolation |
-| Later | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |
-| Later | M3 | [#38 Scan, decrypt and process tools](https://github.com/realflowmick/psp-cdl/issues/38) | #35; key custody and plaintext-release contract |
+| Review | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | Preserve RFC baselines and record profile/errata decisions |
+| Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | [API 1.0.0 public review #58](https://github.com/realflowmick/psp-cdl/pull/58); no adoption before 2026-10-09 and recorded lead decision |
+| Review | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |
+| Review | M3 | [#39 Isolated governed/adversarial MCP servers](https://github.com/realflowmick/psp-cdl/issues/39) | Synthetic data, bounded I/O and network isolation |
+| Review | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |
+| Review | M3 | [#38 Scan, decrypt and process tools](https://github.com/realflowmick/psp-cdl/issues/38) | #35; key custody and plaintext-release contract |
 | Later | M3 | [#40 PostgreSQL workflow backend](https://github.com/realflowmick/psp-cdl/issues/40) | Transaction/migration contract; mixed-language failure tests |
 | Later | M4 | [#41 Distributed workflow/dispatch coordination](https://github.com/realflowmick/psp-cdl/issues/41) | Cross-worker authority/fencing and recovery contract |
 | Later | M4 | [#42 Mutating tools and durable dispatch recovery](https://github.com/realflowmick/psp-cdl/issues/42) | #41; recipient idempotency and outbox contract |
@@ -81,3 +81,7 @@ Each issue supplies acceptance criteria, source references and validation requir
 - Blocked, unsupported, skipped and error results do not become passes. Profile checks and build success do not establish full conformance, production readiness or effectiveness.
 - Follow [governance](../GOVERNANCE.md) for normative review and independent release review. Queue labels do not appoint maintainers, assign due dates or assert security validation.
 - `.github/bootstrap-issues.json` remains the original provisioning seed. Maintain current scope here and in the linked issues instead of treating seed issue text as current status.
+
+The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.
+
+The opt-in [security tools draft](security-tools.md) adds authenticated scan/decrypt/process in both languages, host-owned AES-GCM key/zone grants and buffered CDL plaintext release. Its 62 shared cases and real two-way HTTP/stdio checks cover all eleven required tool names as draft counterparts. #35 normative API adoption and unsupported encryption forms remain open; this does not complete M3.

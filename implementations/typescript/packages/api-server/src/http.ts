@@ -5,9 +5,9 @@ import { MAX_REQUEST_BYTES, SecurityService, ServiceError, type Operation } from
 
 export interface HttpRequest { method:string; path:string; headers:readonly (readonly [string,string])[]; body:Uint8Array }
 export interface HttpResponse { status:number; headers:Record<string,string>; body:string }
-const routes:Record<string,Operation>={"/v1/security/verify":"verify","/v1/policy/evaluate":"evaluate",
+const routes:Record<string,Operation>={"/v1/security/verify":"verify","/v1/security/scan":"scan","/v1/security/decrypt":"decrypt","/v1/security/process":"process","/v1/policy/evaluate":"evaluate",
   "/v1/sessions/create":"createSession","/v1/sessions/get":"getSession","/v1/sessions/update":"updateSession",
-  "/v1/nodes/fetch":"getNode","/v1/checkpoints/create":"createCheckpoint","/v1/checkpoints/resume":"resumeCheckpoint"};
+  "/v1/nodes/fetch":"getNode","/v1/checkpoints/create":"createCheckpoint","/v1/checkpoints/resume":"resumeCheckpoint", "/v1/sessions/list":"listSessions", "/v1/sessions/cancel":"cancelSession", "/v1/sessions/purge":"purgeSession"};
 export function errorResponse(error:unknown):HttpResponse {
   const e=error instanceof ServiceError?error:new ServiceError("INTERNAL_ERROR",500);
   return response(e.status,{error:{code:e.code}});
