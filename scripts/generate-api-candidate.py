@@ -156,7 +156,8 @@ def generate():
     assert affected, "Core API requirements must remain traceable"
     index = {"schemaVersion": 1, "document": DOCUMENT, "status": "candidate-not-adopted", "digestForm": "sha256-utf8-lf",
              "sources": [{"path": p, "sha256": digest(p)} for p in sources], "operations": operations,
-             "requirementIds": ids, "affectedCoreRequirementIds": affected, "baselineSources": inventory["sources"],
+             "requirementIds": ids, "affectedCoreRequirementIds": affected,
+             "baselineSources": [{**s, "digestForm": "sha256-raw-bytes"} for s in inventory["sources"]],
              "evidence": evidence, "absentReferences": editorial["references"],
              "editorialCorrections": [{**c, "sourceAnchor": anchor(c["old"]), "proposedAnchor": anchor(c["proposed"]), "targetEdition": None} for c in editorial["editorialCorrections"]]}
     return {"schemas/api/psp-api-1.0.0-candidate.openapi.json": api,

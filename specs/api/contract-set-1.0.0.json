@@ -260,7 +260,8 @@
         "REQUIRED": 5,
         "SHOULD": 64,
         "SHOULD NOT": 3
-      }
+      },
+      "digestForm": "sha256-raw-bytes"
     },
     {
       "path": "specs/cdl/RFC-CDL-v1_5.md",
@@ -277,7 +278,8 @@
         "SHALL NOT": 1,
         "SHOULD": 33,
         "SHOULD NOT": 1
-      }
+      },
+      "digestForm": "sha256-raw-bytes"
     }
   ],
   "evidence": [

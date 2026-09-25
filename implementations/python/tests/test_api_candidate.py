@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Review guards are bookkeeping checks, not authorization to adopt a standard."""
 import importlib.util
+import hashlib
 import json
 import unittest
 from copy import deepcopy
@@ -24,6 +25,9 @@ class ApiCandidateTests(unittest.TestCase):
         self.assertEqual(optional, {"realflow.policy.evaluate", "realflow.sessions.cancel", "realflow.sessions.purge"})
         self.assertEqual(len(index["editorialCorrections"]), 11)
         self.assertTrue(all(c["sourceAnchor"] != c["proposedAnchor"] and c["targetEdition"] is None for c in index["editorialCorrections"]))
+        for source in index["baselineSources"]:
+            self.assertEqual(source["digestForm"], "sha256-raw-bytes")
+            self.assertEqual(source["sha256"], hashlib.sha256((ROOT/source["path"]).read_bytes()).hexdigest())
 
     def test_current_record_does_not_claim_adoption(self):
         record = CANDIDATE.read("specs/api/adoption-1.0.0.json")
