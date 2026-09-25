@@ -1,6 +1,6 @@
 # Initial implementability review
 
-PSP-E001 through PSP-E004 are resolved in PSP Core 3.2.0 and signature profile 2.0. PSP-E005, CDL-E001 and CDL-E002 are resolved for adopters of the versioned trust/enforcement and deterministic-policy profiles below. PSP-E006 and DOC-E001 remain open. Archived RFCs are unchanged. References use the actual section headings where internal subsection numbering is inconsistent.
+PSP-E001 through PSP-E004 are resolved in PSP Core 3.2.0 and signature profile 2.0. PSP-E005, CDL-E001 and CDL-E002 are resolved for adopters of the versioned trust/enforcement and deterministic-policy profiles below. PSP-E006 through PSP-E009 and DOC-E001 remain open or draft. Archived RFCs are unchanged. References use the actual section headings where internal subsection numbering is inconsistent.
 
 | ID | Finding | Impact / next decision |
 | --- | --- | --- |
@@ -13,7 +13,10 @@ PSP-E001 through PSP-E004 are resolved in PSP Core 3.2.0 and signature profile 2
 | CDL-E001 | §7.6.3 describes multiple independent layers and strong violation guarantees | Resolved by PSP-TRUST-1.0 and CDL-DETERMINISTIC-1.0: complete mediation, scoped trusted facts, downgrade rejection and conditional guarantees; effectiveness remains unmeasured. |
 | CDL-E002 | Vocabulary extensions, inheritance, explicit negation and semantic matching need a finite deterministic profile | Resolved by CDL-DETERMINISTIC-1.0: finite tables, root-to-leaf provenance, scoped negation grants, explicit AND/OR/evidence rules and unsupported-term rejection. |
 | DOC-E001 | PSP subsection numbers and CDL RBAC §11 subsections contain stale numbering | Editorial correction in next revision; use heading names plus file/version now |
+| PSP-E007 | §6.3 raw-text/closing-delimiter-only prose conflicts with nested structural grammar and bounded escaping | Draft parser clarification; preserve PSP-CODEC-1.0 pending review |
+| PSP-E008 | §24 permits standard-field precedence when signature aliases coexist, unlike strict Signature 2.0 | Draft reference correction; retain mixed/duplicate-pair rejection |
+| PSP-E009 | §24 original-version and degraded-expiry rules conflict with §§17/21 compatibility and expiry rules | Draft correction; retain monotonic host approval and fail-closed expiry |
 
-`conformance/requirements.json` links starter requirements to relevant blockers. The first implementation milestone should expand this review to all normative MUST/MUST NOT statements.
+The [requirements/parser review](../reviews/PSP-CDL-REVIEW-0.1.md) audits all uppercase normative keywords in the current RFCs and records explicit remaining gaps. The [API/editorial proposal](PSP-CDL-EDITORIAL-0.1.md) maps all eleven required tools and eleven heading corrections. New decisions remain draft pending public comment and maintainer disposition; published RFCs are unchanged.
 
 Resolutions: [PSP Signature Profile 2.0](../profiles/PSP-SIGNATURE-2.0.md), [CDL Deterministic Policy Profile 1.0](../profiles/CDL-DETERMINISTIC-1.0.md), [PSP Trust and Enforcement Profile 1.0](../profiles/PSP-TRUST-1.0.md). Requirement implementation status remains unimplemented until production code passes the relevant conformance cases. These resolutions do not assert support for every term in the larger CDL vocabulary.

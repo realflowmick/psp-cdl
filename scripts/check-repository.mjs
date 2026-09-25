@@ -25,7 +25,8 @@ for (const component of project.components) {
   }
   assert(read(component.python+"/pyproject.toml").includes('name = "psp-cdl-'+component.id+'"'));
 }
-const requirements=json("conformance/requirements.json").requirements;
+const inventory=json("conformance/requirements.json");
+const requirements=inventory.requirements;
 const ids=new Set(requirements.map(r=>r.id));
 assert.equal(ids.size,requirements.length,"Duplicate requirement IDs");
 for(const r of requirements) {
@@ -33,6 +34,25 @@ for(const r of requirements) {
   assert(["blocked","unimplemented"].includes(r.status));
   for(const blocker of r.blockedBy) assert(read("specs/errata/README.md").includes(blocker));
 }
+assert.equal(inventory.schemaVersion,2);
+for(const source of inventory.sources) {
+  const raw=readFileSync(source.path), lines=raw.toString('utf8').split(/\r?\n/);
+  assert.equal(createHash('sha256').update(raw).digest('hex'),source.sha256);
+  const audit=inventory.keywordAudit.filter(e=>e.path===source.path);
+  const matches=[];
+  lines.forEach((line,i)=>{
+    for(const m of line.matchAll(/\b(?:MUST NOT|SHALL NOT|SHOULD NOT|NOT RECOMMENDED|MUST|SHALL|SHOULD|RECOMMENDED|REQUIRED|MAY|OPTIONAL)\b/g))
+      matches.push([i+1,m.index+1,m[0]]);
+  });
+  assert.deepEqual(audit.map(e=>[e.line,e.column,e.keyword]),matches,'Incomplete keyword audit');
+  for(const e of audit) {
+    assert.equal(e.quote,lines[e.line-1]);
+    assert(e.contextEndLine>=e.line && e.contextEndLine<=lines.length);
+    if(e.disposition==='obligation-candidate') assert(ids.has(e.id),'Unmapped obligation');
+    else assert(['example','keyword-definition'].includes(e.disposition));
+  }
+}
+for(const evidence of Object.values(inventory.evidence)) for(const file of evidence.implementation) assert(existsSync(file));
 const caseIds=new Set();
 for(const file of readdirSync("conformance/vectors").filter(f=>f.endsWith(".json"))) {
   const vector=json("conformance/vectors/"+file);
@@ -61,4 +81,4 @@ for(const file of files.filter(f=>f.endsWith(".md")&&!f.startsWith("./specs/psp/
     assert(existsSync(absolute),"Broken local link in "+file+": "+target);
   }
 }
-console.log("Repository checks passed: "+project.components.length+" paired components, "+requirements.length+" starter requirements, "+caseIds.size+" draft vectors. No conformance executed.");
+console.log("Repository checks passed: "+project.components.length+" paired components, "+requirements.length+" pending requirement entries, "+caseIds.size+" draft workflow vectors. No conformance executed.");

@@ -1,0 +1,20 @@
+{
+  "codec": {
+    "profile": "PSP-CODEC-1.0",
+    "cases": ["nested-application:parse", "literal-delimiters:canonical-roundtrip", "extension-section:parse", "duplicate-key", "escaped-duplicate", "nesting-limit", "depth-limit"],
+    "implementation": ["implementations/typescript/packages/core/src/markup.ts", "implementations/typescript/packages/core/src/json.ts", "implementations/python/packages/core/src/psp_cdl_core/markup.py", "implementations/python/packages/core/src/psp_cdl_core/json_codec.py"],
+    "scope": "Representation only; workflow graph and semantic grammar unsupported."
+  },
+  "signature": {
+    "profile": "PSP-SIGNATURE-2.0",
+    "cases": ["SIG2-TEXT:bytes", "SIG2-JSON:verify", "changed-body", "unicode-normalized", "at-expiration", "matched-wire-aliases"],
+    "implementation": ["implementations/typescript/packages/core/src/signatures.ts", "implementations/typescript/packages/core/src/crypto.ts", "implementations/python/packages/core/src/psp_cdl_core/signatures.py", "implementations/python/packages/core/src/psp_cdl_core/crypto.py"],
+    "scope": "Bytes and signature/time primitives; this mapping does not prove key custody, rotation, revocation or every service call site."
+  },
+  "policy": {
+    "profile": "CDL-DETERMINISTIC-1.0; PSP-TRUST-1.0",
+    "cases": ["normalize-unknown", "inherit-no-self-authorization", "inherit-all-origins-required", "aggregate-transitive-email", "engine-isolation-proxy-only"],
+    "implementation": ["implementations/typescript/packages/cdl/src/index.ts", "implementations/python/packages/cdl/src/psp_cdl_cdl/__init__.py", "implementations/typescript/packages/core/src/trust.ts", "implementations/python/packages/core/src/psp_cdl_core/trust.py"],
+    "scope": "Finite vocabulary and host-supplied facts; broader synonym matching and inference-engine isolation unsupported."
+  }
+}

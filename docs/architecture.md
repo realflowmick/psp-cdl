@@ -40,7 +40,7 @@ Credentials, private keys, and authoritative node/session identity stay outside 
 
 ## Contract evolution
 
-`schemas/` contains project-owned draft contracts; a schema does not establish normative RFC semantics. `conformance/requirements.json` is the starter traceability register, not a complete extraction. Version protocol profiles, API contracts and implementation packages independently. Changes to shared schemas require coordinated language review.
+`schemas/` contains project-owned draft contracts; a schema does not establish normative RFC semantics. `conformance/requirements.json` audits every uppercase RFC keyword and records conservative obligation candidates, source locations and partial executable evidence; whole-clause conformance remains pending. Version protocol profiles, API contracts and implementation packages independently. Changes to shared schemas require coordinated language review.
 
 ## Reusable library layer
 

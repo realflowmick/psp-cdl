@@ -17,6 +17,13 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 | M6: Evaluation | Scoped mixed-language checks and a draft study protocol. No effectiveness study has run; the five original workflow seed cases remain unimplemented. | [Conformance](../conformance/README.md), [study protocol](../evaluation/PROTOCOL.md) |
 | M7: Reviewed release | Release gates and local package-consumer checks exist. No reviewed release or independent security validation is claimed. | [Roadmap](../ROADMAP.md), [maintainers](../MAINTAINERS.md), [library API](library-api.md) |
 
+## Work in review and selected next work
+
+#33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
+#34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
+and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
+Their normative acceptance gates remain open. #36 and #39 are the selected next
+implementation tasks; the queue below records the original planned ordering.
 ## Current implementation slice (review pending)
 
 **[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** now has a paired [OpenAI Chat draft implementation](llm-provider.md) for maintainer review. It pins one API/model snapshot and adds bounded TLS I/O, host-owned credentials, conservative token/call budgets and cancellation. 93 shared offline cases cover mapping, tenant isolation, stale prompts and output denial; 28 actual local HTTPS checks cover the transport boundary. The separately invoked paid live smoke is **not run**. This is proposed work, not an addition to the merged-progress table above.
