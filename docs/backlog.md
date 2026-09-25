@@ -24,18 +24,19 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
 Their normative acceptance gates remain open. #36 and #39 are the selected next
 implementation tasks; the queue below records the original planned ordering.
+## Current implementation slice (review pending)
 
-**[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** is next. Select one provider API/version, define the paired adapter mapping, and exercise it with offline fake-provider cases before an explicitly opted-in synthetic live smoke run. Credentials and authoritative policy/session state remain host-owned. Include request/response bounds, a budget ceiling, cancellation/deadlines, tenant isolation, stale-prompt checks and output suppression.
+**[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** now has a paired [OpenAI Chat draft implementation](llm-provider.md) for maintainer review. It pins one API/model snapshot and adds bounded TLS I/O, host-owned credentials, conservative token/call budgets and cancellation. 93 shared offline cases cover mapping, tenant isolation, stale prompts and output denial; 28 actual local HTTPS checks cover the transport boundary. The separately invoked paid live smoke is **not run**. This is proposed work, not an addition to the merged-progress table above.
 
 Streaming remains rejected by this slice. [#44](https://github.com/realflowmick/psp-cdl/issues/44) separately defines streaming release semantics and tests the actual output sink. This clarifies the original LLMProxy issue's stale ordering without weakening the M5 completion gate. Neither an adapter nor a live smoke check is an effectiveness study.
 
 ## Remaining work
 
-**Next** identifies the next implementation slice. **Parallel** work can begin alongside it; requirement-dependent behavior waits for review. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication. A dash means no new issue prerequisite, not that contracts or tests can be skipped.
+**Review** identifies an implemented slice awaiting maintainer review. **Parallel** work can begin alongside it; requirement-dependent behavior waits for review. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication. A dash means no new issue prerequisite, not that contracts or tests can be skipped.
 
 | Queue | Milestone | Task | Dependency or scope gate |
 | --- | --- | --- | --- |
-| Next | M5 | [#33 Buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33) | Existing buffered loop; explicit operator opt-in for live calls |
+| Review | M5 | [#33 Buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33) | Existing buffered loop; explicit operator opt-in for live calls |
 | Parallel | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | Preserve RFC baselines and record profile/errata decisions |
 | Parallel | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | Normative review process; local API contracts remain drafts |
 | Parallel | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |

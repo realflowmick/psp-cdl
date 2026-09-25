@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflowcloud.org/psp/schemas/openai-chat-0.1.json",
+  "title": "PSP OpenAI Chat Adapter 0.1 draft host limits",
+  "$comment": "CC0-1.0. Host configuration only; callbacks and credentials never enter model input.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "maxRequestBytes",
+    "maxResponseBytes",
+    "maxOutputTokens",
+    "maxCalls",
+    "budgetTokens",
+    "timeoutMs"
+  ],
+  "properties": {
+    "maxRequestBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1048576
+    },
+    "maxResponseBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1048576
+    },
+    "maxOutputTokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32768
+    },
+    "maxCalls": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "budgetTokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 120000
+    }
+  }
+}
