@@ -5,7 +5,7 @@ import { evaluateBatch, type PolicyInput } from "@psp-cdl/cdl";
 
 export const SERVICE_PROFILE = "PSP-SERVICE-0.1";
 export const MAX_REQUEST_BYTES = 1_048_576;
-export type Operation = "verify" | "evaluate" | "createSession" | "getSession" | "updateSession" | "getNode" | "createCheckpoint" | "resumeCheckpoint" | "listSessions" | "cancelSession" | "purgeSession";
+export type Operation = "verify" | "evaluate" | "createSession" | "getSession" | "updateSession" | "getNode" | "createCheckpoint" | "resumeCheckpoint" | "listSessions" | "cancelSession" | "purgeSession" | "scan" | "decrypt" | "process";
 export interface Principal { tenantId:string; subjectId:string; scopes:string[] }
 export interface OperationSnapshot {
   tenantId:string; subjectId:string; operationId:string; policyVersion:string; expires:number;
@@ -20,7 +20,7 @@ export interface ServiceHost {
 export class ServiceError extends Error {
   constructor(public readonly code:string, public readonly status:number) { super(code); this.name="ServiceError"; }
 }
-export const scopeFor = (operation:Operation) => ({verify:"security:verify",evaluate:"policy:evaluate",createSession:"sessions:write",getSession:"sessions:read",updateSession:"sessions:write",getNode:"nodes:read",createCheckpoint:"checkpoints:write",resumeCheckpoint:"checkpoints:resume",listSessions:"sessions:read",cancelSession:"sessions:cancel",purgeSession:"sessions:purge"})[operation];
+export const scopeFor = (operation:Operation) => ({verify:"security:verify",evaluate:"policy:evaluate",createSession:"sessions:write",getSession:"sessions:read",updateSession:"sessions:write",getNode:"nodes:read",createCheckpoint:"checkpoints:write",resumeCheckpoint:"checkpoints:resume",listSessions:"sessions:read",cancelSession:"sessions:cancel",purgeSession:"sessions:purge",scan:"security:scan",decrypt:"security:decrypt",process:"security:process"})[operation];
 export function identifier(value:unknown):value is string {
   return typeof value==="string" && value.length<=128 && /^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(value) && !/[^A-Za-z0-9._:-]/.test(value);
 }

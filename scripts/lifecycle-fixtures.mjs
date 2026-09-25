@@ -5,14 +5,16 @@ import {fixture as workflowFixture,routes as workflowRoutes} from './workflow-fi
 import {LifecycleStore,LifecycleService} from '@psp-cdl/api-server/lifecycle';
 import {handleHttp} from '@psp-cdl/api-server/http';
 import {McpServer} from '@psp-cdl/mcp-server';
+import {evaluateBatch} from '@psp-cdl/cdl';
 export const suite=JSON.parse(readFileSync(new URL('../conformance/vectors/workflows/lifecycle-0.1.json',import.meta.url)));
 export const routes={...workflowRoutes,listSessions:'/v1/sessions/list',cancelSession:'/v1/sessions/cancel',purgeSession:'/v1/sessions/purge'};
 export async function fixture(){
   const f=await workflowFixture();f.flags.retention=true;f.principal.scopes=[...f.principal.scopes,'sessions:cancel','sessions:purge'];
-  f.store=new LifecycleStore(f.backend,{resumeSecret:Buffer.alloc(32,7),authorizePersistence:()=>f.flags.persist,authorizeRetention:()=>f.flags.retention});
+  f.store=new LifecycleStore(f.backend,{resumeSecret:Buffer.alloc(32,7),authorizePersistence:()=>f.flags.persist,authorizeRetention:()=>f.flags.retention&&(f.flags.retentionCdlConflict?evaluateBatch([{classes:[],covenants:['no-persist','no-log'],capabilities:['logs-operations'],checks:{},parameters:{},context:{}}]).decision==='allow':true)});
   f.service=new LifecycleService(f.store,f.host);
   const authorize=f.host.authorize;
   f.host.authorize=async(p,c)=>{
+    if(c.command.action==='getSession'&&f.flags.purgeOnRead){f.flags.purgeOnRead=false;await f.store.lifecycle(f.actor,'purgeSession',{requestId:'read-race',sessionId:f.refs['@session'],expectedVersion:c.current.version},()=>true);}
     if(c.command.action==='cancelSession'&&f.flags.winUpdate){f.flags.winUpdate=false;await f.store.execute(f.actor,{action:'updateSession',requestId:'winner',sessionId:f.refs['@session'],expectedVersion:1,nodeId:'entry',nodeVersion:'1',policyVersion:'policy-1',status:'running',state:{stage:'winner'}});}
     if(c.command.action==='cancelSession'&&f.flags.winResume){f.flags.winResume=false;await f.service.invoke('resumeCheckpoint',{requestId:'winner',checkpointId:f.refs['@cp'],state:{}},'test-owner');}
     return authorize(p,c);

@@ -28,64 +28,78 @@
       "name": "realflow.sessions.create",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/sessions/create"
+      "path": "/v1/sessions/create",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.sessions.get",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/sessions/get"
+      "path": "/v1/sessions/get",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.sessions.update",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/sessions/update"
+      "path": "/v1/sessions/update",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.sessions.list",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/lifecycle-0.1.openapi.json",
-      "path": "/v1/sessions/list"
+      "path": "/v1/sessions/list",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.nodes.fetch",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/nodes/fetch"
+      "path": "/v1/nodes/fetch",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.checkpoints.create",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/checkpoints/create"
+      "path": "/v1/checkpoints/create",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.checkpoints.resume",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/workflow-0.1.openapi.json",
-      "path": "/v1/checkpoints/resume"
+      "path": "/v1/checkpoints/resume",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.security.verify",
       "status": "draft-counterpart-not-rfc-conformance",
       "contract": "schemas/api/security-0.1.openapi.json",
-      "path": "/v1/security/verify"
+      "path": "/v1/security/verify",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.security.decrypt",
-      "status": "missing-interface",
-      "issue": 38
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/security-tools-0.1.openapi.json",
+      "path": "/v1/security/decrypt",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.security.scan",
-      "status": "missing-interface",
-      "issue": 38
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/security-tools-0.1.openapi.json",
+      "path": "/v1/security/scan",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     },
     {
       "name": "realflow.security.process",
-      "status": "missing-interface",
-      "issue": 38
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/security-tools-0.1.openapi.json",
+      "path": "/v1/security/process",
+      "transportEvidence": "scripts/check-security-tools-parity.py"
     }
   ],
   "editorialCorrections": [

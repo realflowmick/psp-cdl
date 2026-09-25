@@ -1,0 +1,1991 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PSP security tools (draft)",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v1/security/scan": {
+      "post": {
+        "operationId": "scan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:scan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "raw_text": {
+                    "type": "string",
+                    "maxLength": 1048576
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "raw_text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    },
+                    "untrustedText": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary",
+                    "untrustedText"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/security/decrypt": {
+      "post": {
+        "operationId": "decrypt",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:decrypt",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "sections": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "not": {
+                            "pattern": "[^A-Za-z0-9._:-]"
+                          }
+                        },
+                        "content": {
+                          "type": "string",
+                          "maxLength": 1048576
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "content"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "sections"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string",
+                                "maxLength": 65536
+                              },
+                              "provenance": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "profile": {
+                                    "const": "PSP-SECURITY-TOOLS-0.1"
+                                  },
+                                  "envelopeDigest": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "minLength": 64,
+                                    "maxLength": 64
+                                  },
+                                  "signatureAlgorithm": {
+                                    "enum": [
+                                      "ed25519",
+                                      "hmac-sha256"
+                                    ]
+                                  },
+                                  "signingKeyId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                    "not": {
+                                      "pattern": "[^A-Za-z0-9._:-]"
+                                    }
+                                  },
+                                  "trustLevel": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                  },
+                                  "transformation": {
+                                    "enum": [
+                                      "verified",
+                                      "decrypted"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "profile",
+                                  "envelopeDigest",
+                                  "signatureAlgorithm",
+                                  "signingKeyId",
+                                  "trustLevel",
+                                  "transformation"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType",
+                              "content",
+                              "provenance"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/security/process": {
+      "post": {
+        "operationId": "process",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:process",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "raw_text": {
+                    "type": "string",
+                    "maxLength": 1048576
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "raw_text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string",
+                                "maxLength": 65536
+                              },
+                              "provenance": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "profile": {
+                                    "const": "PSP-SECURITY-TOOLS-0.1"
+                                  },
+                                  "envelopeDigest": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "minLength": 64,
+                                    "maxLength": 64
+                                  },
+                                  "signatureAlgorithm": {
+                                    "enum": [
+                                      "ed25519",
+                                      "hmac-sha256"
+                                    ]
+                                  },
+                                  "signingKeyId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                    "not": {
+                                      "pattern": "[^A-Za-z0-9._:-]"
+                                    }
+                                  },
+                                  "trustLevel": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                  },
+                                  "transformation": {
+                                    "enum": [
+                                      "verified",
+                                      "decrypted"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "profile",
+                                  "envelopeDigest",
+                                  "signatureAlgorithm",
+                                  "signingKeyId",
+                                  "trustLevel",
+                                  "transformation"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType",
+                              "content",
+                              "provenance"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    },
+                    "untrustedText": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary",
+                    "untrustedText"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              }
+            },
+            "required": [
+              "code"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "scanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "raw_text": {
+            "type": "string",
+            "maxLength": 1048576
+          }
+        },
+        "required": [
+          "operation_id",
+          "raw_text"
+        ]
+      },
+      "scanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "profile": {
+            "const": "PSP-SECURITY-TOOLS-0.1"
+          },
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": true
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "encrypted",
+                    "sectionType"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": false
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Z][A-Z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "error"
+                  ]
+                }
+              ]
+            }
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "successful": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              }
+            },
+            "required": [
+              "total",
+              "successful",
+              "failed"
+            ]
+          },
+          "untrustedText": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profile",
+          "operation_id",
+          "policy_version",
+          "success",
+          "results",
+          "summary",
+          "untrustedText"
+        ]
+      },
+      "decryptRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "not": {
+                    "pattern": "[^A-Za-z0-9._:-]"
+                  }
+                },
+                "content": {
+                  "type": "string",
+                  "maxLength": 1048576
+                }
+              },
+              "required": [
+                "id",
+                "content"
+              ]
+            }
+          }
+        },
+        "required": [
+          "operation_id",
+          "sections"
+        ]
+      },
+      "decryptResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "profile": {
+            "const": "PSP-SECURITY-TOOLS-0.1"
+          },
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": true
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string",
+                      "maxLength": 65536
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "profile": {
+                          "const": "PSP-SECURITY-TOOLS-0.1"
+                        },
+                        "envelopeDigest": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "minLength": 64,
+                          "maxLength": 64
+                        },
+                        "signatureAlgorithm": {
+                          "enum": [
+                            "ed25519",
+                            "hmac-sha256"
+                          ]
+                        },
+                        "signingKeyId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "not": {
+                            "pattern": "[^A-Za-z0-9._:-]"
+                          }
+                        },
+                        "trustLevel": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "transformation": {
+                          "enum": [
+                            "verified",
+                            "decrypted"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "profile",
+                        "envelopeDigest",
+                        "signatureAlgorithm",
+                        "signingKeyId",
+                        "trustLevel",
+                        "transformation"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "encrypted",
+                    "sectionType",
+                    "content",
+                    "provenance"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": false
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Z][A-Z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "error"
+                  ]
+                }
+              ]
+            }
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "successful": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              }
+            },
+            "required": [
+              "total",
+              "successful",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "profile",
+          "operation_id",
+          "policy_version",
+          "success",
+          "results",
+          "summary"
+        ]
+      },
+      "processRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "raw_text": {
+            "type": "string",
+            "maxLength": 1048576
+          }
+        },
+        "required": [
+          "operation_id",
+          "raw_text"
+        ]
+      },
+      "processResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "profile": {
+            "const": "PSP-SECURITY-TOOLS-0.1"
+          },
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9._:-]"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "results": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": true
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string",
+                      "maxLength": 65536
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "profile": {
+                          "const": "PSP-SECURITY-TOOLS-0.1"
+                        },
+                        "envelopeDigest": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$",
+                          "minLength": 64,
+                          "maxLength": 64
+                        },
+                        "signatureAlgorithm": {
+                          "enum": [
+                            "ed25519",
+                            "hmac-sha256"
+                          ]
+                        },
+                        "signingKeyId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "not": {
+                            "pattern": "[^A-Za-z0-9._:-]"
+                          }
+                        },
+                        "trustLevel": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "transformation": {
+                          "enum": [
+                            "verified",
+                            "decrypted"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "profile",
+                        "envelopeDigest",
+                        "signatureAlgorithm",
+                        "signingKeyId",
+                        "trustLevel",
+                        "transformation"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "encrypted",
+                    "sectionType",
+                    "content",
+                    "provenance"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "ok": {
+                      "const": false
+                    },
+                    "encrypted": {
+                      "type": "boolean"
+                    },
+                    "sectionType": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Z][A-Z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ok",
+                    "error"
+                  ]
+                }
+              ]
+            }
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "successful": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              }
+            },
+            "required": [
+              "total",
+              "successful",
+              "failed"
+            ]
+          },
+          "untrustedText": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profile",
+          "operation_id",
+          "policy_version",
+          "success",
+          "results",
+          "summary",
+          "untrustedText"
+        ]
+      }
+    }
+  }
+}

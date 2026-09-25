@@ -1,0 +1,653 @@
+// SPDX-License-Identifier: Apache-2.0
+// Generated from public-domain security tool contracts.
+export const securityExtensionTools = [
+  {
+    "name": "realflow.security.scan",
+    "description": "Opt-in scan under PSP-SECURITY-TOOLS-0.1. Host authority and buffered CDL release are mandatory; unsupported cases are explicit.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "raw_text": {
+          "type": "string",
+          "maxLength": 1048576
+        }
+      },
+      "required": [
+        "operation_id",
+        "raw_text"
+      ]
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-SECURITY-TOOLS-0.1"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "results": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": true
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "encrypted",
+                  "sectionType"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": false
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "pattern": "^[A-Z][A-Z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "error"
+                ]
+              }
+            ]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "successful": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            }
+          },
+          "required": [
+            "total",
+            "successful",
+            "failed"
+          ]
+        },
+        "untrustedText": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profile",
+        "operation_id",
+        "policy_version",
+        "success",
+        "results",
+        "summary",
+        "untrustedText"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "realflow.security.decrypt",
+    "description": "Opt-in decrypt under PSP-SECURITY-TOOLS-0.1. Host authority and buffered CDL release are mandatory; unsupported cases are explicit.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "not": {
+                  "pattern": "[^A-Za-z0-9._:-]"
+                }
+              },
+              "content": {
+                "type": "string",
+                "maxLength": 1048576
+              }
+            },
+            "required": [
+              "id",
+              "content"
+            ]
+          }
+        }
+      },
+      "required": [
+        "operation_id",
+        "sections"
+      ]
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-SECURITY-TOOLS-0.1"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "results": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": true
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string",
+                    "maxLength": 65536
+                  },
+                  "provenance": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "profile": {
+                        "const": "PSP-SECURITY-TOOLS-0.1"
+                      },
+                      "envelopeDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$",
+                        "minLength": 64,
+                        "maxLength": 64
+                      },
+                      "signatureAlgorithm": {
+                        "enum": [
+                          "ed25519",
+                          "hmac-sha256"
+                        ]
+                      },
+                      "signingKeyId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "not": {
+                          "pattern": "[^A-Za-z0-9._:-]"
+                        }
+                      },
+                      "trustLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 5
+                      },
+                      "transformation": {
+                        "enum": [
+                          "verified",
+                          "decrypted"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "profile",
+                      "envelopeDigest",
+                      "signatureAlgorithm",
+                      "signingKeyId",
+                      "trustLevel",
+                      "transformation"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "encrypted",
+                  "sectionType",
+                  "content",
+                  "provenance"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": false
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "pattern": "^[A-Z][A-Z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "error"
+                ]
+              }
+            ]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "successful": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            }
+          },
+          "required": [
+            "total",
+            "successful",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "profile",
+        "operation_id",
+        "policy_version",
+        "success",
+        "results",
+        "summary"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "realflow.security.process",
+    "description": "Opt-in process under PSP-SECURITY-TOOLS-0.1. Host authority and buffered CDL release are mandatory; unsupported cases are explicit.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "raw_text": {
+          "type": "string",
+          "maxLength": 1048576
+        }
+      },
+      "required": [
+        "operation_id",
+        "raw_text"
+      ]
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-SECURITY-TOOLS-0.1"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "not": {
+            "pattern": "[^A-Za-z0-9._:-]"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "results": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": true
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string",
+                    "maxLength": 65536
+                  },
+                  "provenance": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "profile": {
+                        "const": "PSP-SECURITY-TOOLS-0.1"
+                      },
+                      "envelopeDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$",
+                        "minLength": 64,
+                        "maxLength": 64
+                      },
+                      "signatureAlgorithm": {
+                        "enum": [
+                          "ed25519",
+                          "hmac-sha256"
+                        ]
+                      },
+                      "signingKeyId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "not": {
+                          "pattern": "[^A-Za-z0-9._:-]"
+                        }
+                      },
+                      "trustLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 5
+                      },
+                      "transformation": {
+                        "enum": [
+                          "verified",
+                          "decrypted"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "profile",
+                      "envelopeDigest",
+                      "signatureAlgorithm",
+                      "signingKeyId",
+                      "trustLevel",
+                      "transformation"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "encrypted",
+                  "sectionType",
+                  "content",
+                  "provenance"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "ok": {
+                    "const": false
+                  },
+                  "encrypted": {
+                    "type": "boolean"
+                  },
+                  "sectionType": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "pattern": "^[A-Z][A-Z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "ok",
+                  "error"
+                ]
+              }
+            ]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "successful": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32
+            }
+          },
+          "required": [
+            "total",
+            "successful",
+            "failed"
+          ]
+        },
+        "untrustedText": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profile",
+        "operation_id",
+        "policy_version",
+        "success",
+        "results",
+        "summary",
+        "untrustedText"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  }
+];

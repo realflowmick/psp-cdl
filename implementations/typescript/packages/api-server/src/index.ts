@@ -17,7 +17,7 @@ export const manifest = Object.freeze({
     "durable-turn-store-0.1",
     "prompt-refresh-store-0.1",
     "redirect-turn-store-0.1",
-    "scoped-turn-store-0.1", "session-lifecycle-0.1"
+    "scoped-turn-store-0.1", "session-lifecycle-0.1", "security-tools-0.1"
   ]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);

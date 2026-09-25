@@ -38,6 +38,8 @@ case("expiry-is-strict",[step("listSessions",{**listing,"status":"expired"},flag
 case("late-cancel",[step("cancelSession",cancel,flags={"now":2000},state="cancelled")])
 case("update-wins-cancel-race",[step("cancelSession",cancel,409,"STATE_CONFLICT",flags={"winUpdate":True},state="running",version=2)])
 case("resume-wins-cancel-race",[step("createCheckpoint",checkpoint,capture="@cp"),step("cancelSession",{**cancel,"expectedVersion":2},409,"STATE_CONFLICT",flags={"winResume":True},state="running",version=3)])
+case("cdl-retention-conflict",[step("cancelSession",cancel),step("purgeSession",purge,403,"RETENTION_DENIED",flags={"retentionCdlConflict":True},state="cancelled",version=2)])
+case("read-suppressed-after-concurrent-purge",[step("updateSession",{**update,"status":"completed"}),step("getSession",{"sessionId":"@session"},404,"NOT_FOUND",flags={"purgeOnRead":True},state="purged",version=3)])
 path=Path(__file__).resolve().parents[1]/"conformance/vectors/workflows/lifecycle-0.1.json"
 value=json.dumps({"profile":"PSP-LIFECYCLE-0.1","cases":cases},indent=2)+"\n"
 if sys.argv[1:]==["--check"]: assert path.read_bytes()==value.encode()

@@ -22,8 +22,8 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 #33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
 #34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
 and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
-Their normative acceptance gates remain open. #36 and #39 are the selected next
-implementation tasks; the queue below records the original planned ordering.
+Their normative acceptance gates remain open. #36/#39 and the #37/#38 service drafts have prepared
+implementation slices; the queue below records the original planned ordering.
 
 The working slices now include [bounded differential fuzzing](differential-fuzzing.md)
 and [paired isolated MCP fixtures](../evaluation/FIXTURE-SERVERS.md). The fuzz
@@ -47,7 +47,7 @@ Streaming remains rejected by this slice. [#44](https://github.com/realflowmick/
 | Review | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |
 | Review | M3 | [#39 Isolated governed/adversarial MCP servers](https://github.com/realflowmick/psp-cdl/issues/39) | Synthetic data, bounded I/O and network isolation |
 | Review | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |
-| Later | M3 | [#38 Scan, decrypt and process tools](https://github.com/realflowmick/psp-cdl/issues/38) | #35; key custody and plaintext-release contract |
+| Review | M3 | [#38 Scan, decrypt and process tools](https://github.com/realflowmick/psp-cdl/issues/38) | #35; key custody and plaintext-release contract |
 | Later | M3 | [#40 PostgreSQL workflow backend](https://github.com/realflowmick/psp-cdl/issues/40) | Transaction/migration contract; mixed-language failure tests |
 | Later | M4 | [#41 Distributed workflow/dispatch coordination](https://github.com/realflowmick/psp-cdl/issues/41) | Cross-worker authority/fencing and recovery contract |
 | Later | M4 | [#42 Mutating tools and durable dispatch recovery](https://github.com/realflowmick/psp-cdl/issues/42) | #41; recipient idempotency and outbox contract |
@@ -82,3 +82,5 @@ Each issue supplies acceptance criteria, source references and validation requir
 - `.github/bootstrap-issues.json` remains the original provisioning seed. Maintain current scope here and in the linked issues instead of treating seed issue text as current status.
 
 The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.
+
+The opt-in [security tools draft](security-tools.md) adds authenticated scan/decrypt/process in both languages, host-owned AES-GCM key/zone grants and buffered CDL plaintext release. Its 62 shared cases and real two-way HTTP/stdio checks cover all eleven required tool names as draft counterparts. #35 normative API adoption and unsupported encryption forms remain open; this does not complete M3.

@@ -4,16 +4,17 @@ from psp_cdl_api_server import MAX_REQUEST_BYTES, SecurityService, ServiceError,
 from .tools import TOOL_DEFINITIONS
 from .workflow_tools import WORKFLOW_TOOL_DEFINITIONS
 from .lifecycle_tools import LIFECYCLE_TOOL_DEFINITIONS
+from .security_tools_extension import SECURITY_EXTENSION_TOOLS
 from .revision import REVISION_PROFILE, REVISION_KEY
 MCP_VERSION="2025-11-25"
-OPERATIONS={"realflow.security.verify":"verify","realflow.policy.evaluate":"evaluate", "realflow.sessions.create":"createSession", "realflow.sessions.get":"getSession", "realflow.sessions.update":"updateSession", "realflow.nodes.fetch":"getNode", "realflow.checkpoints.create":"createCheckpoint", "realflow.checkpoints.resume":"resumeCheckpoint", "realflow.sessions.list":"listSessions", "realflow.sessions.cancel":"cancelSession", "realflow.sessions.purge":"purgeSession"}
+OPERATIONS={"realflow.security.verify":"verify","realflow.security.scan":"scan","realflow.security.decrypt":"decrypt","realflow.security.process":"process","realflow.policy.evaluate":"evaluate", "realflow.sessions.create":"createSession", "realflow.sessions.get":"getSession", "realflow.sessions.update":"updateSession", "realflow.nodes.fetch":"getNode", "realflow.checkpoints.create":"createCheckpoint", "realflow.checkpoints.resume":"resumeCheckpoint", "realflow.sessions.list":"listSessions", "realflow.sessions.cancel":"cancelSession", "realflow.sessions.purge":"purgeSession"}
 
 
 class SecurityTools:
     def __init__(self, service): self.service = service
     def authenticate(self, token): return self.service.authenticate(token)
     def discover(self, token, principal):
-        return [t for t in [*TOOL_DEFINITIONS, *WORKFLOW_TOOL_DEFINITIONS, *LIFECYCLE_TOOL_DEFINITIONS] if OPERATIONS[t["name"]] in self.service.operations and scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
+        return [t for t in [*TOOL_DEFINITIONS, *WORKFLOW_TOOL_DEFINITIONS, *LIFECYCLE_TOOL_DEFINITIONS, *SECURITY_EXTENSION_TOOLS] if OPERATIONS[t["name"]] in self.service.operations and scope_for(OPERATIONS[t["name"]]) in principal["scopes"]]
     def call_tool(self, name, args, token, principal):
         if name not in OPERATIONS or OPERATIONS[name] not in self.service.operations:
             raise ServiceError("Invalid tool or arguments", 400)

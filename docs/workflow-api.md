@@ -2,7 +2,7 @@
 
 The opt-in `WorkflowService` connects the reusable store to HTTP and MCP with host authorization. Its [draft profile](../specs/profiles/PSP-WORKFLOW-SERVICE-0.1.md), [OpenAPI contract](../schemas/api/workflow-0.1.openapi.json) and [MCP tool schemas](../schemas/mcp/workflow-tools-0.1.json) share requests and results across TypeScript and Python. This is an embeddable reference service; identity, approvals, operational management and customer experience belong to the embedding application.
 
-Start with the runnable [TypeScript and Python example](../examples/workflow/README.md). It shows create â†’ save â†’ checkpoint â†’ denied resume â†’ host approval â†’ resume â†’ identical retry, without printing credentials or checkpoint tokens. The examples use disposable synthetic data, not production authorization policy.
+Start with the runnable [TypeScript and Python example](../examples/workflow/README.md). It shows create → save → checkpoint → denied resume → host approval → resume → identical retry, without printing credentials or checkpoint tokens. The examples use disposable synthetic data, not production authorization policy.
 
 ## Construction and host callbacks
 

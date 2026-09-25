@@ -850,6 +850,76 @@
           "version": 3
         }
       ]
+    },
+    {
+      "id": "cdl-retention-conflict",
+      "steps": [
+        {
+          "operation": "cancelSession",
+          "request": {
+            "requestId": "cancel",
+            "sessionId": "@session",
+            "expectedVersion": 1
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "purgeSession",
+          "request": {
+            "requestId": "purge",
+            "sessionId": "@session",
+            "expectedVersion": 2
+          },
+          "expect": {
+            "status": 403,
+            "error": "RETENTION_DENIED"
+          },
+          "flags": {
+            "retentionCdlConflict": true
+          },
+          "state": "cancelled",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "id": "read-suppressed-after-concurrent-purge",
+      "steps": [
+        {
+          "operation": "updateSession",
+          "request": {
+            "requestId": "save",
+            "sessionId": "@session",
+            "expectedVersion": 1,
+            "nodeId": "entry",
+            "nodeVersion": "1",
+            "status": "completed",
+            "state": {
+              "stage": "changed"
+            }
+          },
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "operation": "getSession",
+          "request": {
+            "sessionId": "@session"
+          },
+          "expect": {
+            "status": 404,
+            "error": "NOT_FOUND"
+          },
+          "flags": {
+            "purgeOnRead": true
+          },
+          "state": "purged",
+          "version": 3
+        }
+      ]
     }
   ]
 }

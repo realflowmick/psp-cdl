@@ -18,15 +18,12 @@ def generate():
     assert len(tools) == 11 and len(set(tools)) == 11
     mapping = []
     for name in tools:
-        missing = name.endswith((".decrypt", ".scan", ".process"))
-        item = {"name": name, "status": "missing-interface" if missing else "draft-counterpart-not-rfc-conformance"}
-        if missing:
-            item["issue"] = 37 if name.endswith(".list") else 38
-        else:
-            item["contract"] = "schemas/api/" + ("security" if name.endswith(".verify") else "lifecycle" if name.endswith(".list") else "workflow") + "-0.1.openapi.json"
-            item["path"] = "/v1/" + "/".join(name.split(".")[1:])
-            contract = json.loads((ROOT / item["contract"]).read_text(encoding="utf-8"))
-            assert "post" in contract["paths"][item["path"]], item
+        item = {"name": name, "status": "draft-counterpart-not-rfc-conformance"}
+        item["contract"] = "schemas/api/" + ("security" if name.endswith(".verify") else "security-tools" if name.endswith((".scan", ".decrypt", ".process")) else "lifecycle" if name.endswith(".list") else "workflow") + "-0.1.openapi.json"
+        item["path"] = "/v1/" + "/".join(name.split(".")[1:])
+        contract = json.loads((ROOT / item["contract"]).read_text(encoding="utf-8"))
+        assert "post" in contract["paths"][item["path"]], item
+        item["transportEvidence"] = "scripts/check-security-tools-parity.py"
         mapping.append(item)
     edits, references = [], []
     for path in (PSP, CDL, "specs/psp/RFC-PSP-CORE-v3_1_1.md"):

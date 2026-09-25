@@ -5,6 +5,7 @@ from workflow_fixtures import Fixture as WorkflowFixture, ROUTES as WORKFLOW_ROU
 from psp_cdl_api_server.lifecycle import LifecycleStore, LifecycleService
 from psp_cdl_api_server.http import handle_http
 from psp_cdl_mcp_server import McpServer
+from psp_cdl_cdl import evaluate_batch
 
 SUITE=json.loads((Path(__file__).resolve().parents[1]/"conformance/vectors/workflows/lifecycle-0.1.json").read_text())
 ROUTES={**WORKFLOW_ROUTES,"listSessions":"/v1/sessions/list","cancelSession":"/v1/sessions/cancel","purgeSession":"/v1/sessions/purge"}
@@ -14,9 +15,12 @@ class Fixture(WorkflowFixture):
         super().__init__()
         self.flags["retention"]=True
         self.principal["scopes"]=[*self.principal["scopes"],"sessions:cancel","sessions:purge"]
-        self.store=LifecycleStore(self.backend,resume_secret=bytes([7])*32,authorize_persistence=lambda a,w:self.flags["persist"],authorize_retention=lambda a,c:self.flags["retention"])
+        self.store=LifecycleStore(self.backend,resume_secret=bytes([7])*32,authorize_persistence=lambda a,w:self.flags["persist"],authorize_retention=lambda a,c:self.flags["retention"] and (evaluate_batch([{"classes":[],"covenants":["no-persist","no-log"],"capabilities":["logs-operations"],"checks":{},"parameters":{},"context":{}}])["decision"]=="allow" if self.flags.get("retentionCdlConflict") else True))
         self.service=LifecycleService(self.store,self)
     def authorize(self,p,c):
+        if c["command"]["action"]=="getSession" and self.flags.get("purgeOnRead"):
+            self.flags["purgeOnRead"]=False
+            self.store.lifecycle(self.actor,"purgeSession",{"requestId":"read-race","sessionId":self.refs["@session"],"expectedVersion":c["current"]["version"]},lambda c:True)
         if c["command"]["action"]=="cancelSession" and self.flags.get("winUpdate"):
             self.flags["winUpdate"]=False
             self.store.execute(self.actor,{"action":"updateSession","requestId":"winner","sessionId":self.refs["@session"],"expectedVersion":1,"nodeId":"entry","nodeVersion":"1","policyVersion":"policy-1","status":"running","state":{"stage":"winner"}})

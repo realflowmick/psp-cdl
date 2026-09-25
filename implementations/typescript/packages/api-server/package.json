@@ -8,6 +8,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./security-tools": {"types":"./dist/security-tools.d.ts","import":"./dist/security-tools.js"},
     "./lifecycle": {"types":"./dist/lifecycle.d.ts","import":"./dist/lifecycle.js"},
     "./workflow": {"types":"./dist/workflow.d.ts","import":"./dist/workflow.js"},
     "./operations": {"types":"./dist/operations.d.ts","import":"./dist/operations.js"},
