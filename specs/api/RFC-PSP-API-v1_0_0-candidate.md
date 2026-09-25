@@ -1,7 +1,6 @@
 # PSP API 1.0.0 — Candidate 1
 
-Document: RFC-PSP-API-1.0.0-candidate.1. Status: **candidate for public review;
-not adopted**. License: CC0-1.0. Issue: #35. The
+Document: RFC-PSP-API-1.0.0-candidate.1. Status: **public review; not adopted**. License: CC0-1.0. Issue: #35. The
 [adoption record](adoption-1.0.0.json) records publication, comment deadlines and
 the separate maintainer decision. Publication or passing tests cannot adopt it.
 

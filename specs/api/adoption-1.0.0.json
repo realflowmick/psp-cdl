@@ -1,22 +1,43 @@
 {
   "schemaVersion": 1,
   "document": "RFC-PSP-API-1.0.0-candidate.1",
-  "status": "draft",
+  "status": "public-review",
   "accepted": false,
   "review": {
-    "url": null,
-    "openedAt": null,
-    "lastSubstantiveChangeAt": null,
-    "closesNoEarlierThan": null,
-    "minimumCommentDays": 14
+    "url": "https://github.com/realflowmick/psp-cdl/pull/58",
+    "openedAt": "2026-09-25T13:00:31Z",
+    "lastSubstantiveChangeAt": "2026-09-25T13:00:31Z",
+    "closesNoEarlierThan": "2026-10-09T13:00:31Z",
+    "minimumCommentDays": 14,
+    "openedBy": "realflowmick"
   },
   "maintainerDecision": null,
   "comments": [],
   "dispositions": [
-    {"id": "PSP-E006", "status": "proposed", "proposal": "Create a separately versioned normative API; preserve the historical missing-reference record."},
-    {"id": "DOC-E001", "status": "proposed", "proposal": "Adopt eleven exact heading corrections and their versioned alias map for future editions."},
-    {"id": "API1-COMPATIBILITY", "status": "proposed", "proposal": "Select the explicit authority, private checkpoint, encryption and wire migration decisions in section 7."},
-    {"id": "PSP-E007-E009", "status": "still-draft", "proposal": "Parser, alias and refresh changes remain outside this API adoption decision."},
-    {"id": "FINAL-ADOPTION", "status": "blocked", "proposal": "Requires the public comment window, comment disposition and a recorded lead decision; CI cannot adopt the candidate."}
+    {
+      "id": "PSP-E006",
+      "status": "proposed",
+      "proposal": "Create a separately versioned normative API; preserve the historical missing-reference record."
+    },
+    {
+      "id": "DOC-E001",
+      "status": "proposed",
+      "proposal": "Adopt eleven exact heading corrections and their versioned alias map for future editions."
+    },
+    {
+      "id": "API1-COMPATIBILITY",
+      "status": "proposed",
+      "proposal": "Select the explicit authority, private checkpoint, encryption and wire migration decisions in section 7."
+    },
+    {
+      "id": "PSP-E007-E009",
+      "status": "still-draft",
+      "proposal": "Parser, alias and refresh changes remain outside this API adoption decision."
+    },
+    {
+      "id": "FINAL-ADOPTION",
+      "status": "blocked",
+      "proposal": "Requires the public comment window, comment disposition and a recorded lead decision; CI cannot adopt the candidate."
+    }
   ]
 }

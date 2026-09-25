@@ -1,5 +1,7 @@
 # API adoption review (#35)
 
+Public review: [PR #58](https://github.com/realflowmick/psp-cdl/pull/58). Opened 2026-09-25T13:00:31Z; adoption cannot occur before 2026-10-09T13:00:31Z and a recorded lead decision.
+
 The [API 1.0.0 candidate](../specs/api/RFC-PSP-API-v1_0_0-candidate.md) proposes
 a new normative document for all eleven required tool names. It is not adopted.
 The [review record](../specs/api/adoption-1.0.0.json) is the source for the public

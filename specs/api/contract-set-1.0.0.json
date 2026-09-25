@@ -74,11 +74,11 @@
     },
     {
       "path": "specs/api/RFC-PSP-API-v1_0_0-candidate.md",
-      "sha256": "599c05ef3b489c790581ea14b56b7d3c2e5e522592c4ce3ff3de861f1a566024"
+      "sha256": "829030bdc042884afdbdddb94f0e668a8fdb33559f3f60c1c4b680ac6b02e79c"
     },
     {
       "path": "specs/errata/PSP-API-EDITORIAL-0.2.md",
-      "sha256": "f9d41a847574c12e4f1b43ba7c629585a6f42421833112c81d4c1ac51268e76a"
+      "sha256": "d317da8d6facec2d633db4b5a3cd9be2211448a63b64a467e61f5fea655eaea8"
     },
     {
       "path": "specs/errata/api-editorial-0.1.json",

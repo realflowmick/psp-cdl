@@ -1,6 +1,6 @@
 # API adoption and editorial disposition 0.2
 
-Status: **candidate for public review; not adopted**. Date: 2026-09-25.
+Status: **public review; not adopted**. Date: 2026-09-25.
 License: CC0-1.0. This proposal advances #35 and supersedes only the proposed
 PSP-E006 option in [editorial draft 0.1](PSP-CDL-EDITORIAL-0.1.md). That earlier
 proposal remains an accurate historical record, not an accepted decision.
