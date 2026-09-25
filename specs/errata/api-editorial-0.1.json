@@ -44,8 +44,9 @@
     },
     {
       "name": "realflow.sessions.list",
-      "status": "missing-interface",
-      "issue": 37
+      "status": "draft-counterpart-not-rfc-conformance",
+      "contract": "schemas/api/lifecycle-0.1.openapi.json",
+      "path": "/v1/sessions/list"
     },
     {
       "name": "realflow.nodes.fetch",

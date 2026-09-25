@@ -46,7 +46,7 @@ Streaming remains rejected by this slice. [#44](https://github.com/realflowmick/
 | Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | Normative review process; local API contracts remain drafts |
 | Review | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |
 | Review | M3 | [#39 Isolated governed/adversarial MCP servers](https://github.com/realflowmick/psp-cdl/issues/39) | Synthetic data, bounded I/O and network isolation |
-| Later | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |
+| Review | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |
 | Later | M3 | [#38 Scan, decrypt and process tools](https://github.com/realflowmick/psp-cdl/issues/38) | #35; key custody and plaintext-release contract |
 | Later | M3 | [#40 PostgreSQL workflow backend](https://github.com/realflowmick/psp-cdl/issues/40) | Transaction/migration contract; mixed-language failure tests |
 | Later | M4 | [#41 Distributed workflow/dispatch coordination](https://github.com/realflowmick/psp-cdl/issues/41) | Cross-worker authority/fencing and recovery contract |
@@ -80,3 +80,5 @@ Each issue supplies acceptance criteria, source references and validation requir
 - Blocked, unsupported, skipped and error results do not become passes. Profile checks and build success do not establish full conformance, production readiness or effectiveness.
 - Follow [governance](../GOVERNANCE.md) for normative review and independent release review. Queue labels do not appoint maintainers, assign due dates or assert security validation.
 - `.github/bootstrap-issues.json` remains the original provisioning seed. Maintain current scope here and in the linked issues instead of treating seed issue text as current status.
+
+The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.

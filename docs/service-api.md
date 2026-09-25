@@ -59,7 +59,7 @@ For HTTP, requests use Bearer authorization and `application/json`. The built-in
 {"operation_id":"op-1"}
 ```
 
-`POST /v1/security/verify` or `realflow.security.verify` accepts `operation_id` and a `sections` array of `{id, content}`. `content` is one signed leaf section produced by the existing codec; wrap an entire nested document using `signDocument` / `sign_document`. Batches contain 1–32 unique section IDs and the entire request is limited to 1 MiB. Verification never returns section contents.
+`POST /v1/security/verify` or `realflow.security.verify` accepts `operation_id` and a `sections` array of `{id, content}`. `content` is one signed leaf section produced by the existing codec; wrap an entire nested document using `signDocument` / `sign_document`. Batches contain 1â€“32 unique section IDs and the entire request is limited to 1 MiB. Verification never returns section contents.
 
 Results identify `profile`, `operation_id` and `policy_version`. Policy results include `decision` and ordered `reasonCodes`; verification results include per-section validity and a full summary. Check every applicable result. HTTP 200 and MCP `isError: false` mean evaluation completed, even when the decision is deny or signatures are invalid. These results are not dispatch permits. Proxies must revalidate live state and enforce obligations before actual tool calls.
 
@@ -74,3 +74,5 @@ Run `npm run check`, Python unittest discovery, and `python scripts/check-parity
 `python scripts/generate-service-contracts.py --check` checks OpenAPI/MCP contract copies and packaged discovery metadata. `python scripts/check-packages.py` now installs and exercises six npm tarballs and six Python wheels as standalone consumers, including a local MCP dispatch-gate invocation.
 
 The [stateful library foundation](persistence.md) supplies tenant/owner-scoped sessions, immutable nodes, atomic versioned updates and single-use checkpoints. The opt-in [workflow API](workflow-api.md) connects it to authenticated HTTP/MCP methods, exact-transition authorization, private token handoff and session-bound operation issuance/invalidation. Scan/decrypt/process require separate contracts and key-management decisions. Listing/cancellation/retention, complete proxy mediation, all eleven required PSP tools, Streamable HTTP MCP, independent security review and effectiveness evaluation remain future work.
+
+The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.

@@ -18,12 +18,12 @@ def generate():
     assert len(tools) == 11 and len(set(tools)) == 11
     mapping = []
     for name in tools:
-        missing = name.endswith((".list", ".decrypt", ".scan", ".process"))
+        missing = name.endswith((".decrypt", ".scan", ".process"))
         item = {"name": name, "status": "missing-interface" if missing else "draft-counterpart-not-rfc-conformance"}
         if missing:
             item["issue"] = 37 if name.endswith(".list") else 38
         else:
-            item["contract"] = "schemas/api/" + ("security" if name.endswith(".verify") else "workflow") + "-0.1.openapi.json"
+            item["contract"] = "schemas/api/" + ("security" if name.endswith(".verify") else "lifecycle" if name.endswith(".list") else "workflow") + "-0.1.openapi.json"
             item["path"] = "/v1/" + "/".join(name.split(".")[1:])
             contract = json.loads((ROOT / item["contract"]).read_text(encoding="utf-8"))
             assert "post" in contract["paths"][item["path"]], item

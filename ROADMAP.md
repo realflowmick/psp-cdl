@@ -41,3 +41,5 @@ The selected #39 slice adds [isolated governed/adversarial MCP fixtures](evaluat
 6. **Meet the reviewed release gate.** Prepare [repeatable artifacts and compatibility documentation (#50)](https://github.com/realflowmick/psp-cdl/issues/50), obtain [independent security review and a recorded release decision (#51)](https://github.com/realflowmick/psp-cdl/issues/51), and keep publication disabled until that gate is satisfied.
 
 Each linked issue has acceptance criteria and dependencies. The milestone trackers retain completed slices and remain open until their gates are met. Queue order does not assign maintainers or due dates; no schedule, success rate, full conformance or production readiness is asserted by this roadmap.
+
+The opt-in [session lifecycle draft](docs/lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.

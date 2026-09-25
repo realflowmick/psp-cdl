@@ -112,7 +112,7 @@ export class WorkflowStore {
   readonly redirectTurns:boolean;
   readonly scopedTurns:boolean;
   private readonly secret:Uint8Array;
-  constructor(private readonly backend:AtomicBackend, private readonly host:PersistenceHost) {
+  constructor(protected readonly backend:AtomicBackend, protected readonly host:PersistenceHost) {
     if(!identifier(backend.epoch)||!(host.resumeSecret instanceof Uint8Array)||host.resumeSecret.length<32||typeof host.authorizePersistence!=="function") fail("INVALID_CONFIGURATION");
     this.secret=new Uint8Array(host.resumeSecret);
     if(host.coordinator!==undefined&&!(host.coordinator instanceof OwnerCoordinator)) fail("INVALID_CONFIGURATION");
@@ -133,7 +133,7 @@ export class WorkflowStore {
   private now():number { const n=this.backend.now(); if(!integer(n)) fail("INVALID_CLOCK"); return n; }
   private async owned(actor:Actor, kind:"session"|"checkpoint",id:string):Promise<StoredRecord> {
     const r=await this.backend.read(actor.tenantId,key(kind,id));
-    if(!r||r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId) fail("NOT_FOUND");
+    if(!r||r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId||r.body.status==="purged"||r.body.tombstone===true) fail("NOT_FOUND");
     return r;
   }
   private live(r:StoredRecord,now:number):void { if(!integer(r.body.expiresAt)) fail("STORE_CORRUPT"); if(now>=r.body.expiresAt) fail("EXPIRED"); }
@@ -142,6 +142,10 @@ export class WorkflowStore {
   }
   private async result(actor:Actor,result:Record<string,unknown>):Promise<Record<string,unknown>> {
     const out=bounded(result);
+    if(out.sessionId) {
+      const session=await this.owned(actor,"session",out.sessionId);
+      if(session.body.status==="cancelled")fail("INVALID_TRANSITION");
+    }
     if(out.checkpointId) {
       const cp=await this.owned(actor,"checkpoint",out.checkpointId);
       const token=this.token(actor,out.checkpointId);
@@ -219,8 +223,10 @@ export class WorkflowStore {
     const promptKey=key("receipt",hash(canonicalJson(["prompt-refresh",actor.subjectId,c.sessionId??null])));
     if(c.action==="getPromptState") {
       const s=await this.owned(actor,"session",c.sessionId as string);this.live(s,now);
+      if(s.body.status==="cancelled")fail("INVALID_TRANSITION");
       const r=await this.backend.read(actor.tenantId,promptKey);if(!r||r.body.profile!==PROMPT_REFRESH_PROFILE)fail("NOT_FOUND");
-      this.live(r,now);return access({...r.body,revision:r.revision},s.body);
+      this.live(r,now);const out=await access({...r.body,revision:r.revision},s.body);
+      const latest=await this.owned(actor,"session",s.id);if(latest.body.status==="cancelled")fail("INVALID_TRANSITION");return out;
     }
     if(c.action==="putPromptState") {
       const s=await this.owned(actor,"session",c.sessionId as string);this.live(s,now);
@@ -236,12 +242,18 @@ export class WorkflowStore {
       const result={...body,revision};await access(result,r?.body??null);
       if(!await this.backend.commit(actor.tenantId,checks,writes,s.body.expiresAt as number))fail("STATE_CONFLICT");return bounded(result);
     }
-    if(c.action==="getSession") { const s=await this.owned(actor,"session",c.sessionId as string); this.live(s,this.now()); return access(s.body,s.body); }
+    if(c.action==="getSession") {
+      const s=await this.owned(actor,"session",c.sessionId as string);this.live(s,this.now());
+      if(s.body.status==="cancelled")fail("INVALID_TRANSITION");
+      const out=await access(s.body,s.body);return this.result(actor,out);
+    }
     if(c.action==="getNode") { const n=await this.node(actor,c.nodeId as string,c.nodeVersion as string); return access(n.body,n.body); }
     if(c.action==="getTurn") {
+      const session=await this.owned(actor,"session",c.sessionId as string);
+      if(session.body.status==="cancelled") fail("INVALID_TRANSITION");
       const r=await this.backend.read(actor.tenantId,key("receipt",hash(canonicalJson([actor.subjectId,c.requestId]))));
       if(!r||r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId||r.body.profile!=="PSP-LLM-DURABLE-0.1"||!record(r.body.result)||r.body.result.sessionId!==c.sessionId) fail("NOT_FOUND");
-      this.live(r,this.now());return access(r.body.result as Record<string,unknown>,null,true);
+      this.live(r,this.now());const out=await access(r.body.result as Record<string,unknown>,null,true);return this.result(actor,out);
     }
     let current:Record<string,unknown>|null=null;
     let checks:Comparison[]=[], writes:StoredRecord[]=[], result:Record<string,unknown>, expiresAt=Number.MAX_SAFE_INTEGER;
@@ -254,6 +266,12 @@ export class WorkflowStore {
       if(!r) return null;
       if(r.body.subjectId!==actor.subjectId||r.body.tenantId!==actor.tenantId) fail("NOT_FOUND");
       if(r.body.digest!==digest) fail("IDEMPOTENCY_CONFLICT");
+      if(r.body.tombstone===true) fail("RECEIPT_RETIRED");
+      const result=r.body.result as Record<string,unknown>;
+      if(result.sessionId) {
+        const session=await this.owned(actor,"session",result.sessionId as string);
+        if(session.body.status==="cancelled") fail("INVALID_TRANSITION");
+      }
       this.live(r,this.now()); await access(r.body.result as Record<string,unknown>,null,true);
       return this.result(actor,r.body.result as Record<string,unknown>);
     };

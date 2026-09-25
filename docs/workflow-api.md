@@ -2,7 +2,7 @@
 
 The opt-in `WorkflowService` connects the reusable store to HTTP and MCP with host authorization. Its [draft profile](../specs/profiles/PSP-WORKFLOW-SERVICE-0.1.md), [OpenAPI contract](../schemas/api/workflow-0.1.openapi.json) and [MCP tool schemas](../schemas/mcp/workflow-tools-0.1.json) share requests and results across TypeScript and Python. This is an embeddable reference service; identity, approvals, operational management and customer experience belong to the embedding application.
 
-Start with the runnable [TypeScript and Python example](../examples/workflow/README.md). It shows create → save → checkpoint → denied resume → host approval → resume → identical retry, without printing credentials or checkpoint tokens. The examples use disposable synthetic data, not production authorization policy.
+Start with the runnable [TypeScript and Python example](../examples/workflow/README.md). It shows create â†’ save â†’ checkpoint â†’ denied resume â†’ host approval â†’ resume â†’ identical retry, without printing credentials or checkpoint tokens. The examples use disposable synthetic data, not production authorization policy.
 
 ## Construction and host callbacks
 
@@ -82,3 +82,5 @@ Handles are bounded process-local state, default capacity 1024, with no automati
 41 shared scenarios cover denied reads/transitions/storage, tenant and owner isolation, strict fields, credential/policy changes during authorization, competing updates, detached callbacks, retry authority, checkpoint delivery failure and retry, expiry and stale operation bindings. The parity script exchanges actual mutations over HTTP and MCP stdio in both language directions. Existing store tests still cover abrupt exits, portable database/token interchange and concurrent commit/resume races.
 
 Run the full repository checks and `uv run --locked python scripts/check-workflow-parity.py`. Contract/vector generators support `--check`. Transport limits and deployment responsibilities remain in the [service guide](service-api.md). The libraries remain experimental; full M3 coverage, graph execution, proxy enforcement, PostgreSQL, outbox dispatch and independent security review remain pending.
+
+The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.

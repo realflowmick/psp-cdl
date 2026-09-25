@@ -22,10 +22,10 @@ def workflow_error(error):
     if isinstance(error, StoreError):
         code = error.code
         if code == "NOT_FOUND": status = 404
-        elif code in ("AUTHORIZATION_DENIED", "PERSISTENCE_DENIED", "INVALID_TOKEN"): status = 403
+        elif code in ("AUTHORIZATION_DENIED", "PERSISTENCE_DENIED", "RETENTION_DENIED", "INVALID_TOKEN"): status = 403
         elif code in ("INVALID_COMMAND", "INVALID_STATE", "INVALID_EXPIRY"): status = 400
         elif code == "STORE_BUSY": status = 503
-        elif code in ("STATE_BUSY", "STATE_CONFLICT", "NODE_CONFLICT", "IDEMPOTENCY_CONFLICT", "INVALID_TRANSITION", "CHECKPOINT_CONSUMED", "EXPIRED", "CHECKPOINT_KEY_CHANGED", "VERSION_EXHAUSTED"): status = 409
+        elif code in ("STATE_BUSY", "STATE_CONFLICT", "NODE_CONFLICT", "IDEMPOTENCY_CONFLICT", "INVALID_TRANSITION", "CHECKPOINT_CONSUMED", "EXPIRED", "CHECKPOINT_KEY_CHANGED", "VERSION_EXHAUSTED", "RECEIPT_RETIRED"): status = 409
         else: status = 500
         return ServiceError("INTERNAL_ERROR" if status == 500 else code, status)
     return ServiceError("INTERNAL_ERROR", 500)

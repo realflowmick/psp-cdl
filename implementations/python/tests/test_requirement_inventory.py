@@ -38,5 +38,5 @@ class InventoryTests(unittest.TestCase):
     def test_api_review_keeps_absent_interfaces_and_adoption_pending(self):
         actual = json.loads((ROOT / "specs/errata/api-editorial-0.1.json").read_text(encoding="utf-8"))
         self.assertEqual(load("generate-api-review").generate(), actual)
-        self.assertEqual(sum(r["status"] == "missing-interface" for r in actual["requiredTools"]), 4)
+        self.assertEqual(sum(r["status"] == "missing-interface" for r in actual["requiredTools"]), 3)
         self.assertFalse(actual["accepted"])

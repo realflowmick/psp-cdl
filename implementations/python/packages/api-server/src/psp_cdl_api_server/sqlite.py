@@ -99,6 +99,28 @@ class SqliteBackend:
                     pass
             raise translated(exc) from None
 
+    def list_sessions(self, actor, after, limit, status, now):
+        if not identifier(actor.get("tenantId")) or not identifier(actor.get("subjectId")) or type(after) is not str or not integer(limit) or not 1 <= limit <= 51 or not integer(now) or status not in ("all", "running", "waiting", "completed", "cancelled", "expired"):
+            raise StoreError("INVALID_STATE")
+        try:
+            rows = self._db.execute("""SELECT record_key,revision,json_object('sessionId',record_key,'version',revision,'status',json_extract(body,'$.status'),'expiresAt',json_extract(body,'$.expiresAt'),'updatedAt',json_extract(body,'$.updatedAt')) FROM psp_records
+                WHERE epoch=? AND tenant_id=? AND kind='session' AND json_extract(body,'$.subjectId')=? AND json_extract(body,'$.tenantId')=? AND record_key>? AND json_extract(body,'$.status')!='purged'
+                AND (?='all' OR (?='expired' AND json_extract(body,'$.expiresAt')<=?) OR (json_extract(body,'$.status')=? AND json_extract(body,'$.expiresAt')>?)) ORDER BY record_key LIMIT ?""", (self.epoch, actor["tenantId"], actor["subjectId"], actor["tenantId"], after, status, status, now, status, now, int(limit))).fetchall()
+            return [{"kind": "session", "id": r[0], "revision": r[1], "body": bounded(parse_json(r[2]))} for r in rows]
+        except Exception as exc:
+            raise translated(exc) from None
+
+    def cleanup_candidate(self, actor, session_id):
+        if not identifier(actor.get("tenantId")) or not identifier(actor.get("subjectId")) or not identifier(session_id):
+            raise StoreError("INVALID_STATE")
+        try:
+            rows = self._db.execute("""SELECT kind,record_key FROM psp_records WHERE epoch=? AND tenant_id=? AND kind IN ('checkpoint','receipt')
+                AND json_extract(body,'$.subjectId')=? AND json_extract(body,'$.tenantId')=? AND coalesce(json_extract(body,'$.tombstone'),0)!=1 AND coalesce(json_extract(body,'$.profile'),'')!='PSP-LIFECYCLE-0.1'
+                AND (json_extract(body,'$.sessionId')=? OR json_extract(body,'$.result.sessionId')=?) ORDER BY kind,record_key LIMIT 2""", (self.epoch, actor["tenantId"], actor["subjectId"], actor["tenantId"], session_id, session_id)).fetchall()
+            return {"record": self.read(actor["tenantId"], {"kind": rows[0][0], "id": rows[0][1]}) if rows else None, "more": len(rows) > 1}
+        except Exception as exc:
+            raise translated(exc) from None
+
     def close(self):
         try:
             self._db.close()
