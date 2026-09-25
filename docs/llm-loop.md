@@ -79,7 +79,9 @@ does not complete a session in this class. The separate opt-in
 [durable loop](llm-durable.md) adds atomic turns, host-approved completion,
 lockdown and authorized recovery. The separate [refresh loop](llm-refresh.md) adds
 expiration/interval refresh under host approval. Scoped/redirect policy,
-streaming, live-provider adapters and multi-worker coordination remain unsupported. A fresh
+streaming and multi-worker coordination remain unsupported. The separate opt-in
+[OpenAI Chat adapter](llm-provider.md) now implements a buffered provider mapping;
+its paid live smoke has not run. A fresh
 host-authorized invocation can supply a new signed prompt after expiry. This
 slice establishes no model attention isolation, full topology conformance or
 measured security effectiveness.
