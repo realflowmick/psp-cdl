@@ -12,6 +12,11 @@ Compare an unprotected baseline, PSP only, CDL only, and PSP+CDL. Run semantic-o
 
 Use fixed synthetic secrets and tool spies. Include direct and indirect injection, multi-turn attacks, signed malicious content, malformed/ambiguous documents, delimiter nesting, forged capability metadata, expiration/replay/rollback, cross-tenant substitution, tool races, retries, streaming leaks, topology bypass, and post-completion manipulation. Pair attack cases with legitimate tasks using the same tools and data shapes.
 
+The [paired isolated MCP fixtures](FIXTURE-SERVERS.md) provide governed reads,
+synthetic exports, signed attack text, drift, malformed/oversized output,
+timeouts, cancellation and a successful direct-bypass control. Their spy events
+are deterministic infrastructure evidence, not measured model effectiveness.
+
 ## Measurements
 
 | Metric | Definition |
