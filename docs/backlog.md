@@ -22,8 +22,9 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 #33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
 #34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
 and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
-Their normative acceptance gates remain open. #36/#39 and the #37/#38 service drafts have prepared
-implementation slices; the queue below records the original planned ordering.
+Their normative acceptance gates remain open. #36/#39 have prepared implementation
+slices. The #37/#38 service drafts are in [PR #57](https://github.com/realflowmick/psp-cdl/pull/57).
+The queue below records the original planned ordering.
 
 The working slices now include [bounded differential fuzzing](differential-fuzzing.md)
 and [paired isolated MCP fixtures](../evaluation/FIXTURE-SERVERS.md). The fuzz
