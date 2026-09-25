@@ -22,7 +22,7 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 #33 has an [open implementation PR](https://github.com/realflowmick/psp-cdl/pull/53).
 #34/#35 now have [source inventory/parser review](../specs/reviews/PSP-CDL-REVIEW-0.1.md)
 and [API/editorial draft proposals](../specs/errata/PSP-CDL-EDITORIAL-0.1.md).
-Their normative acceptance gates remain open. #36/#39 have prepared implementation
+The [API 1.0.0 candidate](api-adoption.md) now advances #35 with combined contracts, compatibility choices and a separate adoption record. Its public-comment and maintainer-decision gates remain open. #36/#39 have prepared implementation
 slices. The #37/#38 service drafts are in [PR #57](https://github.com/realflowmick/psp-cdl/pull/57).
 The queue below records the original planned ordering.
 
@@ -44,7 +44,7 @@ Streaming remains rejected by this slice. [#44](https://github.com/realflowmick/
 | --- | --- | --- | --- |
 | Review | M5 | [#33 Buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33) | Existing buffered loop; explicit operator opt-in for live calls |
 | Review | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | Preserve RFC baselines and record profile/errata decisions |
-| Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | Normative review process; local API contracts remain drafts |
+| Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | API 1.0.0 candidate prepared; public comment and recorded lead decision required |
 | Review | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #34 for accepted grammar changes; fuzz infrastructure can start earlier |
 | Review | M3 | [#39 Isolated governed/adversarial MCP servers](https://github.com/realflowmick/psp-cdl/issues/39) | Synthetic data, bounded I/O and network isolation |
 | Review | M3 | [#37 Session listing, cancellation and retention](https://github.com/realflowmick/psp-cdl/issues/37) | Lifecycle and persistence-policy contract |

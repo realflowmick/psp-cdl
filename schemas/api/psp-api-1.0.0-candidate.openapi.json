@@ -1,0 +1,3442 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PSP API adoption candidate (not adopted)",
+    "version": "1.0.0-candidate.1"
+  },
+  "x-psp-document": "RFC-PSP-API-1.0.0-candidate.1",
+  "paths": {
+    "/v1/security/verify": {
+      "post": {
+        "operationId": "verify",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./security-0.1.openapi.json#/components/schemas/VerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scoped result; a policy denial or invalid signature can be reported within this successful evaluation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/VerifyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scope": "security:verify",
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.security.verify"
+      }
+    },
+    "/v1/policy/evaluate": {
+      "post": {
+        "operationId": "evaluate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./security-0.1.openapi.json#/components/schemas/EvaluateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scoped result; a policy denial or invalid signature can be reported within this successful evaluation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/EvaluateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./security-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scope": "policy:evaluate",
+        "x-psp-required": false,
+        "x-mcp-tool": "realflow.policy.evaluate"
+      }
+    },
+    "/v1/sessions/create": {
+      "post": {
+        "operationId": "createSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:write",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/createSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/createSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.sessions.create"
+      }
+    },
+    "/v1/sessions/get": {
+      "post": {
+        "operationId": "getSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:read",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/getSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/getSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.sessions.get"
+      }
+    },
+    "/v1/sessions/update": {
+      "post": {
+        "operationId": "updateSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:write",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/updateSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/updateSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.sessions.update"
+      }
+    },
+    "/v1/nodes/fetch": {
+      "post": {
+        "operationId": "getNode",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "nodes:read",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/getNodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/getNodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.nodes.fetch"
+      }
+    },
+    "/v1/checkpoints/create": {
+      "post": {
+        "operationId": "createCheckpoint",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "checkpoints:write",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/createCheckpointRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/createCheckpointResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.checkpoints.create"
+      }
+    },
+    "/v1/checkpoints/resume": {
+      "post": {
+        "operationId": "resumeCheckpoint",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "checkpoints:resume",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./workflow-0.1.openapi.json#/components/schemas/resumeCheckpointRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized projected result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/resumeCheckpointResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fail-closed error; 503 delivery failure may follow a committed checkpoint. Retry the identical request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./workflow-0.1.openapi.json#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.checkpoints.resume"
+      }
+    },
+    "/v1/sessions/list": {
+      "post": {
+        "operationId": "listSessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:read",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "after": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                        "minLength": 36,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50
+                  },
+                  "status": {
+                    "enum": [
+                      "all",
+                      "running",
+                      "waiting",
+                      "completed",
+                      "cancelled",
+                      "expired"
+                    ]
+                  }
+                },
+                "required": [
+                  "after",
+                  "limit",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Host-authorized result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-LIFECYCLE-0.1"
+                    },
+                    "result": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "sessions": {
+                          "type": "array",
+                          "maxItems": 50,
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "sessionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                                "minLength": 36,
+                                "maxLength": 36
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 9007199254740991
+                              },
+                              "status": {
+                                "enum": [
+                                  "running",
+                                  "waiting",
+                                  "completed",
+                                  "cancelled"
+                                ]
+                              },
+                              "expiresAt": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 9007199254740991
+                              },
+                              "updatedAt": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "sessionId",
+                              "version",
+                              "status",
+                              "expiresAt",
+                              "updatedAt"
+                            ]
+                          }
+                        },
+                        "after": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                              "minLength": 36,
+                              "maxLength": 36
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "sessions",
+                        "after"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "result"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.sessions.list"
+      }
+    },
+    "/v1/sessions/cancel": {
+      "post": {
+        "operationId": "cancelSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:cancel",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    },
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    "minLength": 36,
+                    "maxLength": 36
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "sessionId",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Host-authorized result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-LIFECYCLE-0.1"
+                    },
+                    "result": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "sessionId": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                          "minLength": 36,
+                          "maxLength": 36
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "status": {
+                          "const": "cancelled"
+                        }
+                      },
+                      "required": [
+                        "sessionId",
+                        "version",
+                        "status"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "result"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": false,
+        "x-mcp-tool": "realflow.sessions.cancel"
+      }
+    },
+    "/v1/sessions/purge": {
+      "post": {
+        "operationId": "purgeSession",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "sessions:purge",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    },
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    "minLength": 36,
+                    "maxLength": 36
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "sessionId",
+                  "expectedVersion"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Host-authorized result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-LIFECYCLE-0.1"
+                    },
+                    "result": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "sessionId": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                          "minLength": 36,
+                          "maxLength": 36
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "status": {
+                          "const": "purged"
+                        },
+                        "cleaned": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "more": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sessionId",
+                        "version",
+                        "status",
+                        "cleaned",
+                        "more"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "result"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Stable error code; no backend detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": false,
+        "x-mcp-tool": "realflow.sessions.purge"
+      }
+    },
+    "/v1/security/scan": {
+      "post": {
+        "operationId": "scan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:scan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "raw_text": {
+                    "type": "string",
+                    "maxLength": 1048576
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "raw_text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    },
+                    "untrustedText": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary",
+                    "untrustedText"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.security.scan"
+      }
+    },
+    "/v1/security/decrypt": {
+      "post": {
+        "operationId": "decrypt",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:decrypt",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "sections": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "not": {
+                            "pattern": "[^A-Za-z0-9._:-]"
+                          }
+                        },
+                        "content": {
+                          "type": "string",
+                          "maxLength": 1048576
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "content"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "sections"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string",
+                                "maxLength": 65536
+                              },
+                              "provenance": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "profile": {
+                                    "const": "PSP-SECURITY-TOOLS-0.1"
+                                  },
+                                  "envelopeDigest": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "minLength": 64,
+                                    "maxLength": 64
+                                  },
+                                  "signatureAlgorithm": {
+                                    "enum": [
+                                      "ed25519",
+                                      "hmac-sha256"
+                                    ]
+                                  },
+                                  "signingKeyId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                    "not": {
+                                      "pattern": "[^A-Za-z0-9._:-]"
+                                    }
+                                  },
+                                  "trustLevel": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                  },
+                                  "transformation": {
+                                    "enum": [
+                                      "verified",
+                                      "decrypted"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "profile",
+                                  "envelopeDigest",
+                                  "signatureAlgorithm",
+                                  "signingKeyId",
+                                  "trustLevel",
+                                  "transformation"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType",
+                              "content",
+                              "provenance"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.security.decrypt"
+      }
+    },
+    "/v1/security/process": {
+      "post": {
+        "operationId": "process",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scope": "security:process",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "not": {
+                      "pattern": "[^A-Za-z0-9._:-]"
+                    }
+                  },
+                  "raw_text": {
+                    "type": "string",
+                    "maxLength": 1048576
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "raw_text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspect per-item results; success does not authorize dispatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "profile": {
+                      "const": "PSP-SECURITY-TOOLS-0.1"
+                    },
+                    "operation_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "policy_version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "not": {
+                        "pattern": "[^A-Za-z0-9._:-]"
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": true
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string",
+                                "maxLength": 65536
+                              },
+                              "provenance": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "profile": {
+                                    "const": "PSP-SECURITY-TOOLS-0.1"
+                                  },
+                                  "envelopeDigest": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$",
+                                    "minLength": 64,
+                                    "maxLength": 64
+                                  },
+                                  "signatureAlgorithm": {
+                                    "enum": [
+                                      "ed25519",
+                                      "hmac-sha256"
+                                    ]
+                                  },
+                                  "signingKeyId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                    "not": {
+                                      "pattern": "[^A-Za-z0-9._:-]"
+                                    }
+                                  },
+                                  "trustLevel": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 5
+                                  },
+                                  "transformation": {
+                                    "enum": [
+                                      "verified",
+                                      "decrypted"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "profile",
+                                  "envelopeDigest",
+                                  "signatureAlgorithm",
+                                  "signingKeyId",
+                                  "trustLevel",
+                                  "transformation"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "encrypted",
+                              "sectionType",
+                              "content",
+                              "provenance"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                                "not": {
+                                  "pattern": "[^A-Za-z0-9._:-]"
+                                }
+                              },
+                              "ok": {
+                                "const": false
+                              },
+                              "encrypted": {
+                                "type": "boolean"
+                              },
+                              "sectionType": {
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "pattern": "^[A-Z][A-Z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ok",
+                              "error"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "successful": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        },
+                        "failed": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 32
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "successful",
+                        "failed"
+                      ]
+                    },
+                    "untrustedText": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "operation_id",
+                    "policy_version",
+                    "success",
+                    "results",
+                    "summary",
+                    "untrustedText"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-psp-required": true,
+        "x-mcp-tool": "realflow.security.process"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

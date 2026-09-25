@@ -1,0 +1,430 @@
+{
+  "schemaVersion": 1,
+  "document": "RFC-PSP-API-1.0.0-candidate.1",
+  "status": "candidate-not-adopted",
+  "digestForm": "sha256-utf8-lf",
+  "sources": [
+    {
+      "path": "schemas/api/security-0.1.openapi.json",
+      "sha256": "5499a6e2530ccc7f7d99f51135d300bed41b6727c34916ca10e415bf0da6c94c"
+    },
+    {
+      "path": "schemas/mcp/security-tools-0.1.json",
+      "sha256": "2c7420bc8ba7cdb6ae4403b950b64b82747c13b30802d56397f6806f0f87a4f5"
+    },
+    {
+      "path": "schemas/api/workflow-0.1.openapi.json",
+      "sha256": "f78d2c2aa2006f7c0c96d6dc0cf7528abe591c9fc51eea86b0aaa697194db244"
+    },
+    {
+      "path": "schemas/mcp/workflow-tools-0.1.json",
+      "sha256": "481b3e7c31324ed0b4ba0ff872a1705d6af2a12110c5fe72b3664f0fcbda00fb"
+    },
+    {
+      "path": "schemas/api/lifecycle-0.1.openapi.json",
+      "sha256": "a6420d0f3ae1a94514b497b9d6eb9453512f9c7aaa33e76a3aeeb0b07c1a1671"
+    },
+    {
+      "path": "schemas/mcp/lifecycle-tools-0.1.json",
+      "sha256": "6637017beacb7b0941bfd4dfff05d4fbdd6bf54071be83cc54d8f82df8ccb856"
+    },
+    {
+      "path": "schemas/api/security-tools-0.1.openapi.json",
+      "sha256": "16e54476d5f5c6e5605110e148f204c71cd8e8813e5228e91251c09de84b5e26"
+    },
+    {
+      "path": "schemas/mcp/security-tools-extension-0.1.json",
+      "sha256": "508e3d8c801e581ebc2498743d6ed25af36ce2c5c3a6bb7359e65e6573e622f4"
+    },
+    {
+      "path": "specs/profiles/PSP-SERVICE-0.1.md",
+      "sha256": "864cb97f5149b2acdfe148ad9dc1112599374923eae05b5433467aa146a3ba1f"
+    },
+    {
+      "path": "specs/profiles/PSP-WORKFLOW-SERVICE-0.1.md",
+      "sha256": "3945bcc118340094db8be7415e927ceb21f71ecdaf4671320d58731abe6f7ec1"
+    },
+    {
+      "path": "specs/profiles/PSP-PERSISTENCE-0.1.md",
+      "sha256": "9c9fa34980289037b0466eab93452929fb6b83cc1d57006012f254589a6428a8"
+    },
+    {
+      "path": "specs/profiles/PSP-LIFECYCLE-0.1.md",
+      "sha256": "5ea290b64675b056f3de332fec956117e27d7b6b4f798767c22cdc2b7fc2fc03"
+    },
+    {
+      "path": "specs/profiles/PSP-SECURITY-TOOLS-0.1.md",
+      "sha256": "6814f948b403e308cdf8fc6e427c72be5d68caf69ee7fa28ab2562e3ecf92e0b"
+    },
+    {
+      "path": "specs/profiles/PSP-SIGNATURE-2.0.md",
+      "sha256": "d3ce9ab4147bb07e91a922740df1c4ae87ae7db2849a2027a8e353e83ab9504c"
+    },
+    {
+      "path": "specs/profiles/PSP-CODEC-1.0.md",
+      "sha256": "5ef60c1f8b4603f178c6c507e8af8d61b9fdc72f19e373e04bd6d9ceb228db60"
+    },
+    {
+      "path": "specs/profiles/CDL-DETERMINISTIC-1.0.md",
+      "sha256": "3a341e23fdf3fe378baf4fc9b50e82f3f61201bd8a2b882c3f685a27d62a8bd2"
+    },
+    {
+      "path": "specs/profiles/PSP-TRUST-1.0.md",
+      "sha256": "385833de969ac2cc847c1a3e0c1474c3fef6d784335ca477968587ad7d771b91"
+    },
+    {
+      "path": "specs/api/RFC-PSP-API-v1_0_0-candidate.md",
+      "sha256": "599c05ef3b489c790581ea14b56b7d3c2e5e522592c4ce3ff3de861f1a566024"
+    },
+    {
+      "path": "specs/errata/PSP-API-EDITORIAL-0.2.md",
+      "sha256": "f9d41a847574c12e4f1b43ba7c629585a6f42421833112c81d4c1ac51268e76a"
+    },
+    {
+      "path": "specs/errata/api-editorial-0.1.json",
+      "sha256": "8e88ca47dbb3b8de90960073ca341b506c60133e24ee84af9049c8e6e89ee308"
+    }
+  ],
+  "operations": [
+    {
+      "name": "realflow.security.verify",
+      "path": "/v1/security/verify",
+      "operationId": "verify",
+      "scope": "security:verify",
+      "required": true,
+      "httpContract": "schemas/api/security-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/security-tools-0.1.json"
+    },
+    {
+      "name": "realflow.policy.evaluate",
+      "path": "/v1/policy/evaluate",
+      "operationId": "evaluate",
+      "scope": "policy:evaluate",
+      "required": false,
+      "httpContract": "schemas/api/security-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/security-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.create",
+      "path": "/v1/sessions/create",
+      "operationId": "createSession",
+      "scope": "sessions:write",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.get",
+      "path": "/v1/sessions/get",
+      "operationId": "getSession",
+      "scope": "sessions:read",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.update",
+      "path": "/v1/sessions/update",
+      "operationId": "updateSession",
+      "scope": "sessions:write",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.nodes.fetch",
+      "path": "/v1/nodes/fetch",
+      "operationId": "getNode",
+      "scope": "nodes:read",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.checkpoints.create",
+      "path": "/v1/checkpoints/create",
+      "operationId": "createCheckpoint",
+      "scope": "checkpoints:write",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.checkpoints.resume",
+      "path": "/v1/checkpoints/resume",
+      "operationId": "resumeCheckpoint",
+      "scope": "checkpoints:resume",
+      "required": true,
+      "httpContract": "schemas/api/workflow-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/workflow-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.list",
+      "path": "/v1/sessions/list",
+      "operationId": "listSessions",
+      "scope": "sessions:read",
+      "required": true,
+      "httpContract": "schemas/api/lifecycle-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/lifecycle-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.cancel",
+      "path": "/v1/sessions/cancel",
+      "operationId": "cancelSession",
+      "scope": "sessions:cancel",
+      "required": false,
+      "httpContract": "schemas/api/lifecycle-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/lifecycle-tools-0.1.json"
+    },
+    {
+      "name": "realflow.sessions.purge",
+      "path": "/v1/sessions/purge",
+      "operationId": "purgeSession",
+      "scope": "sessions:purge",
+      "required": false,
+      "httpContract": "schemas/api/lifecycle-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/lifecycle-tools-0.1.json"
+    },
+    {
+      "name": "realflow.security.scan",
+      "path": "/v1/security/scan",
+      "operationId": "scan",
+      "scope": "security:scan",
+      "required": true,
+      "httpContract": "schemas/api/security-tools-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/security-tools-extension-0.1.json"
+    },
+    {
+      "name": "realflow.security.decrypt",
+      "path": "/v1/security/decrypt",
+      "operationId": "decrypt",
+      "scope": "security:decrypt",
+      "required": true,
+      "httpContract": "schemas/api/security-tools-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/security-tools-extension-0.1.json"
+    },
+    {
+      "name": "realflow.security.process",
+      "path": "/v1/security/process",
+      "operationId": "process",
+      "scope": "security:process",
+      "required": true,
+      "httpContract": "schemas/api/security-tools-0.1.openapi.json",
+      "mcpContract": "schemas/mcp/security-tools-extension-0.1.json"
+    }
+  ],
+  "requirementIds": [
+    "API1-CONTRACT-001",
+    "API1-CONTRACT-002",
+    "API1-EXTENSION-001",
+    "API1-AUTH-001",
+    "API1-AUTH-002",
+    "API1-TRANSPORT-001",
+    "API1-TRANSPORT-002",
+    "API1-ERROR-001",
+    "API1-STATE-001",
+    "API1-RETRY-001",
+    "API1-CHECKPOINT-001",
+    "API1-LIST-001",
+    "API1-RETENTION-001",
+    "API1-VERIFY-001",
+    "API1-SCAN-001",
+    "API1-DECRYPT-001",
+    "API1-RELEASE-001",
+    "API1-PROCESS-001",
+    "API1-VERSION-001",
+    "API1-EVIDENCE-001"
+  ],
+  "affectedCoreRequirementIds": [
+    "PSP-3.2.0-L05809-01",
+    "PSP-3.2.0-L05815-01",
+    "PSP-3.2.0-L05840-01",
+    "PSP-3.2.0-L05841-01",
+    "PSP-3.2.0-L05842-01",
+    "PSP-3.2.0-L05843-01",
+    "PSP-3.2.0-L05844-01",
+    "PSP-3.2.0-L05853-01",
+    "PSP-3.2.0-L05945-01"
+  ],
+  "baselineSources": [
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "version": "3.2.0",
+      "sha256": "6453e9f75196de9ca20933fe637f4f4ed76117b56d7bcafc8143af382212d04a",
+      "keywordCounts": {
+        "MAY": 63,
+        "MUST": 169,
+        "MUST NOT": 37,
+        "OPTIONAL": 3,
+        "RECOMMENDED": 7,
+        "REQUIRED": 5,
+        "SHOULD": 64,
+        "SHOULD NOT": 3
+      }
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "version": "1.5",
+      "sha256": "e60871a4e8d427c2dd1ca770865fd1d27e223926bf58c052c9b8bb77e27e9dec",
+      "keywordCounts": {
+        "MAY": 17,
+        "MUST": 27,
+        "MUST NOT": 9,
+        "OPTIONAL": 1,
+        "RECOMMENDED": 1,
+        "REQUIRED": 1,
+        "SHALL": 1,
+        "SHALL NOT": 1,
+        "SHOULD": 33,
+        "SHOULD NOT": 1
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "group": "service",
+      "vectors": "conformance/vectors/services/profile-0.1.json",
+      "caseCount": 33,
+      "runner": "scripts/check-service-parity.py",
+      "claim": "scoped-implementation-evidence-not-normative-acceptance"
+    },
+    {
+      "group": "workflow",
+      "vectors": "conformance/vectors/workflows/service-0.1.json",
+      "caseCount": 41,
+      "runner": "scripts/check-workflow-parity.py",
+      "claim": "scoped-implementation-evidence-not-normative-acceptance"
+    },
+    {
+      "group": "lifecycle",
+      "vectors": "conformance/vectors/workflows/lifecycle-0.1.json",
+      "caseCount": 27,
+      "runner": "scripts/check-lifecycle-parity.py",
+      "claim": "scoped-implementation-evidence-not-normative-acceptance"
+    },
+    {
+      "group": "security-tools",
+      "vectors": "conformance/vectors/services/security-tools-0.1.json",
+      "caseCount": 62,
+      "runner": "scripts/check-security-tools-parity.py",
+      "claim": "scoped-implementation-evidence-not-normative-acceptance"
+    }
+  ],
+  "absentReferences": [
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 116,
+      "quote": "- Network protocols or API design (see RFC-PSP-API)",
+      "status": "absent-document",
+      "target": "current"
+    },
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_1_1.md",
+      "line": 112,
+      "quote": "- Network protocols or API design (see RFC-PSP-API)",
+      "status": "absent-document",
+      "target": "historical"
+    }
+  ],
+  "editorialCorrections": [
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 5905,
+      "old": "#### 21.5.4 Checkpoint Operations",
+      "proposed": "#### 22.5.4 Checkpoint Operations",
+      "sourceAnchor": "2154-checkpoint-operations",
+      "proposedAnchor": "2254-checkpoint-operations",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "line": 5943,
+      "old": "#### 21.5.5 Security Operations",
+      "proposed": "#### 22.5.5 Security Operations",
+      "sourceAnchor": "2155-security-operations",
+      "proposedAnchor": "2255-security-operations",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1562,
+      "old": "### 12.2 Identity-Based Covenants",
+      "proposed": "### 11.2 Identity-Based Covenants",
+      "sourceAnchor": "122-identity-based-covenants",
+      "proposedAnchor": "112-identity-based-covenants",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1594,
+      "old": "### 12.3 Identity-Based Capabilities",
+      "proposed": "### 11.3 Identity-Based Capabilities",
+      "sourceAnchor": "123-identity-based-capabilities",
+      "proposedAnchor": "113-identity-based-capabilities",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1619,
+      "old": "### 12.4 Covenant-Capability Matching",
+      "proposed": "### 11.4 Covenant-Capability Matching",
+      "sourceAnchor": "124-covenant-capability-matching",
+      "proposedAnchor": "114-covenant-capability-matching",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1632,
+      "old": "### 12.5 Hierarchical Role Declarations",
+      "proposed": "### 11.5 Hierarchical Role Declarations",
+      "sourceAnchor": "125-hierarchical-role-declarations",
+      "proposedAnchor": "115-hierarchical-role-declarations",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1658,
+      "old": "### 12.6 Anonymous vs Authenticated",
+      "proposed": "### 11.6 Anonymous vs Authenticated",
+      "sourceAnchor": "126-anonymous-vs-authenticated",
+      "proposedAnchor": "116-anonymous-vs-authenticated",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1676,
+      "old": "### 12.7 PSP Identity Context",
+      "proposed": "### 11.7 PSP Identity Context",
+      "sourceAnchor": "127-psp-identity-context",
+      "proposedAnchor": "117-psp-identity-context",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1789,
+      "old": "### 12.8 Standard RBAC Vocabulary",
+      "proposed": "### 11.8 Standard RBAC Vocabulary",
+      "sourceAnchor": "128-standard-rbac-vocabulary",
+      "proposedAnchor": "118-standard-rbac-vocabulary",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1824,
+      "old": "### 12.9 LLM Reasoning Pattern",
+      "proposed": "### 11.9 LLM Reasoning Pattern",
+      "sourceAnchor": "129-llm-reasoning-pattern",
+      "proposedAnchor": "119-llm-reasoning-pattern",
+      "targetEdition": null
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "line": 1849,
+      "old": "### 12.10 Integration with Other Covenants",
+      "proposed": "### 11.10 Integration with Other Covenants",
+      "sourceAnchor": "1210-integration-with-other-covenants",
+      "proposedAnchor": "1110-integration-with-other-covenants",
+      "targetEdition": null
+    }
+  ]
+}
