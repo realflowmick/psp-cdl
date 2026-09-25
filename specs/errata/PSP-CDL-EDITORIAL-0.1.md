@@ -5,7 +5,6 @@ Status: **draft proposal**, 2026-09-24. CC0-1.0. No published RFC is modified.
 The later [API/editorial candidate 0.2](PSP-API-EDITORIAL-0.2.md) selects a new
 normative API proposal instead of the reference-deletion option below. This
 document remains the historical proposal; neither option is adopted yet.
-
 ## PSP-E006: absent normative API
 
 PSP Core 3.2.0 line 116, under Scope, refers to `RFC-PSP-API`. No such supplied
@@ -85,7 +84,6 @@ Decision register: existing profile errata remain as recorded; this proposal's
 acceptance, public review dates, comment dispositions and migration revision
 are **pending maintainer review**. The minimum 14-day public-comment requirement
 in [GOVERNANCE](../../GOVERNANCE.md) applies before normative adoption.
-
 The [security tools draft](../profiles/PSP-SECURITY-TOOLS-0.1.md) records #38
 encryption and release choices plus explicit unsupported cases. Tool-name
 coverage does not adopt the absent normative API or complete M3.

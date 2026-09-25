@@ -64,6 +64,14 @@ The opt-in [revision extension](mcp-revision.md) negotiates catalog/tool/input p
 
 The opt-in [buffered model/tool loop](llm-loop.md) adds `llmproxy → mcpproxy/api-server/core/cdl` dependencies. It shares the gate's store/coordinator, holds owner reservations during inference and release, and uses an additional host-only dispatch check for transcript-derived restrictions. The provider sees separated messages and discovered tools, while credentials, keys and authoritative bindings remain host-owned. Signed prompt verification and current policy/session checks repeat at boundaries. A final answer alone does not complete a durable session.
 
+The opt-in [OpenAI Chat adapter](llm-provider.md) implements the provider callback
+with a fixed TLS endpoint and model snapshot, deterministic function-name mapping,
+bounded buffered I/O and per-registration call/token reservations. Credentials
+remain in the host-owned adapter closure. Live execution requires explicit opt-in;
+offline tests use a different registration ID. The adapter returns only the
+existing tool/final forms and does not change loop policy or signature checks.
+No request retries, provider conversation state or streaming release is added.
+
 The separate [durable loop](llm-durable.md) buffers that answer until a host-approved
 turn commits application state and an immutable answer receipt atomically. Its
 explicit lockdown mode writes terminal metadata outside application state and

@@ -1,0 +1,4864 @@
+{
+  "profile": "PSP-OPENAI-CHAT-0.1",
+  "license": "CC0-1.0",
+  "limits": {
+    "maxRequestBytes": 4096,
+    "maxResponseBytes": 4096,
+    "maxOutputTokens": 64,
+    "maxCalls": 4,
+    "budgetTokens": 4200000,
+    "timeoutMs": 1000
+  },
+  "request": {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Synthetic SYSTEM."
+      },
+      {
+        "role": "user",
+        "content": "Read synthetic data 🧪."
+      }
+    ],
+    "tools": [
+      {
+        "name": "echo.read",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": {
+          "type": "object"
+        }
+      }
+    ]
+  },
+  "final": {
+    "id": "chatcmpl-synthetic",
+    "object": "chat.completion",
+    "created": 1000,
+    "model": "gpt-4.1-mini-2025-04-14",
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "stop",
+        "logprobs": null,
+        "message": {
+          "role": "assistant",
+          "content": "Finished 🧪",
+          "refusal": null,
+          "annotations": []
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 30,
+      "completion_tokens": 4,
+      "total_tokens": 34
+    }
+  },
+  "tool": {
+    "id": "chatcmpl-synthetic",
+    "object": "chat.completion",
+    "created": 1000,
+    "model": "gpt-4.1-mini-2025-04-14",
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "tool_calls",
+        "logprobs": null,
+        "message": {
+          "role": "assistant",
+          "content": null,
+          "tool_calls": [
+            {
+              "id": "call_backend_1",
+              "type": "function",
+              "function": {
+                "name": "psp_tool_0",
+                "arguments": "{\"message\":\"hello 🧪\"}"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 30,
+      "completion_tokens": 4,
+      "total_tokens": 34
+    }
+  },
+  "cases": [
+    {
+      "id": "final",
+      "scope": "adapter",
+      "settings": {},
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "single-tool",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "no-tools",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": []
+        }
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "reconstructed-tool-history",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "assistant",
+              "call": {
+                "name": "echo.read",
+                "arguments": {
+                  "message": "hello 🧪"
+                }
+              }
+            },
+            {
+              "role": "tool",
+              "name": "echo.read",
+              "data": {
+                "message": "hello 🧪"
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "metadata-not-forwarded",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            },
+            "system_fingerprint": "synthetic-fingerprint",
+            "service_tier": "default"
+          }
+        ]
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "extra-authority",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ],
+          "tenantId": "forged"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "stream-request",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ],
+          "stream": true
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "model-override",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ],
+          "model": "other"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "duplicate-tools",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "too-many-tools",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            },
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "missing-system",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "orphan-result",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "tool",
+              "name": "echo.read",
+              "data": {
+                "message": "hello 🧪"
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "incomplete-call",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "assistant",
+              "call": {
+                "name": "echo.read",
+                "arguments": {
+                  "message": "hello 🧪"
+                }
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "multimodal",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "hi"
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "extra-system",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "scoped-history-unsupported",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "assistant",
+              "content": "completed"
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "request-bound",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxRequestBytes": 16
+        }
+      },
+      "expected": {
+        "code": "REQUEST_TOO_LARGE",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "response-bound",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxResponseBytes": 16
+        }
+      },
+      "expected": {
+        "code": "RESPONSE_TOO_LARGE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "no-budget",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "budgetTokens": 1
+        },
+        "attempts": 1
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "one-attempt-budget",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "budgetTokens": 1047640
+        },
+        "attempts": 2
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "one-call-budget",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxCalls": 1
+        },
+        "attempts": 2
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "failed-attempt-not-refunded",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxCalls": 1
+        },
+        "attempts": 2,
+        "status": 429
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "live-opt-in-required",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "mode": "live",
+          "allowLive": false,
+          "apiKey": "SYNTHETIC_KEY"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "credentials-required",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "mode": "live",
+          "allowLive": true,
+          "apiKey": ""
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "header-injection",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "mode": "live",
+          "allowLive": true,
+          "apiKey": "synthetic\r\ninjected"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "custom-endpoint-rejected",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "endpoint": "http://example.invalid"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "offline-credentials-rejected",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "apiKey": "SYNTHETIC_KEY"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "capabilities-incomplete",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "complete": false
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "unknown-capability",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "sources": [
+            {
+              "id": "provider",
+              "capabilities": [
+                "invented-provider-capability"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-timeoutMs-0",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "timeoutMs": 0
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-timeoutMs-120001",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "timeoutMs": 120001
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-budgetTokens-True",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "budgetTokens": true
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-maxOutputTokens-32769",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxOutputTokens": 32769
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-maxCalls-33",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxCalls": 33
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-maxResponseBytes-1048577",
+      "scope": "adapter",
+      "settings": {
+        "limits": {
+          "maxResponseBytes": 1048577
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "cancel-before-send",
+      "scope": "adapter",
+      "settings": {
+        "preCancel": true
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "deadline-before-send",
+      "scope": "adapter",
+      "settings": {
+        "deadline": 1000
+      },
+      "expected": {
+        "code": "DEADLINE_EXCEEDED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "cancel-after-response",
+      "scope": "adapter",
+      "settings": {
+        "effect": "cancel"
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "deadline-after-response",
+      "scope": "adapter",
+      "settings": {
+        "effect": "deadline"
+      },
+      "expected": {
+        "code": "DEADLINE_EXCEEDED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "transport-exception",
+      "scope": "adapter",
+      "settings": {
+        "throwTransport": true
+      },
+      "expected": {
+        "code": "PROVIDER_FAILED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "http-301",
+      "scope": "adapter",
+      "settings": {
+        "status": 301
+      },
+      "expected": {
+        "code": "PROVIDER_HTTP_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "http-401",
+      "scope": "adapter",
+      "settings": {
+        "status": 401
+      },
+      "expected": {
+        "code": "PROVIDER_HTTP_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "http-429",
+      "scope": "adapter",
+      "settings": {
+        "status": 429
+      },
+      "expected": {
+        "code": "PROVIDER_HTTP_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "http-500",
+      "scope": "adapter",
+      "settings": {
+        "status": 500
+      },
+      "expected": {
+        "code": "PROVIDER_HTTP_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "sse",
+      "scope": "adapter",
+      "settings": {
+        "contentType": "text/event-stream"
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-json",
+      "scope": "adapter",
+      "settings": {
+        "rawBody": "{\"incomplete\":"
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "duplicate-json",
+      "scope": "adapter",
+      "settings": {
+        "rawBody": "{\"object\":\"chat.completion\",\"object\":\"other\"}"
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "invalid-utf8",
+      "scope": "adapter",
+      "settings": {
+        "invalidUtf8": true
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "bom-json",
+      "scope": "adapter",
+      "settings": {
+        "rawBody": "﻿{}"
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "wrong-model",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "other",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "stream-chunk",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion.chunk",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "multiple-choices",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              },
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "no-choices",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "truncated",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "length",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "filtered",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "content_filter",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "bad-index",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": true,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "unknown-message-field",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": [],
+                  "authority": "forged"
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "refusal",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": "PRIVATE_REFUSAL",
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "annotations",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": [
+                    {
+                      "type": "citation"
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "audio",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": [],
+                  "audio": {}
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "null-final",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "bad-usage",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "overspend",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 65,
+              "total_tokens": 95
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "input-usage-over-bound",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 1047577,
+              "completion_tokens": 4,
+              "total_tokens": 1047581
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "parallel-calls",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    },
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "unknown-tool",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "admin_write",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "malformed-arguments",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "array-arguments",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "[]"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "duplicate-arguments",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"a\":1,\"a\":2}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "mixed-text-tool",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "PRIVATE_PARTIAL",
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "legacy-function",
+      "scope": "adapter",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "function_call": {
+                    "name": "psp_tool_0",
+                    "arguments": "{\"message\":\"hello 🧪\"}"
+                  }
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-tool-final",
+      "scope": "loop",
+      "settings": {},
+      "expected": {
+        "code": "OK",
+        "transportCalls": 2,
+        "released": 1,
+        "toolCalls": 1
+      }
+    },
+    {
+      "id": "loop-final",
+      "scope": "loop",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-other-owner",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "token": "test-other"
+        }
+      },
+      "expected": {
+        "code": "NOT_FOUND",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-other-tenant",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "token": "test-tenant"
+        }
+      },
+      "expected": {
+        "code": "NOT_FOUND",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-expired-prompt",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "expiredPrompt": true
+        }
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-wrong-prompt-owner",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "wrongPromptScope": true
+        }
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-tampered-prompt",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "tamperedPrompt": true
+        }
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-revoked-prompt",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "revokedPrompt": true
+        }
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-wrong-provider",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "wrongProvider": true
+        }
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-deny-inference",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "denyPhase": "inference"
+        }
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-provider-training",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "providerTraining": true
+        }
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-during-cancel",
+      "scope": "loop",
+      "settings": {
+        "effect": "cancel"
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-during-deadline",
+      "scope": "loop",
+      "settings": {
+        "effect": "deadline"
+      },
+      "expected": {
+        "code": "DEADLINE_EXCEEDED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-during-expiry",
+      "scope": "loop",
+      "settings": {
+        "effect": "expiry"
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-during-drift",
+      "scope": "loop",
+      "settings": {
+        "effect": "drift"
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-deny-tool",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "denyPhase": "tool"
+        }
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-deny-output",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "displayDenied": true
+        }
+      },
+      "expected": {
+        "code": "OUTPUT_DENIED",
+        "transportCalls": 2,
+        "released": 0,
+        "toolCalls": 1
+      }
+    },
+    {
+      "id": "loop-deny-final",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "finalDenied": true
+        }
+      },
+      "expected": {
+        "code": "COMPLETION_DENIED",
+        "transportCalls": 2,
+        "released": 0,
+        "toolCalls": 1
+      }
+    },
+    {
+      "id": "loop-deny-tool-data-before-inference",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "denyNextInference": true
+        }
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 1
+      }
+    },
+    {
+      "id": "loop-budget-exhaustion",
+      "scope": "loop",
+      "settings": {
+        "limits": {
+          "maxCalls": 1
+        }
+      },
+      "expected": {
+        "code": "PROVIDER_FAILED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 1
+      }
+    },
+    {
+      "id": "loop-provider-error",
+      "scope": "loop",
+      "settings": {
+        "status": 429
+      },
+      "expected": {
+        "code": "PROVIDER_FAILED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "loop-truncated-suppressed",
+      "scope": "loop",
+      "settings": {
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "length",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "PROVIDER_FAILED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0
+      }
+    }
+  ]
+}

@@ -45,3 +45,12 @@ MCP prompt refresh discovery checks run in both suites and the parity command. I
 Completion redirect checks run in both suites and the parity command. Isolate the 42 shared cases, two-way restart recovery and two commit races with `python scripts/check-redirect-parity.py`. Verify generated artifacts with `python scripts/generate-redirect-schema.py --check` and `python scripts/generate-redirect-vectors.py --check`. Installed package checks also execute a handoff and recover its descriptor.
 
 Scoped continuation checks run in both suites and `check-parity.py`. Isolate its shared cases, process-restart continuation/recovery and three mixed-language commit races with `python scripts/check-scoped-parity.py`. Verify contracts with `python scripts/generate-scoped-schema.py --check` and `python scripts/generate-scoped-vectors.py --check`.
+
+Buffered provider checks run in both suites and `check-parity.py`. The
+[provider guide](llm-provider.md) covers host integration and explicit live opt-in.
+Run `python scripts/check-provider-parity.py` for 93 shared offline mapping/loop
+cases, `python scripts/check-provider-http.py` for 28 actual local TLS transport
+checks, and `python scripts/generate-provider-artifacts.py --check` for the draft
+limits schema and vectors. Package checks exercise the installed adapter too.
+CI never invokes the separately gated paid smoke commands; an unrun live check
+is reported as not run.

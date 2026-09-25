@@ -41,6 +41,16 @@ import * as core from '@psp-cdl/core';
 import * as crypto from '@psp-cdl/core/crypto';
 import * as cdl from '@psp-cdl/cdl';
 import * as harness from '@psp-cdl/test-harness';
+import {createOpenAIChatProvider,OPENAI_CHAT_MODEL} from '@psp-cdl/llmproxy';
+const installedProvider=createOpenAIChatProvider({mode:'offline',complete:true,sources:[],now:()=>1,
+  limits:{maxRequestBytes:4096,maxResponseBytes:4096,maxOutputTokens:32,maxCalls:1,budgetTokens:1047608,timeoutMs:1000},
+  transport:body=>{
+    const request=JSON.parse(Buffer.from(body).toString('utf8'));
+    assert.equal(request.model,OPENAI_CHAT_MODEL);assert.equal(request.stream,false);
+    return {status:200,contentType:'application/json',body:Buffer.from(JSON.stringify({id:'installed',object:'chat.completion',created:1,model:OPENAI_CHAT_MODEL,
+      choices:[{index:0,finish_reason:'stop',message:{role:'assistant',content:'installed-provider'}}],usage:{prompt_tokens:1,completion_tokens:1,total_tokens:2}}))};
+  }});
+assert.deepEqual(await installedProvider.invoke({messages:[{role:'system',content:'Synthetic SYSTEM'},{role:'user',content:'hello'}],tools:[]},{deadline:9,cancelled:()=>false}),{type:'final',text:'installed-provider'});
 import {SecurityService} from '@psp-cdl/api-server';
 import {createHttpServer} from '@psp-cdl/api-server/http';
 import {McpServer} from '@psp-cdl/mcp-server';
@@ -188,6 +198,15 @@ import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy
 import psp_cdl_llmproxy as llm
+import json
+def installed_transport(body,_stop):
+    request=json.loads(body)
+    assert request['model']==llm.OPENAI_CHAT_MODEL and request['stream'] is False
+    return {'status':200,'contentType':'application/json','body':json.dumps({'id':'installed','object':'chat.completion','created':1,'model':llm.OPENAI_CHAT_MODEL,
+        'choices':[{'index':0,'finish_reason':'stop','message':{'role':'assistant','content':'installed-provider'}}],'usage':{'prompt_tokens':1,'completion_tokens':1,'total_tokens':2}}).encode('utf-8')}
+installed_provider=llm.create_openai_chat_provider({'mode':'offline','complete':True,'sources':[],'now':lambda:1,
+    'limits':{'maxRequestBytes':4096,'maxResponseBytes':4096,'maxOutputTokens':32,'maxCalls':1,'budgetTokens':1047608,'timeoutMs':1000},'transport':installed_transport})
+assert installed_provider['invoke']({'messages':[{'role':'system','content':'Synthetic SYSTEM'},{'role':'user','content':'hello'}],'tools':[]},{'deadline':9,'cancelled':lambda:False})=={'type':'final','text':'installed-provider'}
 from psp_cdl_mcpproxy.mcp import PinnedMcpClient, StdioMcpClient, create_mcp_proxy, HttpMcpClient, McpHttpServer, create_mcp_proxy_service
 assert callable(HttpMcpClient.connect)
 from psp_cdl_api_server.http import create_wsgi_app
