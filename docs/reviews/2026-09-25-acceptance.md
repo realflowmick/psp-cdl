@@ -67,8 +67,9 @@ into blanket passes.
 | Workflow grammar and inference-engine isolation | Explicitly unimplemented/unsupported; parsing, signatures and proxy mediation do not supply these properties. |
 
 The [parser review record](../../specs/reviews/parser-review-0.2.json) identifies
-the exact candidate and its public notice. A full comment window and recorded
-lead decision are required before adopting PSP-E007-E009 or closing #34. The
+the exact candidate and its [public notice](https://github.com/realflowmick/psp-cdl/issues/34#issuecomment-5837795785).
+Review opened 2026-09-25T18:48:11Z; adoption cannot occur before
+**2026-10-09T18:48:11Z**. A full comment window and recorded lead decision are required before adopting PSP-E007-E009 or closing #34. The
 review does not revise published baselines or mark any requirement passed.
 
 ## #35: API/editorial review disposition
