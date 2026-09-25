@@ -72,6 +72,11 @@ Under [GOVERNANCE](../../GOVERNANCE.md) and [PROCESS](../PROCESS.md), normative
 adoption requires at least 14 calendar days of public comment and a recorded
 maintainer disposition. The PR publishes review material; the maintainer must
 record the review start/end, comments, dispositions, accepted revision and
-compatibility decision before adoption. All of those fields are currently
-**pending**. No independent reviewer or completed public-comment window is
-claimed, and #34/#35 must remain open until their review gates are satisfied.
+compatibility decision before adoption. The later [Parser 0.2 candidate](../errata/PSP-PARSER-0.2.md)
+and [review record](parser-review-0.2.json) advance PSP-E007-E009 with exact
+future-edition wording and a separate comment window. #35 uses the
+[API adoption record](../api/adoption-1.0.0.json). The
+[2026-09-25 acceptance reconciliation](../../docs/reviews/2026-09-25-acceptance.md)
+records the completed inventory/evidence audit and remaining normative decisions.
+No independent reviewer or completed public-comment window is claimed, and
+#34/#35 must remain open until their respective review gates are satisfied.

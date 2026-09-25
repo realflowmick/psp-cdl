@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "document": "PSP-PARSER-0.2",
+  "candidate": "specs/errata/PSP-PARSER-0.2.md",
+  "status": "draft",
+  "accepted": false,
+  "review": {
+    "url": null,
+    "candidateCommit": null,
+    "openedAt": null,
+    "lastSubstantiveChangeAt": null,
+    "closesNoEarlierThan": null,
+    "minimumCommentDays": 14
+  },
+  "maintainerDecision": null,
+  "comments": [],
+  "dispositions": [
+    {"id": "PSP-E007", "status": "proposed", "rationale": "Qualify raw text and nesting through explicit bounded codec selection."},
+    {"id": "PSP-E008", "status": "proposed", "rationale": "Align the summary with strict matched alias pairs; do not apply precedence to ambiguity."},
+    {"id": "PSP-E009", "status": "proposed", "rationale": "Require host-approved compatible versions and pause or fail closed at expiration."},
+    {"id": "FINAL-ADOPTION", "status": "blocked", "rationale": "Await full public comment window, comment dispositions and a recorded lead decision."}
+  ]
+}

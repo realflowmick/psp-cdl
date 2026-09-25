@@ -26,3 +26,9 @@ The [security tools implementation draft](../profiles/PSP-SECURITY-TOOLS-0.1.md)
 selects authenticated encrypt-then-sign AES-GCM and host-controlled plaintext
 release. Sign-then-encrypt routing/AAD, encrypted USER sections, offsets and
 recursive plaintext formats remain unsupported pending review under #35/#38.
+
+[Parser correction candidate 0.2](PSP-PARSER-0.2.md) supplies exact future-edition
+text, compatibility/migration notes and existing behavior evidence for
+PSP-E007-E009. Its [separate review record](../reviews/parser-review-0.2.json)
+tracks publication and the fourteen-day comment gate. These proposed
+corrections remain unadopted; the API review does not adopt them implicitly.
