@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "document": "PSP-PARSER-0.2",
+  "candidate": "specs/errata/PSP-PARSER-0.2.md",
+  "status": "public-review",
+  "accepted": false,
+  "review": {
+    "url": "https://github.com/realflowmick/psp-cdl/issues/34#issuecomment-5837795785",
+    "candidateCommit": "da2e1281f9b33596814364dc2f90c4616d443ba0",
+    "openedAt": "2026-09-25T18:48:11Z",
+    "lastSubstantiveChangeAt": "2026-09-25T18:48:11Z",
+    "closesNoEarlierThan": "2026-10-09T18:48:11Z",
+    "minimumCommentDays": 14,
+    "candidateSha256": "d3af805080e3bacc53c226ed920d4a9dd33add371bf91de8bd368def116efd32"
+  },
+  "maintainerDecision": null,
+  "comments": [],
+  "dispositions": [
+    {
+      "id": "PSP-E007",
+      "status": "proposed",
+      "rationale": "Qualify raw text and nesting through explicit bounded codec selection."
+    },
+    {
+      "id": "PSP-E008",
+      "status": "proposed",
+      "rationale": "Align the summary with strict matched alias pairs; do not apply precedence to ambiguity."
+    },
+    {
+      "id": "PSP-E009",
+      "status": "proposed",
+      "rationale": "Require host-approved compatible versions and pause or fail closed at expiration."
+    },
+    {
+      "id": "FINAL-ADOPTION",
+      "status": "blocked",
+      "rationale": "Await full public comment window, comment dispositions and a recorded lead decision."
+    }
+  ]
+}
