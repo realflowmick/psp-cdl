@@ -34,6 +34,8 @@ The initial policy contract is [CDL Deterministic Policy Profile 1.0](../specs/p
 
 ## Enforcement model
 
+The [offline workflow harness](workflow-matrix.md) now executes paired A/B/C adapters: an unmediated scripted-provider control, a host-mediated loop, and a separate host/proxy/governed-server process chain. It records actual boundary decisions and pending requirement dispositions. Semantic model studies remain separate.
+
 Map Topology A to semantic-only experiments; Topology B to an authoritative chat-host/LLMProxy dispatch loop; Topology C additionally mediates MCP and enforces output covenants at servers. Declare all enabled enforcement points in each run. Layers that share a library, signing authority, or configuration may have correlated failures; do not assume statistical independence.
 
 Credentials, private keys, and authoritative node/session identity stay outside model-visible input. Before side effects, bind identity, session, active node, policy version, tool identifier and capability provenance. Validate returned schemas/provenance and enforce display covenants before releasing buffered output. Streaming requires an explicit gating policy before any confidential bytes leave the boundary.

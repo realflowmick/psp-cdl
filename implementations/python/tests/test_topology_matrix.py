@@ -6,80 +6,123 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0,str(ROOT / "scripts"))
-from topology_matrix import assemble, exit_code, grade, index_observations
+sys.path.insert(0,str(ROOT/'scripts'))
+from topology_matrix import assemble, combinations, exit_code, grade, index_observations, validate_inputs, validate_report
+from topology_adapter import run_direct, DirectError
 
-SUITE = json.loads((ROOT / "conformance/vectors/topologies/matrix-0.1.json").read_text(encoding="utf-8"))
-CASES = [c for c in SUITE["cases"] if c["kind"] != "blocked"]
-PAIRS = [(h,p) for h in ("typescript","python") for p in ("typescript","python")]
+def read(path): return json.loads((ROOT/path).read_text(encoding='utf-8'))
+SUITE = read('conformance/vectors/topologies/matrix-0.2.json')
+INVENTORY = read('conformance/requirements.json')
+MAPPINGS = read('conformance/workflow-mappings-0.2.json')
+COMBINATIONS = combinations()
 
 
 class TopologyMatrixTests(unittest.TestCase):
+    def test_direct_callback_rejects_malformed_responses_and_bounds_loops(self):
+        calls = []
+        registrations = [{'server':'reference','name':'allowed','inputSchema':{},'outputSchema':{},'invoke':lambda *_:calls.append(True) or {'message':'public'}}]
+        options = {'cancelled':lambda:False,'maxSteps':2}
+        for response in [None,{},[],{'type':'final','text':1},{'type':'tool','name':'reference.allowed'},
+                         {'type':'tool','name':'reference.allowed','arguments':[]}]:
+            with self.subTest(response=response), self.assertRaises(DirectError) as caught:
+                run_direct({'invoke':lambda *_:response},registrations,'synthetic',options)
+            self.assertEqual(caught.exception.code,'INVALID_RESPONSE')
+        self.assertEqual(calls,[])
+        with self.assertRaises(DirectError) as caught:
+            run_direct({'invoke':lambda *_:{'type':'tool','name':'reference.allowed','arguments':{}}},registrations,'synthetic',options)
+        self.assertEqual(caught.exception.code,'STEP_LIMIT')
+        self.assertEqual(len(calls),2)
+
     def observations(self):
-        entries = [{"id":c["id"],"observation":copy.deepcopy(c["expected"])} for c in CASES]
-        return {pair:index_observations(copy.deepcopy(entries),SUITE["cases"]) for pair in PAIRS}
+        return {combination:index_observations([{'id':c['id'],'observation':copy.deepcopy(c['expected'][combination[0]])}
+            for c in SUITE['cases'] if c['expected'][combination[0]] is not None],SUITE['cases'],combination[0]) for combination in COMBINATIONS}
 
-    def test_complete_fixture_scope_is_not_full_conformance(self):
-        report = assemble(SUITE,{"commit":"0"*40},self.observations())
-        self.assertEqual(report["summary"],{"passed":48,"failed":0,"blocked":12,"unsupported":96,"skipped":0,"error":0})
-        self.assertTrue(report["scopePassed"])
-        self.assertFalse(report["fullConformance"])
+    def report(self, observations=None, **kwargs):
+        return assemble(SUITE,INVENTORY,MAPPINGS,{'commit':'0'*40},self.observations() if observations is None else observations,**kwargs)
+
+    def test_all_applicable_combinations_and_every_inventory_entry(self):
+        report = self.report()
+        validate_report(SUITE,INVENTORY,MAPPINGS,report)
+        self.assertEqual(report['summary'],{'passed':324,'failed':0,'blocked':0,'unsupported':12,'skipped':0,'error':0})
+        self.assertTrue(report['scopePassed'])
         self.assertEqual(exit_code(report),2)
-        self.assertEqual(exit_code(report,check=True),0)
-        bypass = [c for c in report["cells"] if c["variant"] == "bypass-control"]
-        self.assertTrue(all(c["enforcementPoints"] == [] for c in bypass))
+        self.assertEqual(exit_code(report,True),0)
+        coverage = report['requirements']
+        self.assertEqual(coverage['totalRequirements'],460)
+        self.assertEqual(coverage['mappedRequirements'],27)
+        self.assertEqual(coverage['requirementsWithPassingEvidence'],27)
+        self.assertEqual({r['requirementId'] for r in coverage['entries']},{r['id'] for r in INVENTORY['requirements']})
+        self.assertEqual(coverage['summary']['passed'],0)
+        self.assertEqual(sum(coverage['summary'].values()),920)
+        self.assertTrue(all(c['enforcementPoints'] == [] for c in report['cells'] if c['topology'] == 'A'))
 
-    def test_effect_output_and_authority_mutations_fail(self):
-        case = next(c for c in CASES if c["id"] == "seed-affinity-denied")
-        for field,value in [("events",case["expected"]["events"]+[{"kind":"read","recordId":"public"}]),
-                            ("outputs",["leaked"]),("providerToolMessages",["leaked"]),("authorityLeak",True),
-                            ("codes",["OK"]),("providerCalls",True)]:
+    def test_effects_output_authority_types_and_missing_gate_decisions_fail(self):
+        expected = next(c for c in SUITE['cases'] if c['id'] == 'server-output-denial')['expected']['C']
+        for field,value in [('events',expected['events'][:-1]),('proxyEvents',[]),('outputs',['leaked']),('providerToolMessages',['leaked']),
+                            ('authorityLeak',True),('codes',['OK']),('providerCalls',True)]:
             with self.subTest(field=field):
-                observed = copy.deepcopy(case["expected"])
+                observed = copy.deepcopy(expected)
                 observed[field] = value
-                self.assertEqual(grade(case,{"observation":observed})[0],"failed")
+                self.assertEqual(grade(expected,{'observation':observed})[0],'failed')
 
-    def test_missing_duplicate_extra_and_malformed_results_reject_whole_adapter(self):
-        entries = [{"id":c["id"],"observation":c["expected"]} for c in CASES]
+    def test_missing_duplicate_extra_and_malformed_adapter_results(self):
+        entries = [{'id':c['id'],'observation':c['expected']['C']} for c in SUITE['cases']]
         for invalid in [entries[:-1],entries+[entries[0]],entries[:-1]+[entries[0]],None,{},
-                        [{**entries[0],"unexpected":True}]+entries[1:]]:
-            self.assertIsNone(index_observations(invalid,SUITE["cases"]))
-        self.assertEqual(grade(CASES[0],{"error":"ADAPTER_ERROR"})[0],"error")
+                        [{**entries[0],'unexpected':True}]+entries[1:]]:
+            self.assertIsNone(index_observations(invalid,SUITE['cases'],'C'))
 
-    def test_adapter_error_is_not_a_denial_pass(self):
+    def test_adapter_error_and_failed_observation_never_pass(self):
         observed = self.observations()
-        observed[PAIRS[0]] = None
-        report = assemble(SUITE,{"commit":"0"*40},observed)
-        self.assertEqual(report["summary"]["error"],12)
-        self.assertFalse(report["scopePassed"])
-        self.assertEqual(exit_code(report,check=True),1)
-
-    def test_failed_observation_fails_check(self):
+        observed[COMBINATIONS[-1]] = None
+        report = self.report(observed)
+        self.assertEqual(report['summary']['error'],21)
+        self.assertEqual(exit_code(report,True),1)
         observed = self.observations()
-        observed[PAIRS[0]][CASES[0]["id"]]["observation"]["outputs"] = ["forbidden"]
-        report = assemble(SUITE,{"commit":"0"*40},observed)
-        self.assertEqual(report["summary"]["failed"],1)
-        self.assertEqual(exit_code(report,check=True),1)
+        observed[COMBINATIONS[-1]]['server-output-denial']['observation']['outputs'] = ['forbidden']
+        report = self.report(observed)
+        self.assertEqual(report['summary']['failed'],1)
+        self.assertEqual(exit_code(report,True),1)
 
-    def test_skip_and_unsupported_remain_distinct_and_cannot_satisfy_check(self):
-        report = assemble(SUITE,{"commit":"0"*40},self.observations(),selected={PAIRS[0]})
-        self.assertEqual(report["summary"]["skipped"],36)
-        self.assertEqual(exit_code(report,check=True),2)
-        report = assemble(SUITE,{"commit":"0"*40},self.observations(),unavailable={PAIRS[0]:"Runtime missing."})
-        self.assertEqual(report["summary"]["unsupported"],108)
-        self.assertEqual(report["summary"]["skipped"],0)
-        self.assertFalse(report["scopePassed"])
-        self.assertEqual(exit_code(report,check=True),2)
+    def test_skipped_and_unsupported_are_distinct(self):
+        report = self.report(selected={COMBINATIONS[0]})
+        self.assertEqual(report['summary']['skipped'],306)
+        self.assertEqual(exit_code(report,True),2)
+        report = self.report(unavailable={COMBINATIONS[0]:'Runtime unavailable.'})
+        self.assertEqual(report['summary']['unsupported'],30)
+        self.assertFalse(report['scopePassed'])
 
-    def test_manifest_assembly_is_deterministic(self):
-        self.assertEqual(json.dumps(assemble(SUITE,{"commit":"0"*40},self.observations())),
-                         json.dumps(assemble(SUITE,{"commit":"0"*40},self.observations())))
+    def test_missing_seed_required_control_and_dangling_mapping_reject(self):
+        for case_id in ('seed-lexical-declaration','server-output-denial','replay-old-prompt'):
+            suite = copy.deepcopy(SUITE)
+            suite['cases'] = [c for c in suite['cases'] if c['id'] != case_id]
+            with self.assertRaises(ValueError): validate_inputs(suite,INVENTORY,MAPPINGS)
+        for field,value in [('requirements',['UNKNOWN']),('cases',[{'id':'not-a-case','topologies':['C']}])]:
+            mappings = copy.deepcopy(MAPPINGS)
+            mappings['mappings'][0][field] = value
+            with self.assertRaises(ValueError): validate_inputs(SUITE,INVENTORY,mappings)
 
-    def test_empty_executable_scope_cannot_pass(self):
-        blocked = {**SUITE,"cases":[c for c in SUITE["cases"] if c["kind"] == "blocked"]}
-        report = assemble(blocked,{"commit":"0"*40},{})
-        self.assertFalse(report["scopePassed"])
-        self.assertEqual(exit_code(report,check=True),2)
-        report = assemble(SUITE,{"commit":"0"*40},self.observations(),selected=set())
-        self.assertEqual(report["summary"]["skipped"],48)
-        self.assertFalse(report["scopePassed"])
+    def test_manifest_cannot_drop_or_promote_pending_requirements(self):
+        report = self.report()
+        report['requirements']['entries'].pop()
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+        report = self.report()
+        report['requirements']['entries'][0]['results'][0]['status'] = 'passed'
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+
+    def test_manifest_cannot_drop_cases_forge_grades_or_claim_conformance(self):
+        report = self.report()
+        report['cells'].pop()
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+        report = self.report()
+        report['cells'][0]['observation']['outputs'] = ['changed']
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+        report = self.report()
+        report['fullConformance'] = True
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+        report = self.report()
+        report['cells'][0]['peerImplementation'] = 'python'
+        with self.assertRaises(ValueError): validate_report(SUITE,INVENTORY,MAPPINGS,report)
+
+    def test_empty_selection_and_reproducibility(self):
+        self.assertFalse(self.report(selected=set())['scopePassed'])
+        self.assertEqual(json.dumps(self.report()),json.dumps(self.report()))

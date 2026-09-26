@@ -77,6 +77,7 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
       - run: uv run --locked python scripts/generate-codec-vectors.py --check
+      - run: uv run --locked python scripts/generate-topology-vectors.py --check
       - run: uv run --locked python scripts/generate-service-contracts.py --check
       - run: uv run --locked python scripts/generate-persistence-schema.py --check
       - run: uv run --locked python scripts/generate-workflow-contracts.py --check

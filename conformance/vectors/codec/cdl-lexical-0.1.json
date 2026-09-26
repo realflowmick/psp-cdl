@@ -1,0 +1,21 @@
+{
+  "license": "CC0-1.0",
+  "scope": "CDL 1.5 sections 4.2 and 4.4 lexical terms; no kind inference or authorization",
+  "cases": [
+    {"id":"original-seed","input":"PII no-training","terms":["pii","no-training"]},
+    {"id":"whitespace-and-duplicates","input":" PII\tno-training\nPII\r ","terms":["pii","no-training"]},
+    {"id":"array-equivalence","input":["PII","","no-training","pii"],"terms":["pii","no-training"]},
+    {"id":"empty","input":"","terms":[]},
+    {"id":"no-kind-inference","input":["future-term","PII"],"terms":["future-term","pii"]},
+    {"id":"negation-is-not-a-grant","input":["no-training","!no-training"],"terms":["no-training","!no-training"]},
+    {"id":"null","input":null,"error":"INVALID_DECLARATION"},
+    {"id":"object","input":{},"error":"INVALID_DECLARATION"},
+    {"id":"non-string-element","input":["pii",1],"error":"INVALID_DECLARATION"},
+    {"id":"array-elements-not-split","input":["pii no-training"],"error":"INVALID_DECLARATION"},
+    {"id":"invalid-hyphen","input":"no--training","error":"INVALID_DECLARATION"},
+    {"id":"non-ascii-whitespace","input":"pii\u00a0no-training","error":"INVALID_DECLARATION"},
+    {"id":"term-limit","repeatText":"x","count":129,"error":"LIMIT_EXCEEDED"},
+    {"id":"token-limit","repeatArray":"pii","count":1025,"error":"LIMIT_EXCEEDED"},
+    {"id":"byte-limit","repeatText":"pii ","count":20000,"error":"LIMIT_EXCEEDED"}
+  ]
+}

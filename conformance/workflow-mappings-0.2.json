@@ -1,0 +1,329 @@
+{
+  "license": "CC0-1.0",
+  "profile": "PSP-WORKFLOW-MATRIX-0.2",
+  "mappings": [
+    {
+      "requirements": [
+        "CDL-PARSE-001",
+        "CDL-1.5-L00201-01",
+        "CDL-1.5-L00223-01",
+        "CDL-1.5-L00255-01"
+      ],
+      "cases": [
+        {
+          "id": "seed-lexical-declaration",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "lexical-array-equivalence",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Lexical string/array splitting, stable lowercase terms and duplicate/empty removal flow into a real workflow.",
+      "remaining": "Lexical tokens grant no kind or policy authority; complete typed declaration and grammar obligations require their own profile evidence and review."
+    },
+    {
+      "requirements": [
+        "PSP-KEY-001",
+        "PSP-3.2.0-L03505-01",
+        "PSP-3.2.0-L03539-01",
+        "PSP-3.2.0-L03542-01"
+      ],
+      "cases": [
+        {
+          "id": "seed-unknown-key",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "An actual Ed25519 prompt with the seed kid and no trusted key is rejected before inference.",
+      "remaining": "Key lifecycle, registry services, retention and revocation are not all exercised by unknown-key rejection."
+    },
+    {
+      "requirements": [
+        "PSP-SIG-001",
+        "PSP-3.2.0-L03687-01",
+        "PSP-3.2.0-L03988-01"
+      ],
+      "cases": [
+        {
+          "id": "tampered-prompt",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "seed-unknown-key",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "replay-old-prompt",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Tampered bytes, unavailable authority and stale signed session bindings suppress inference/output.",
+      "remaining": "This does not discharge every algorithm, canonicalization, metadata, scope or engine requirement."
+    },
+    {
+      "requirements": [
+        "PSP-SIG-002",
+        "PSP-3.2.0-L06847-01"
+      ],
+      "cases": [
+        {
+          "id": "expired-prompt",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "An exclusive expiration boundary rejects the actual signed prompt before provider invocation.",
+      "remaining": "Historical retention, clock-skew and key rotation require additional coverage."
+    },
+    {
+      "requirements": [
+        "PSP-AFF-001"
+      ],
+      "cases": [
+        {
+          "id": "seed-affinity-denied",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "seed-affinity-allowed",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "proxy-affinity-denial",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Host and separate proxy deny disallowed exact URIs with no downstream read; benign allowed calls reach the server.",
+      "remaining": "Inheritance and every URI form are not covered by exact-URI scenarios."
+    },
+    {
+      "requirements": [
+        "PSP-3.2.0-L01869-01"
+      ],
+      "cases": [
+        {
+          "id": "seed-affinity-denied",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "A deliberately noncompliant scripted provider attempts a disallowed call; B/C reject while the unmediated A control executes.",
+      "remaining": "Runtime interception does not satisfy the baseline LLM-behavior requirement; semantic effectiveness belongs to #49."
+    },
+    {
+      "requirements": [
+        "PSP-3.2.0-L01981-01"
+      ],
+      "cases": [
+        {
+          "id": "proxy-affinity-denial",
+          "topologies": [
+            "C"
+          ]
+        }
+      ],
+      "scope": "The proxy emits an observed denial event correlated to an attempted disallowed call.",
+      "remaining": "Synthetic fixture logs are not an operational security monitoring or audit-retention system."
+    },
+    {
+      "requirements": [
+        "PSP-STATE-001"
+      ],
+      "cases": [
+        {
+          "id": "tenant-substitution",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "stale-state",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "replay-old-prompt",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Wrong-owner namespace, changed durable version and old signed session prompt suppress later calls.",
+      "remaining": "Distributed state, every checkpoint lifecycle and exactly-once effects remain outside this fixture scope."
+    },
+    {
+      "requirements": [
+        "CDL-MATCH-001",
+        "CDL-CAP-001",
+        "CDL-1.5-L00887-01"
+      ],
+      "cases": [
+        {
+          "id": "seed-cdl-conflict",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "inference-denial",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "proxy-policy-denial",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Host-owned no-training restrictions conflict with authenticated recipient capabilities at inference and dispatch.",
+      "remaining": "The remaining vocabulary, implications, obligations and policy origins require separate evidence."
+    },
+    {
+      "requirements": [
+        "CDL-TOPO-001",
+        "PSP-MEDIATION-001"
+      ],
+      "cases": [
+        {
+          "id": "seed-affinity-allowed",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "proxy-policy-denial",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "server-output-denial",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "bypass-export-control",
+          "topologies": [
+            "A",
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Actual provider, host, proxy and server boundaries are observed; a bypass is graded as a successful control, not protection.",
+      "remaining": "No universal egress coverage, topology downgrade proof, layer independence or production conformance is claimed."
+    },
+    {
+      "requirements": [
+        "CDL-1.5-L00897-01"
+      ],
+      "cases": [
+        {
+          "id": "server-output-denial",
+          "topologies": [
+            "C"
+          ]
+        }
+      ],
+      "scope": "The governed server evaluates its own output covenant and suppresses the actual synthetic data before any provider receipt.",
+      "remaining": "This output-denial case does not implement the optional redaction/masking/summarization forms."
+    },
+    {
+      "requirements": [
+        "CDL-1.5-L00871-01",
+        "CDL-1.5-L00875-01"
+      ],
+      "cases": [
+        {
+          "id": "seed-cdl-conflict",
+          "topologies": [
+            "A"
+          ]
+        },
+        {
+          "id": "export-denied",
+          "topologies": [
+            "A"
+          ]
+        }
+      ],
+      "scope": "The unmediated control executes forbidden effects when the scripted provider ignores declarations.",
+      "remaining": "A scripted provider cannot measure real semantic compliance; no deterministic-profile enforcement or regulated-data claim is made."
+    },
+    {
+      "requirements": [
+        "CDL-TRUST-001",
+        "PSP-TRUST-001"
+      ],
+      "cases": [
+        {
+          "id": "forged-tool-authority",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        },
+        {
+          "id": "tenant-substitution",
+          "topologies": [
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "scope": "Extra model-generated authority fields fail the host tool schema and cannot replace launcher-owned identity.",
+      "remaining": "Transport metadata and these finite markers are not exhaustive provenance or engine-isolation proofs."
+    }
+  ]
+}

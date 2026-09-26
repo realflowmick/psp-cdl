@@ -1,0 +1,947 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/topology-matrix-0.2.schema.json",
+  "title": "Draft A/B/C workflow matrix with complete requirement accounting",
+  "$comment": "CC0-1.0. Reuses result.schema.json for every result.",
+  "type": "object",
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z_]+$"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "providerCalls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "minItems": 1,
+          "maxItems": 128
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 2
+        },
+        "providerToolMessages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4
+        },
+        "sessionVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "authorityLeak": {
+          "type": "boolean"
+        },
+        "proxyEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "maxItems": 128
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "maxItems": 1024
+        }
+      },
+      "required": [
+        "codes",
+        "providerCalls",
+        "events",
+        "outputs",
+        "providerToolMessages",
+        "sessionVersion",
+        "authorityLeak",
+        "proxyEvents",
+        "terms"
+      ]
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "kind": {
+          "enum": [
+            "workflow",
+            "bypass"
+          ]
+        },
+        "seed": {
+          "enum": [
+            "CDL-001",
+            "CDL-002",
+            "PSP-001",
+            "PSP-002",
+            "PSP-003",
+            null
+          ]
+        },
+        "input": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "agents": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "mcp://reference/allowed",
+                  "mcp://reference/other"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 2
+            },
+            "requestedAgent": {
+              "enum": [
+                "mcp://reference/allowed",
+                "mcp://reference/other",
+                "mcp://reference/export"
+              ]
+            },
+            "recordId": {
+              "enum": [
+                "public",
+                "restricted"
+              ]
+            },
+            "token": {
+              "enum": [
+                "test-owner",
+                "test-tenant"
+              ]
+            },
+            "covenants": {
+              "const": [
+                "no-training"
+              ]
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "const": "used-for-model-training"
+              },
+              "maxItems": 1
+            },
+            "perturbation": {
+              "enum": [
+                "none",
+                "cancel-before-dispatch",
+                "cancel-after-read",
+                "stale-state",
+                "replay-old-prompt",
+                "display-denial",
+                "inference-denial",
+                "tampered-prompt",
+                "expired-prompt",
+                "proxy-policy-denial",
+                "proxy-affinity-denial",
+                "server-output-denial"
+              ]
+            },
+            "kid": {
+              "const": "synthetic-unknown"
+            },
+            "trustedKeys": {
+              "const": []
+            },
+            "declaration": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "extraArguments": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "tenantId": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "tenantId"
+              ]
+            }
+          },
+          "required": [
+            "agents",
+            "requestedAgent",
+            "recordId",
+            "token",
+            "covenants",
+            "capabilities",
+            "perturbation"
+          ],
+          "dependentRequired": {
+            "kid": [
+              "trustedKeys"
+            ],
+            "trustedKeys": [
+              "kid"
+            ]
+          }
+        },
+        "expected": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "A": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/observation"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "B": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/observation"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "C": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/observation"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        "unavailable": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "A": {
+              "type": "string",
+              "minLength": 1
+            },
+            "B": {
+              "type": "string",
+              "minLength": 1
+            },
+            "C": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": []
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "seed",
+        "input",
+        "expected",
+        "unavailable"
+      ]
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "const": "CC0-1.0"
+        },
+        "profile": {
+          "const": "PSP-WORKFLOW-MATRIX-0.2"
+        },
+        "configuration": {
+          "const": {
+            "userMessage": "Read the synthetic report.",
+            "provider": "scripted-read-then-echo",
+            "clock": 1000,
+            "deadline": 1800,
+            "maxSteps": 4,
+            "transport": "stdio",
+            "peerMode": "dedicated-fixture",
+            "serverPolicy": "no-training",
+            "proxyAgents": [
+              "mcp://reference/allowed"
+            ],
+            "profiles": [
+              "PSP-LLM-LOOP-0.1",
+              "PSP-MCP-DISPATCH-0.1",
+              "CDL-DETERMINISTIC-1.0",
+              "PSP-SIGNATURE-2.0",
+              "PSP-TRUST-1.0"
+            ],
+            "aScope": "unmediated orchestration control; no deterministic-profile or semantic-effectiveness claim"
+          }
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/case"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "license",
+        "profile",
+        "configuration",
+        "cases"
+      ]
+    },
+    "adapter": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "observation": {
+                "$ref": "#/$defs/observation"
+              }
+            },
+            "required": [
+              "id",
+              "observation"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "error": {
+                "const": "ADAPTER_ERROR"
+              }
+            },
+            "required": [
+              "id",
+              "error"
+            ]
+          }
+        ]
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "topology": {
+          "enum": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        "peerImplementation": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "variant": {
+          "enum": [
+            "mediated",
+            "bypass-control",
+            "unmediated-control"
+          ]
+        },
+        "seed": {
+          "enum": [
+            "CDL-001",
+            "CDL-002",
+            "PSP-001",
+            "PSP-002",
+            "PSP-003",
+            null
+          ]
+        },
+        "enforcementPoints": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "host-inference",
+              "host-dispatch",
+              "host-output",
+              "mcp-proxy-dispatch",
+              "server-output"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "result": {
+          "$ref": "result.schema.json"
+        },
+        "observation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/observation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cellId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "applicable": {
+          "type": "boolean"
+        },
+        "proxyImplementation": {
+          "enum": [
+            "typescript",
+            "python",
+            null
+          ]
+        }
+      },
+      "required": [
+        "topology",
+        "peerImplementation",
+        "variant",
+        "seed",
+        "enforcementPoints",
+        "result",
+        "observation",
+        "cellId",
+        "applicable",
+        "proxyImplementation"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "enum": [
+                      "passed",
+                      "failed"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "observation": {
+                "$ref": "#/$defs/observation"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "observation": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "topology": {
+                "const": "C"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proxyImplementation": {
+                "enum": [
+                  "typescript",
+                  "python"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "proxyImplementation": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "profile": {
+          "const": "PSP-WORKFLOW-MATRIX-0.2"
+        },
+        "scope": {
+          "const": "offline-workflow-topology-fixtures"
+        },
+        "fullConformance": {
+          "const": false
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sourceTree": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "modified": {
+              "type": "boolean"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ]
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "modified",
+            "sha256",
+            "files"
+          ]
+        },
+        "corpusSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "node": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "python": {
+              "type": "string"
+            },
+            "platform": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "node",
+            "python",
+            "platform"
+          ]
+        },
+        "configuration": {
+          "const": {
+            "userMessage": "Read the synthetic report.",
+            "provider": "scripted-read-then-echo",
+            "clock": 1000,
+            "deadline": 1800,
+            "maxSteps": 4,
+            "transport": "stdio",
+            "peerMode": "dedicated-fixture",
+            "serverPolicy": "no-training",
+            "proxyAgents": [
+              "mcp://reference/allowed"
+            ],
+            "profiles": [
+              "PSP-LLM-LOOP-0.1",
+              "PSP-MCP-DISPATCH-0.1",
+              "CDL-DETERMINISTIC-1.0",
+              "PSP-SIGNATURE-2.0",
+              "PSP-TRUST-1.0"
+            ],
+            "aScope": "unmediated orchestration control; no deterministic-profile or semantic-effectiveness claim"
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "passed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unsupported": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "passed",
+            "failed",
+            "blocked",
+            "unsupported",
+            "skipped",
+            "error"
+          ]
+        },
+        "scopePassed": {
+          "type": "boolean"
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell"
+          },
+          "minItems": 1
+        },
+        "mappingsSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "requirements": {
+          "$ref": "#/$defs/coverage"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "profile",
+        "scope",
+        "fullConformance",
+        "commit",
+        "sourceTree",
+        "corpusSha256",
+        "inventorySha256",
+        "runtime",
+        "configuration",
+        "summary",
+        "scopePassed",
+        "cells",
+        "mappingsSha256",
+        "requirements"
+      ]
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "isolation-probes-blocked",
+            "read",
+            "export",
+            "server-output",
+            "proxy-dispatch",
+            "proxy-release",
+            "proxy-denied"
+          ]
+        },
+        "recordId": {
+          "enum": [
+            null,
+            "public",
+            "restricted"
+          ]
+        },
+        "code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z_]+$"
+        }
+      },
+      "required": [
+        "kind",
+        "recordId",
+        "code"
+      ]
+    },
+    "mappings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "license": {
+          "const": "CC0-1.0"
+        },
+        "profile": {
+          "const": "PSP-WORKFLOW-MATRIX-0.2"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "requirements": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "cases": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,64}$"
+                    },
+                    "topologies": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "A",
+                          "B",
+                          "C"
+                        ]
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "topologies"
+                  ]
+                },
+                "minItems": 1
+              },
+              "scope": {
+                "type": "string",
+                "minLength": 1
+              },
+              "remaining": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "requirements",
+              "cases",
+              "scope",
+              "remaining"
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "license",
+        "profile",
+        "mappings"
+      ]
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requirementId": {
+          "type": "string"
+        },
+        "sourceStatus": {
+          "enum": [
+            "blocked",
+            "unimplemented"
+          ]
+        },
+        "blockedBy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "workflowCellIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "result.schema.json"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "requirementId",
+        "sourceStatus",
+        "blockedBy",
+        "workflowCellIds",
+        "results"
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "const": "partial workflow evidence; whole-clause dispositions retained"
+        },
+        "totalRequirements": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mappedRequirements": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requirementsWithPassingEvidence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "passed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unsupported": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "passed",
+            "failed",
+            "blocked",
+            "unsupported",
+            "skipped",
+            "error"
+          ]
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirement"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "scope",
+        "totalRequirements",
+        "mappedRequirements",
+        "requirementsWithPassingEvidence",
+        "summary",
+        "entries"
+      ]
+    }
+  }
+}

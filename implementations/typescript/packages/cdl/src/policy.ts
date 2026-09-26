@@ -23,8 +23,9 @@ function ordered(codes:Iterable<string>):Decision {
   for (const stage of table.reasonStages) { const found=stage.filter(c=>set.has(c)); if(found.length) return result(found); }
   return set.size ? result(["INVALID_CONTEXT"]) : result([]);
 }
-function tokens(kind:Kind, value:unknown):string[] {
-  if (!kinds.includes(kind)) return fail("INVALID_DECLARATION");
+/** Lexical terms only, in first-occurrence order. No kind, vocabulary or policy authority is inferred. */
+export function tokenizeDeclaration(value:unknown):string[] {return lexicalTokens(value);}
+function lexicalTokens(value:unknown,kind?:Kind):string[] {
   if (value === undefined) return [];
   let raw:string[];
   if (typeof value === "string") {
@@ -40,11 +41,16 @@ function tokens(kind:Kind, value:unknown):string[] {
     token = token.replace(/^[\t\n\v\f\r ]+|[\t\n\v\f\r ]+$/g, "").replace(/[A-Z]/g, c=>c.toLowerCase());
     if (!token) continue;
     if (token.length > 128) return fail("LIMIT_EXCEEDED");
-    if (!/^!?[a-z0-9]+(?:-[a-z0-9]+)*$/.test(token) || /[^!a-z0-9-]/.test(token) || (token.startsWith("!") && kind !== "covenants")) return fail("INVALID_DECLARATION");
+    if (!/^!?[a-z0-9]+(?:-[a-z0-9]+)*$/.test(token) || /[^!a-z0-9-]/.test(token) || kind!==undefined&&kind!=="covenants"&&token.startsWith("!")) return fail("INVALID_DECLARATION");
     out.add(token);
   }
-  if ([...out].some(t=>t.startsWith("!") && out.has(t.slice(1)))) return fail("CONTRADICTORY_DECLARATION");
-  return sorted(out);
+  return [...out];
+}
+function tokens(kind:Kind, value:unknown):string[] {
+  if (!kinds.includes(kind)) return fail("INVALID_DECLARATION");
+  const terms=lexicalTokens(value,kind);
+  if(terms.some(t=>t.startsWith("!")&&terms.includes(t.slice(1))))return fail("CONTRADICTORY_DECLARATION");
+  return sorted(terms);
 }
 function supported(kind:Kind, values:string[]):void { if (values.some(t=>!registry[kind].has(t.replace(/^!/,"")))) fail("UNSUPPORTED_TERM"); }
 export function normalizeDeclaration(kind:Kind, value:unknown):string[] { const t=tokens(kind,value); supported(kind,t); return t; }
