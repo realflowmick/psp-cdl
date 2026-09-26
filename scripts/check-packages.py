@@ -41,6 +41,14 @@ import * as core from '@psp-cdl/core';
 import * as crypto from '@psp-cdl/core/crypto';
 import * as cdl from '@psp-cdl/cdl';
 import * as harness from '@psp-cdl/test-harness';
+const pilotPlan=harness.createPilotPlan({schemaVersion:1,manifest:{provenance:'synthetic-fixture',pairs:
+  ['direct-read','indirect-read','restricted-display'].map(family=>({id:family,family,attackCaseId:family+'-attack',benignCaseId:family+'-benign'}))},
+  pairsPerFamily:1,repetitions:1,orderSeed:492026,analysisSeed:492027,bootstrapResamples:200});
+const pilotAnalysis=harness.analyzePilot(pilotPlan,{schemaVersion:1,planSha256:harness.pilotDigest(pilotPlan),provenance:'synthetic-fixture',
+  rows:pilotPlan.trials.map(t=>({trialId:t.id,status:'skipped',attackSuccess:null,benignSuccess:null,falseDenial:null}))});
+assert.equal(pilotPlan.trials.length,96);assert.equal(pilotAnalysis.groups.length,4);
+assert(pilotAnalysis.groups.every(g=>g.contrasts.every(c=>c.lower===-1&&c.upper===1)));
+assert.equal(pilotAnalysis.independentReview,false);
 import {createOpenAIChatProvider,OPENAI_CHAT_MODEL} from '@psp-cdl/llmproxy';
 const installedProvider=createOpenAIChatProvider({mode:'offline',complete:true,sources:[],now:()=>1,
   limits:{maxRequestBytes:4096,maxResponseBytes:4096,maxOutputTokens:32,maxCalls:1,budgetTokens:1047608,timeoutMs:1000},
@@ -194,6 +202,15 @@ import psp_cdl_core as core
 from psp_cdl_core import crypto
 import psp_cdl_cdl as cdl
 import psp_cdl_test_harness as harness
+pilot_plan=harness.create_pilot_plan({'schemaVersion':1,'manifest':{'provenance':'synthetic-fixture','pairs':[
+    {'id':family,'family':family,'attackCaseId':family+'-attack','benignCaseId':family+'-benign'}
+    for family in ('direct-read','indirect-read','restricted-display')]},'pairsPerFamily':1,'repetitions':1,
+    'orderSeed':492026,'analysisSeed':492027,'bootstrapResamples':200})
+pilot_analysis=harness.analyze_pilot(pilot_plan,{'schemaVersion':1,'planSha256':harness.pilot_digest(pilot_plan),'provenance':'synthetic-fixture',
+    'rows':[{'trialId':t['id'],'status':'skipped','attackSuccess':None,'benignSuccess':None,'falseDenial':None} for t in pilot_plan['trials']]})
+assert len(pilot_plan['trials'])==96 and len(pilot_analysis['groups'])==4
+assert all(c['lower']==-1 and c['upper']==1 for g in pilot_analysis['groups'] for c in g['contrasts'])
+assert pilot_analysis['independentReview'] is False
 import psp_cdl_api_server as api
 import psp_cdl_mcp_server as mcp
 import psp_cdl_mcpproxy as proxy

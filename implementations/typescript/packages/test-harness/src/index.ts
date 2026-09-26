@@ -7,7 +7,7 @@ export const manifest = Object.freeze({
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": ["library-profile-adapters"]
+  "implementedFeatures": ["library-profile-adapters", "pilot-planning-analysis-0.1"]
 } as const);
 
 /** Always fails until a reviewed implementation supplies a real entry point. */
@@ -16,6 +16,7 @@ export function requireImplementation(): never {
 }
 
 export * from "./profiles.js";
+export * from "./pilot.js";
 
 Object.freeze(manifest.specifications);
 Object.freeze(manifest.implementedFeatures);

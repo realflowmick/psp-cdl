@@ -1,0 +1,684 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/pilot-0.1.schema.json",
+  "title": "Offline pilot planning and exploratory analysis (CC0-1.0)",
+  "$defs": {
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "family",
+        "attackCaseId",
+        "benignCaseId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}(?![\\s\\S])"
+        },
+        "family": {
+          "enum": [
+            "direct-read",
+            "indirect-read",
+            "restricted-display"
+          ]
+        },
+        "attackCaseId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}(?![\\s\\S])"
+        },
+        "benignCaseId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}(?![\\s\\S])"
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "manifest",
+        "pairsPerFamily",
+        "repetitions",
+        "orderSeed",
+        "analysisSeed",
+        "bootstrapResamples"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "provenance",
+            "pairs"
+          ],
+          "properties": {
+            "provenance": {
+              "enum": [
+                "synthetic-fixture",
+                "unreviewed-input"
+              ]
+            },
+            "pairs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/pair"
+              },
+              "minItems": 3,
+              "maxItems": 24
+            }
+          }
+        },
+        "pairsPerFamily": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "repetitions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "orderSeed": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "analysisSeed": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "bootstrapResamples": {
+          "type": "integer",
+          "minimum": 200,
+          "maximum": 10000
+        }
+      }
+    },
+    "trial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "pairId",
+        "caseId",
+        "family",
+        "kind",
+        "condition",
+        "host",
+        "peer",
+        "repeat",
+        "topology"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}/(unprotected|psp-only|cdl-only|combined)/(typescript|python)/(typescript|python)/[1-9][0-9]?(?![\\s\\S])"
+        },
+        "pairId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}(?![\\s\\S])"
+        },
+        "caseId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}(?![\\s\\S])"
+        },
+        "family": {
+          "enum": [
+            "direct-read",
+            "indirect-read",
+            "restricted-display"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "attack",
+            "benign"
+          ]
+        },
+        "condition": {
+          "enum": [
+            "unprotected",
+            "psp-only",
+            "cdl-only",
+            "combined"
+          ]
+        },
+        "host": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "peer": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "topology": {
+          "const": "B"
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "status",
+        "executionAuthorized",
+        "fullStudy",
+        "orderAlgorithm",
+        "request",
+        "requestSha256",
+        "trials",
+        "trialsSha256"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "scope": {
+          "const": "pilot-plan-0.1"
+        },
+        "status": {
+          "const": "draft"
+        },
+        "executionAuthorized": {
+          "const": false
+        },
+        "fullStudy": {
+          "const": false
+        },
+        "orderAlgorithm": {
+          "const": "sha256-sort-0.1"
+        },
+        "request": {
+          "$ref": "#/$defs/request"
+        },
+        "requestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "trials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trial"
+          },
+          "minItems": 96,
+          "maxItems": 4096
+        },
+        "trialsSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trialId",
+        "status",
+        "attackSuccess",
+        "benignSuccess",
+        "falseDenial"
+      ],
+      "properties": {
+        "trialId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}/(unprotected|psp-only|cdl-only|combined)/(typescript|python)/(typescript|python)/[1-9][0-9]?(?![\\s\\S])"
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "error",
+            "cancelled",
+            "skipped"
+          ]
+        },
+        "attackSuccess": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "benignSuccess": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "falseDenial": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "outcomes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "planSha256",
+        "provenance",
+        "rows"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "planSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "provenance": {
+          "enum": [
+            "synthetic-fixture",
+            "unreviewed-input"
+          ]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "minItems": 96,
+          "maxItems": 4096
+        }
+      }
+    },
+    "rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "true",
+        "false",
+        "unknown",
+        "total",
+        "rateAmongKnown",
+        "lower",
+        "upper"
+      ],
+      "properties": {
+        "true": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "false": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "unknown": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "rateAmongKnown": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lower": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "upper": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "conditionRates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "condition",
+          "metrics"
+        ],
+        "properties": {
+          "condition": {
+            "enum": [
+              "unprotected",
+              "psp-only",
+              "cdl-only",
+              "combined"
+            ]
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "attackSuccess",
+              "benignSuccess",
+              "falseDenial"
+            ],
+            "properties": {
+              "attackSuccess": {
+                "$ref": "#/$defs/rate"
+              },
+              "benignSuccess": {
+                "$ref": "#/$defs/rate"
+              },
+              "falseDenial": {
+                "$ref": "#/$defs/rate"
+              }
+            }
+          }
+        }
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "low",
+        "high",
+        "degenerate"
+      ],
+      "properties": {
+        "low": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "high": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "degenerate": {
+          "type": "boolean"
+        }
+      }
+    },
+    "contrast": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "treatment",
+        "control",
+        "clusters",
+        "knownDifference",
+        "lower",
+        "upper",
+        "lowerBoundPercentile95",
+        "upperBoundPercentile95"
+      ],
+      "properties": {
+        "metric": {
+          "enum": [
+            "attackSuccess",
+            "benignSuccess",
+            "falseDenial"
+          ]
+        },
+        "treatment": {
+          "const": "combined"
+        },
+        "control": {
+          "enum": [
+            "unprotected",
+            "psp-only",
+            "cdl-only"
+          ]
+        },
+        "clusters": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 24
+        },
+        "knownDifference": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lower": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "upper": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "lowerBoundPercentile95": {
+          "$ref": "#/$defs/interval"
+        },
+        "upperBoundPercentile95": {
+          "$ref": "#/$defs/interval"
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "peer",
+        "planned",
+        "clusters",
+        "statuses",
+        "conditions",
+        "families",
+        "contrasts"
+      ],
+      "properties": {
+        "host": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "peer": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "planned": {
+          "type": "integer",
+          "minimum": 24,
+          "maximum": 1024
+        },
+        "clusters": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 24
+        },
+        "statuses": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observed",
+            "error",
+            "cancelled",
+            "skipped"
+          ],
+          "properties": {
+            "observed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            },
+            "error": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            },
+            "cancelled": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            }
+          }
+        },
+        "conditions": {
+          "$ref": "#/$defs/conditionRates"
+        },
+        "families": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "family",
+              "conditions"
+            ],
+            "properties": {
+              "family": {
+                "enum": [
+                  "direct-read",
+                  "indirect-read",
+                  "restricted-display"
+                ]
+              },
+              "conditions": {
+                "$ref": "#/$defs/conditionRates"
+              }
+            }
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "contrasts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contrast"
+          },
+          "minItems": 9,
+          "maxItems": 9
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "provenance",
+        "fullStudy",
+        "independentReview",
+        "planSha256",
+        "outcomesSha256",
+        "method",
+        "analysisSeed",
+        "bootstrapResamples",
+        "resampleIndicesSha256",
+        "groups",
+        "limitations"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "scope": {
+          "const": "pilot-analysis-0.1"
+        },
+        "provenance": {
+          "enum": [
+            "synthetic-fixture",
+            "unreviewed-input"
+          ]
+        },
+        "fullStudy": {
+          "const": false
+        },
+        "independentReview": {
+          "const": false
+        },
+        "planSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "outcomesSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "method": {
+          "const": "paired-case-cluster-percentile-0.1"
+        },
+        "analysisSeed": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "bootstrapResamples": {
+          "type": "integer",
+          "minimum": 200,
+          "maximum": 10000
+        },
+        "resampleIndicesSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/group"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    }
+  }
+}

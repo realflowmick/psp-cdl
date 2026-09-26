@@ -30,11 +30,13 @@ plan. The pilot cannot close the complete M6 acceptance gate.
 
 Keep the existing model snapshot `gpt-4.1-mini-2025-04-14`, provider revision and
 buffered mapping. Record provider-default temperature and absent provider seed;
-do not imply reproducible model randomness. The future held-out executor must
-precompute the complete trial order using seeded shuffling, persist and hash
-that order, and verify it at execution. Fix order seed **492026** and analysis
-seed **492027** before collection. Current `run-study.py` remains a development
-executor with fixed order; it does not execute this proposal.
+do not imply reproducible model randomness. The [offline pilot planner](PILOT-TOOLS.md)
+now precomputes and hashes the complete trial order using `sha256-sort-0.1`.
+The future held-out executor must persist and verify that order at execution.
+Fix order seed **492026** and analysis seed **492027** before collection.
+Current `run-study.py` remains a development executor with fixed order; it does
+not execute this proposal. A draft metadata plan does not supply the remaining
+frozen-plan pins or authorize collection.
 
 ## Outcome and analysis contract
 
@@ -63,11 +65,17 @@ repetitions and conditions within a pair. Report per-family counts; four cluster
 per family are insufficient for a stable family-level interval. Mark intervals
 exploratory and do not make multiple-comparison significance claims. The analysis
 implementation and synthetic edge-case tests must be reviewed before freezing.
+The paired [pilot tools](PILOT-TOOLS.md) implement a proposed deterministic
+resampling stream and nearest-rank percentile rule, with shared synthetic
+edge cases and complete cross-language interchange. They take supplied labels;
+reviewed grading and held-out execution remain unimplemented.
 
 Show known-only rates alongside full-plan lower/upper bounds that respectively
 treat unknown outcomes as failures/successes. Never silently drop unknown trials.
 Bootstrap both bound estimators for the paired contrasts; report sample sizes,
-unknown counts and degenerate intervals. No interval is a universal security
+unknown counts and degenerate intervals. Each percentile interval describes a
+separate bound estimator; the pair does not provide calibrated 95% coverage for
+the partially identified effect. No interval is a universal security
 guarantee. Do not pool the four language pairs as independent replications of
 the same attack design. Publish all three contrasts and negative findings.
 

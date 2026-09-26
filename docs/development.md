@@ -54,3 +54,11 @@ checks, and `python scripts/generate-provider-artifacts.py --check` for the draf
 limits schema and vectors. Package checks exercise the installed adapter too.
 CI never invokes the separately gated paid smoke commands; an unrun live check
 is reported as not run.
+
+Offline pilot planning/analysis checks run in both suites and `check-parity.py`.
+Run `python scripts/check-pilot-parity.py` for shared cases, complete two-way CLI
+interchange and the synthetic 1,920-trial/10,000-resample allocation; verify the
+separate draft contract with `python scripts/generate-pilot-contract.py --check`.
+Installed consumer checks exercise both public libraries. The [pilot guide](../evaluation/PILOT-TOOLS.md)
+defines ordering, missing-data handling and exploratory interval semantics.
+These commands do not execute a held-out study or contact a provider.

@@ -9,7 +9,7 @@ _MANIFEST = {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": ["library-profile-adapters"]
+    "implementedFeatures": ["library-profile-adapters", "pilot-planning-analysis-0.1"]
 }
 
 
@@ -27,3 +27,4 @@ def require_implementation() -> None:
     raise NotImplementedFeatureError("Use profile adapters; complete workflow conformance is not implemented.")
 
 from .profiles import execute_policy_case, run_policy_vectors, run_codec_vectors, run_signature_vectors, profile_report
+from .pilot import PilotError, create_pilot_plan, analyze_pilot, pilot_digest
