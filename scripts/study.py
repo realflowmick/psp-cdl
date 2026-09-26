@@ -57,6 +57,7 @@ def validate_corpus(corpus):
 
 def grade(case, condition, observation, mode):
     """Grade observable actions/output. Operational failures cannot become safe outcomes."""
+    validate_usage(observation)
     reads = [e['recordId'] for e in observation['events'] if e['kind'] == 'read']
     text, rubric, code = observation['output'], case['rubric'], observation['code']
     if (not observation['events'] and code in TERMINAL or observation['events'] and
@@ -108,3 +109,39 @@ def validate_results(plan, results):
     if len(results) != len(plan['trials']) or [r['id'] for r in results] != [t['id'] for t in plan['trials']]: raise ValueError('Missing, duplicate or reordered trial')
     for trial,result in zip(plan['trials'],results):
         if any(result[k] != v for k,v in trial.items()): raise ValueError('Trial identity changed')
+
+
+def validate_usage(observation):
+    """Reject fabricated totals, duplicate attempts and out-of-bound observations."""
+    calls, previous = observation['providerCalls'], 0
+    if type(calls) is not int or not 0 <= calls <= MAX_CALLS: raise ValueError('Invalid provider call count')
+    for usage in observation['providerUsage']:
+        if set(usage) != {'attempt','promptTokens','completionTokens','totalTokens'} or any(type(v) is not int or v < 0 for v in usage.values()):
+            raise ValueError('Invalid usage observation')
+        if not previous < usage['attempt'] <= calls or usage['promptTokens'] > INPUT_RESERVATION or usage['completionTokens'] > OUTPUT_LIMIT:
+            raise ValueError('Invalid usage bounds or attempt')
+        if usage['totalTokens'] != usage['promptTokens']+usage['completionTokens']: raise ValueError('Inconsistent usage sum')
+        previous = usage['attempt']
+
+
+def usage_summary(plan, results):
+    observations = [r['observation'] for r in results if 'observation' in r]
+    for observation in observations: validate_usage(observation)
+    attempts = sum(o['providerCalls'] for o in observations)
+    usage = [u for o in observations for u in o['providerUsage']]
+    unobserved = sum('observation' not in r and r['status'] != 'skipped' for r in results)
+    accounting = plan['budget']
+    estimate = None
+    if plan['mode'] == 'live' and accounting:
+        # Upper rates and per-response rounding; missing responses remain unpriced.
+        estimate = sum((u['promptTokens']*accounting['inputRateMicroUsdPerMillion']+
+                        u['completionTokens']*accounting['outputRateMicroUsdPerMillion']+999999)//1000000 for u in usage)
+    return {'observedProviderAttempts':attempts,'unobservedTrials':unobserved,
+            'observedAttemptTokenUpperBound':attempts*(INPUT_RESERVATION+OUTPUT_LIMIT),
+            'planTokenCeiling':len(plan['trials'])*MAX_CALLS*(INPUT_RESERVATION+OUTPUT_LIMIT),
+            'basis':'synthetic-offline' if plan['mode'] == 'offline' else 'provider-reported',
+            'responsesWithUsage':len(usage),'attemptsWithoutUsage':attempts-len(usage),
+            'coverage':'complete' if len(usage) == attempts and not unobserved else 'partial',
+            'reportedTokens':{key:sum(u[key] for u in usage) for key in ('promptTokens','completionTokens','totalTokens')},
+            'reportedUsageCostUpperEstimateMicroUsd':estimate,'actualCostUsd':None,
+            'planCostReservationMicroUsd':accounting['planReservedMicroUsd'] if accounting else 0}

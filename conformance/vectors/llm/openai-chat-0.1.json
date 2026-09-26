@@ -4859,6 +4859,349 @@
         "released": 0,
         "toolCalls": 0
       }
+    },
+    {
+      "id": "usage-final",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-tool",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "tool_calls",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "call_backend_1",
+                      "type": "function",
+                      "function": {
+                        "name": "psp_tool_0",
+                        "arguments": "{\"message\":\"hello 🧪\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 34
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-cancel-before-validation",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "effect": "cancel"
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": []
+      }
+    },
+    {
+      "id": "usage-malformed-response",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "rawBody": "{"
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": []
+      }
+    },
+    {
+      "id": "usage-invalid-totals",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "responses": [
+          {
+            "id": "chatcmpl-synthetic",
+            "object": "chat.completion",
+            "created": 1000,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "finish_reason": "stop",
+                "logprobs": null,
+                "message": {
+                  "role": "assistant",
+                  "content": "Finished 🧪",
+                  "refusal": null,
+                  "annotations": []
+                }
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 30,
+              "completion_tokens": 4,
+              "total_tokens": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": []
+      }
+    },
+    {
+      "id": "usage-http-error",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "status": 429
+      },
+      "expected": {
+        "code": "PROVIDER_HTTP_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": []
+      }
+    },
+    {
+      "id": "usage-budget-rejected",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "limits": {
+          "budgetTokens": 1
+        }
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": []
+      }
+    },
+    {
+      "id": "usage-observer-error",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "usageEffect": "throw"
+      },
+      "expected": {
+        "code": "HOST_ERROR",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-cancel-after-observation",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "usageEffect": "cancel"
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-mutation-isolated",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "usageEffect": "mutate"
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-error-not-refunded",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "usageEffect": "throw",
+        "limits": {
+          "maxCalls": 1
+        },
+        "attempts": 2
+      },
+      "expected": {
+        "code": "BUDGET_EXHAUSTED",
+        "transportCalls": 1,
+        "released": 0,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-repeated",
+      "scope": "adapter",
+      "settings": {
+        "observeUsage": true,
+        "attempts": 2
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 2,
+        "released": 2,
+        "toolCalls": 0,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          },
+          {
+            "attempt": 2,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage-invalid-observer",
+      "scope": "adapter",
+      "settings": {
+        "config": {
+          "onUsage": "not-a-callback"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "usage-loop-denied-output",
+      "scope": "loop",
+      "settings": {
+        "loop": {
+          "displayDenied": true
+        },
+        "observeUsage": true
+      },
+      "expected": {
+        "code": "OUTPUT_DENIED",
+        "transportCalls": 2,
+        "released": 0,
+        "toolCalls": 1,
+        "usage": [
+          {
+            "attempt": 1,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          },
+          {
+            "attempt": 2,
+            "promptTokens": 30,
+            "completionTokens": 4,
+            "totalTokens": 34
+          }
+        ]
+      }
     }
   ]
 }

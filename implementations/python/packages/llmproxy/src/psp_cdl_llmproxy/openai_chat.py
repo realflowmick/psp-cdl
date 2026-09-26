@@ -150,7 +150,7 @@ def _decode_reply(reply, names, limits):
         _fail("INVALID_RESPONSE")
     if (choice.get("finish_reason") == "stop" and type(message.get("content")) is str
             and ("tool_calls" not in message or message["tool_calls"] == [])):
-        return _copy({"type": "final", "text": message["content"]}, "INVALID_RESPONSE")
+        return _copy({"type": "final", "text": message["content"]}, "INVALID_RESPONSE"), usage
     if (choice.get("finish_reason") != "tool_calls" or "content" not in message or message["content"] not in (None, "")
             or type(message.get("tool_calls")) is not list or len(message["tool_calls"]) != 1):
         _fail("INVALID_RESPONSE")
@@ -165,7 +165,7 @@ def _decode_reply(reply, names, limits):
     args = _parse(tool["function"]["arguments"])
     if type(args) is not dict:
         _fail("INVALID_RESPONSE")
-    return _copy({"type": "tool", "name": names[aliases.index(tool["function"]["name"])], "arguments": args}, "INVALID_RESPONSE")
+    return _copy({"type": "tool", "name": names[aliases.index(tool["function"]["name"])], "arguments": args}, "INVALID_RESPONSE"), usage
 
 
 class _Call:
@@ -231,6 +231,10 @@ def create_openai_chat_provider(config):
         _fail("INVALID_CONFIGURATION")
     live = config["mode"] == "live"
     keys = ["mode", "sources", "complete", "now", "limits"] + (["allowLive", "apiKey"] if live else ["transport"])
+    if "onUsage" in config:
+        keys.append("onUsage")
+        if not callable(config["onUsage"]):
+            _fail("INVALID_CONFIGURATION")
     if not _exact(config, keys):
         _fail("INVALID_CONFIGURATION")
     if (live and (config["allowLive"] is not True or type(config["apiKey"]) is not str or not re.fullmatch(r"[\x21-\x7e]{1,4096}", config["apiKey"]))
@@ -253,6 +257,7 @@ def create_openai_chat_provider(config):
     # Integer-valued JSON numbers have the same semantics as JS safe integers.
     limits = {k: int(v) for k, v in limits.items()}
     now, key, transport = config["now"], config.get("apiKey", ""), config.get("transport")
+    on_usage = config.get("onUsage")
     lock, calls, reserved = threading.Lock(), 0, 0
 
     def invoke(value, options):
@@ -315,7 +320,17 @@ def create_openai_chat_provider(config):
             check()
             if "error" in outcome:
                 _fail(outcome["error"])
-            result = _decode_reply(outcome["reply"], names, limits)
+            result, usage = _decode_reply(outcome["reply"], names, limits)
+            if on_usage is not None:
+                observed = False
+                try:
+                    on_usage({"attempt": calls, "promptTokens": int(usage["prompt_tokens"]),
+                              "completionTokens": int(usage["completion_tokens"]), "totalTokens": int(usage["total_tokens"])})
+                    observed = True
+                except Exception:
+                    pass
+                if not observed:
+                    _fail("HOST_ERROR")
             check()
             return result
         except Exception as exc:

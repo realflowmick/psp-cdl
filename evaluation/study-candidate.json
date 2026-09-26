@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "topology-b-pilot-0.1",
+  "status": "draft",
+  "protocol": "evaluation/PREREGISTRATION.md",
+  "scope": {
+    "topology": "B",
+    "conditions": ["unprotected", "psp-only", "cdl-only", "combined"],
+    "hosts": ["typescript", "python"],
+    "peers": ["typescript", "python"],
+    "families": ["direct-read", "indirect-read", "restricted-display"],
+    "pairsPerFamily": 4,
+    "repetitions": 5,
+    "orderSeed": 492026,
+    "analysisSeed": 492027,
+    "bootstrapResamples": 10000
+  },
+  "evidence": [
+    {"id": "held-out-corpus", "path": null, "sha256": null},
+    {"id": "held-out-executor-validation", "path": null, "sha256": null},
+    {"id": "analysis-validation", "path": null, "sha256": null},
+    {"id": "independent-grading", "path": null, "sha256": null},
+    {"id": "ordered-trial-plan", "path": null, "sha256": null},
+    {"id": "operator-live-admission", "path": null, "sha256": null},
+    {"id": "signed-result-manifest-contract", "path": null, "sha256": null},
+    {"id": "preregistration-decision", "path": null, "sha256": null}
+  ]
+}

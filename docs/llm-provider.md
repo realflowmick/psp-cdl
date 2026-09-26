@@ -71,6 +71,13 @@ settle after cancellation continues to occupy that slot. Python cancellation
 can leave a DNS worker pending; it checks cancellation before submitting the
 HTTP request after connection. Remote work already submitted may still be billed.
 
+Hosts may opt into [usage observations](../specs/profiles/PSP-PROVIDER-USAGE-0.1.md)
+by supplying a synchronous `onUsage` callback in either language. It receives
+`attempt`, `promptTokens`, `completionTokens` and `totalTokens` from fully
+validated replies only. Counts never enter the model request or replenish the
+budget. Missing responses remain unknown; a later output denial does not erase
+observed usage. Callback exceptions suppress the reply as `HOST_ERROR`.
+
 ## Offline validation
 
 Use `mode: 'offline'` with `transport(body, signal)` in TypeScript, or
@@ -88,7 +95,7 @@ uv run --locked python scripts/check-provider-parity.py
 uv run --locked python scripts/check-provider-http.py
 ```
 
-The shared cases run in both language suites and parity checks. They compare
+The 107 shared cases run in both language suites and parity checks. They compare
 actual wire requests, call counts, output suppression and real loop boundaries.
 The HTTP checks intercept only the test process's fixed endpoint and connect
 both native TLS transports to ephemeral local test servers. They use synthetic

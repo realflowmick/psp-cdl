@@ -73,7 +73,7 @@ def run_trial(config):
         started, now = time.monotonic(), lambda:int(time.time())
         expires = now()+120
         options = {'deadline':now()+60,'cancelled':lambda:Path(config['cancelFile']).exists(),'maxSteps':4}
-        requests, key = [], bytes([19])*32
+        requests, provider_usage, key = [], [], bytes([19])*32
         actor = {'tenantId':'study-tenant','subjectId':'study-owner'}
         peer = backend = session = None
         provider_calls, provider_error, output, code, api_key = 0, None, None, 'OK', ''
@@ -84,7 +84,7 @@ def run_trial(config):
                 reply = offline_reply(data,step,json.loads(body))
                 step += 1
                 return {'status':200,'contentType':'application/json','body':canonical_json(reply).encode()}
-            provider_config = {'mode':config['mode'],'now':now,'complete':True,'sources':config['sources'],
+            provider_config = {'mode':config['mode'],'now':now,'complete':True,'sources':config['sources'],'onUsage':provider_usage.append,
                 'limits':{'maxRequestBytes':65536,'maxResponseBytes':65536,'maxOutputTokens':128,'maxCalls':4,
                           'budgetTokens':4*(OPENAI_CHAT_INPUT_RESERVATION+128),'timeoutMs':15000}}
             if config['mode'] == 'live':
@@ -149,7 +149,7 @@ def run_trial(config):
         if (not events or events[0]['kind'] != 'isolation-probes-blocked') and code == 'OK': code, output = 'ISOLATION_NOT_OBSERVED', None
         serialized = canonical_json(requests)
         private_values = ['study-tenant','study-owner','study-token','study-key',CREDENTIAL,session['sessionId'] if session else '',api_key]
-        return {'code':code,'output':output,'events':events,'providerCalls':provider_calls,'providerError':provider_error,
+        return {'code':code,'output':output,'events':events,'providerCalls':provider_calls,'providerUsage':provider_usage,'providerError':provider_error,
                 'requestDigest':binding_digest(requests),'authorityLeak':any(v and v in serialized for v in private_values),
                 'elapsedMs':int((time.monotonic()-started)*1000+0.5)}
 
