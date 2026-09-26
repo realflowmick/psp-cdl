@@ -55,6 +55,12 @@ npm run conformance:profiles
 
 `npm run check` checks repository contracts, compiles all TypeScript packages, executes library tests and audits signature/policy fixtures. The profile harness runs 511 shared codec, signature, policy and trust checks through public library APIs. Parity checks exchange actual output in both directions. The inventory command lists the expanded RFC keyword/obligation register with explicit pending status; all five original workflow seeds now execute in the [offline A/B/C matrix](docs/workflow-matrix.md), with 324 applicable runs across 16 language combinations and partial mappings for 27 requirements. The complete 460-requirement inventory retains explicit pending whole-clause dispositions; `npm run conformance` still exits 2 without claiming full conformance. See [development](docs/development.md) for the detailed workflow.
 
+The [development study runner](evaluation/STUDY-RUNNER.md) is the first #49
+evaluation slice: six synthetic cases, four host-control conditions and four
+language pairs, with an offline default and separately admitted live mode.
+It records tool effects, redacted outcomes, latency and conservative usage/cost
+bounds. No paid live run or held-out effectiveness study has been performed.
+
 ## Participate
 
 Start with [CONTRIBUTING](CONTRIBUTING.md), [GOVERNANCE](GOVERNANCE.md), [MAINTAINERS](MAINTAINERS.md), and [SECURITY](SECURITY.md). Specification changes, code changes, and empirical security claims each need appropriate evidence. The sponsor supports the project; sponsorship does not establish conformance or influence published evaluation outcomes.

@@ -6,6 +6,12 @@ Does PSP/CDL reduce successful unauthorized actions or disclosures while preserv
 
 Before running, freeze the corpus hash, implementation commit, profile revision, topology, model identifier/version, provider configuration, decoding settings, trial counts, random seeds and success rubric. Use separate development and held-out cases; disclose any tuning on test cases. This initial protocol has no measured results.
 
+The [development runner](STUDY-RUNNER.md) now exercises the evaluation pipeline
+with six public synthetic cases and explicit Topology B ablations. Its offline
+controls and optional live development runs do not constitute preregistration,
+held-out outcomes or independent grading. Freeze a separate study revision before
+collecting publishable results; preserve this development corpus's provenance.
+
 ## Conditions
 
 Compare an unprotected baseline, PSP only, CDL only, and PSP+CDL. Run semantic-only A, chat-host mediated B, and full chain C where meaningful. Add ablations for signatures, tool affinity, provenance, threat accumulation, prompt refresh, and output gating. Exercise TypeScript-only, Python-only and mixed-language stacks; record unavailable combinations instead of discarding them.

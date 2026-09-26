@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { resolve, dirname } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import {validate as validateMatrix} from './validate-topology-matrix.mjs';
+import {validate as validateStudy} from './validate-study.mjs';
 
 const root = process.cwd();
 const read = (p) => readFileSync(p, "utf8");
@@ -12,6 +13,7 @@ const json = (p) => JSON.parse(read(p));
 const project = json("project.json");
 validateMatrix('suite',json('conformance/vectors/topologies/matrix-0.2.json'));
 validateMatrix('mappings',json('conformance/workflow-mappings-0.2.json'));
+validateStudy('corpus',json('conformance/vectors/evaluation/study-0.1.json'));
 const ajv = new Ajv2020({allErrors:true});
 const validators = Object.fromEntries(["component","vector","result"].map(name => [name,ajv.compile(json("schemas/"+name+".schema.json"))]));
 const requiredFiles = ["LICENSE","LICENSES/CC0-1.0.txt","NOTICE","README.md","GOVERNANCE.md","CONTRIBUTING.md","SECURITY.md","ROADMAP.md",".github/CODEOWNERS","package-lock.json","uv.lock"];

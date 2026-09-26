@@ -14,12 +14,13 @@
     "check:repo": "node scripts/check-repository.mjs",
     "build": "npm run build --workspace @psp-cdl/core --workspace @psp-cdl/cdl --workspace @psp-cdl/api-server --workspace @psp-cdl/mcp-server --workspace @psp-cdl/mcpproxy --workspace @psp-cdl/llmproxy --workspace @psp-cdl/test-harness",
     "test": "npm run test --workspaces",
-    "check": "npm run check:repo && npm run build && npm test && npm run test:signatures && npm run test:policy",
+    "check": "npm run check:repo && npm run build && npm test && npm run test:signatures && npm run test:policy && npm run test:study",
     "conformance:inventory": "node implementations/typescript/packages/test-harness/dist/cli.js --inventory",
     "conformance": "node implementations/typescript/packages/test-harness/dist/cli.js",
     "test:signatures": "node --test scripts/tests/signature-profile.test.mjs",
     "test:policy": "node --test scripts/tests/policy-artifacts.test.mjs",
-    "conformance:profiles": "node implementations/typescript/packages/test-harness/dist/cli.js --profiles"
+    "conformance:profiles": "node implementations/typescript/packages/test-harness/dist/cli.js --profiles",
+    "test:study": "node --test scripts/tests/study.test.mjs"
   },
   "devDependencies": {
     "@types/node": "26.6.2",

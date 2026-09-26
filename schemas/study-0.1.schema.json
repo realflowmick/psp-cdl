@@ -1,0 +1,1372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/study-0.1.schema.json",
+  "title": "Synthetic development study contracts (CC0-1.0)",
+  "$defs": {
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete",
+        "sources"
+      ],
+      "properties": {
+        "complete": {
+          "const": true
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "capabilities"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "maxItems": 128,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 128
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "output",
+        "events",
+        "providerCalls",
+        "providerError",
+        "requestDigest",
+        "authorityLeak",
+        "elapsedMs"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z_]{1,64}$"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 65536
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "recordId",
+              "code"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "read",
+                  "isolation-probes-blocked"
+                ]
+              },
+              "recordId": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "public",
+                      "private"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "null"
+              }
+            }
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "providerCalls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "providerError": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z_]{1,64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requestDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "authorityLeak": {
+          "type": "boolean"
+        },
+        "elapsedMs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "id",
+        "split",
+        "description",
+        "conditions",
+        "cases"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "id": {
+          "const": "study-development-0.1"
+        },
+        "split": {
+          "const": "development"
+        },
+        "description": {
+          "type": "string"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "unprotected",
+              "psp-only",
+              "cdl-only",
+              "combined"
+            ]
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "input",
+              "rubric",
+              "offlineExpected"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "kind": {
+                "enum": [
+                  "benign",
+                  "attack"
+                ]
+              },
+              "input": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "message",
+                  "publicText",
+                  "privateText",
+                  "allowedTools",
+                  "noDisplay",
+                  "offlineSteps"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "publicText": {
+                    "type": "string"
+                  },
+                  "privateText": {
+                    "type": "string"
+                  },
+                  "allowedTools": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "public",
+                        "private"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "uniqueItems": true
+                  },
+                  "noDisplay": {
+                    "type": "boolean"
+                  },
+                  "offlineSteps": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "tool"
+                          ],
+                          "properties": {
+                            "tool": {
+                              "enum": [
+                                "public",
+                                "private"
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "final"
+                          ],
+                          "properties": {
+                            "final": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 4
+                  }
+                }
+              },
+              "rubric": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "expectedText",
+                  "requiredReads",
+                  "forbiddenReads",
+                  "forbiddenCanaries"
+                ],
+                "properties": {
+                  "expectedText": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "requiredReads": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "public",
+                        "private"
+                      ]
+                    }
+                  },
+                  "forbiddenReads": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "public",
+                        "private"
+                      ]
+                    }
+                  },
+                  "forbiddenCanaries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "offlineExpected": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "unprotected",
+                  "psp-only",
+                  "cdl-only",
+                  "combined"
+                ],
+                "properties": {
+                  "unprotected": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "reads",
+                      "output",
+                      "providerCalls"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z_]{1,64}$"
+                      },
+                      "reads": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "public",
+                            "private"
+                          ]
+                        }
+                      },
+                      "output": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "providerCalls": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    }
+                  },
+                  "psp-only": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "reads",
+                      "output",
+                      "providerCalls"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z_]{1,64}$"
+                      },
+                      "reads": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "public",
+                            "private"
+                          ]
+                        }
+                      },
+                      "output": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "providerCalls": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    }
+                  },
+                  "cdl-only": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "reads",
+                      "output",
+                      "providerCalls"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z_]{1,64}$"
+                      },
+                      "reads": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "public",
+                            "private"
+                          ]
+                        }
+                      },
+                      "output": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "providerCalls": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    }
+                  },
+                  "combined": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "reads",
+                      "output",
+                      "providerCalls"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z_]{1,64}$"
+                      },
+                      "reads": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "public",
+                            "private"
+                          ]
+                        }
+                      },
+                      "output": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "providerCalls": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "mode",
+        "split",
+        "source",
+        "corpusSha256",
+        "model",
+        "providerRevision",
+        "providerSources",
+        "decoding",
+        "budget",
+        "trials",
+        "unsupportedConfigurations",
+        "limitations",
+        "executionWorkers"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "scope": {
+          "const": "development-pipeline"
+        },
+        "mode": {
+          "enum": [
+            "offline",
+            "live"
+          ]
+        },
+        "split": {
+          "const": "development"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "modified",
+            "sha256",
+            "files",
+            "runtime"
+          ],
+          "properties": {
+            "commit": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "modified": {
+              "type": "boolean"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            },
+            "runtime": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "node",
+                "python",
+                "platform"
+              ],
+              "properties": {
+                "node": {
+                  "type": "string"
+                },
+                "python": {
+                  "type": "string"
+                },
+                "platform": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "corpusSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "model": {
+          "const": "gpt-4.1-mini-2025-04-14"
+        },
+        "providerRevision": {
+          "const": "chat-v1-gpt-4.1-mini-2025-04-14-psp-0.1"
+        },
+        "providerSources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "capabilities"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "maxItems": 128,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 128
+        },
+        "decoding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stream",
+            "maxOutputTokens",
+            "maxSteps",
+            "temperature",
+            "seed",
+            "order"
+          ],
+          "properties": {
+            "stream": {
+              "const": false
+            },
+            "maxOutputTokens": {
+              "const": 128
+            },
+            "maxSteps": {
+              "const": 4
+            },
+            "temperature": {
+              "const": "provider-default"
+            },
+            "seed": {
+              "type": "null"
+            },
+            "order": {
+              "type": "string"
+            }
+          }
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ceilingMicroUsd",
+                "inputRateMicroUsdPerMillion",
+                "outputRateMicroUsdPerMillion",
+                "perCallMicroUsd",
+                "perTrialMicroUsd",
+                "planReservedMicroUsd",
+                "basis"
+              ],
+              "properties": {
+                "ceilingMicroUsd": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "inputRateMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "outputRateMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "perCallMicroUsd": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "perTrialMicroUsd": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "planReservedMicroUsd": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "basis": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "trials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "caseId",
+              "condition",
+              "host",
+              "peer",
+              "repeat",
+              "topology",
+              "id"
+            ],
+            "properties": {
+              "caseId": {
+                "type": "string"
+              },
+              "condition": {
+                "enum": [
+                  "unprotected",
+                  "psp-only",
+                  "cdl-only",
+                  "combined"
+                ]
+              },
+              "host": {
+                "enum": [
+                  "typescript",
+                  "python"
+                ]
+              },
+              "peer": {
+                "enum": [
+                  "typescript",
+                  "python"
+                ]
+              },
+              "repeat": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "topology": {
+                "const": "B"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 1,
+          "maxItems": 160000
+        },
+        "unsupportedConfigurations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "topology",
+              "condition",
+              "reason"
+            ],
+            "properties": {
+              "topology": {
+                "enum": [
+                  "A",
+                  "C"
+                ]
+              },
+              "condition": {
+                "enum": [
+                  "unprotected",
+                  "psp-only",
+                  "cdl-only",
+                  "combined"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "executionWorkers": {
+          "enum": [
+            1,
+            4
+          ]
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "condition",
+        "host",
+        "peer",
+        "repeat",
+        "topology",
+        "id",
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "caseId": {
+          "type": "string"
+        },
+        "condition": {
+          "enum": [
+            "unprotected",
+            "psp-only",
+            "cdl-only",
+            "combined"
+          ]
+        },
+        "host": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "peer": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "topology": {
+          "const": "B"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "benign",
+            "attack"
+          ]
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "error",
+            "cancelled",
+            "skipped"
+          ]
+        },
+        "observation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "events",
+            "providerCalls",
+            "providerError",
+            "requestDigest",
+            "authorityLeak",
+            "elapsedMs",
+            "outputSha256",
+            "outputBytes"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z_]{1,64}$"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "recordId",
+                  "code"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "read",
+                      "isolation-probes-blocked"
+                    ]
+                  },
+                  "recordId": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "public",
+                          "private"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "code": {
+                    "type": "null"
+                  }
+                }
+              },
+              "minItems": 0,
+              "maxItems": 5
+            },
+            "providerCalls": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "providerError": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z_]{1,64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requestDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "authorityLeak": {
+              "type": "boolean"
+            },
+            "elapsedMs": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "outputSha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "outputBytes": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "offlineExpectationMatched": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unauthorizedRead",
+            "disclosure",
+            "attackSuccess",
+            "benignSuccess",
+            "falseDenial"
+          ],
+          "properties": {
+            "unauthorizedRead": {
+              "type": "boolean"
+            },
+            "disclosure": {
+              "type": "boolean"
+            },
+            "attackSuccess": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "benignSuccess": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "falseDenial": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "errorCode": {
+          "enum": [
+            "ADAPTER_FAILED",
+            "INVALID_OBSERVATION"
+          ]
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "status",
+        "plan",
+        "planSha256",
+        "fullStudy",
+        "results",
+        "groups",
+        "usage"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "invalid-source-changed"
+          ]
+        },
+        "plan": {
+          "$ref": "#/$defs/plan"
+        },
+        "planSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "fullStudy": {
+          "const": false
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/result"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "condition",
+              "host",
+              "peer",
+              "planned",
+              "statuses",
+              "attackSuccess",
+              "benignSuccess",
+              "falseDenial",
+              "latencyMs"
+            ],
+            "properties": {
+              "condition": {
+                "enum": [
+                  "unprotected",
+                  "psp-only",
+                  "cdl-only",
+                  "combined"
+                ]
+              },
+              "host": {
+                "enum": [
+                  "typescript",
+                  "python"
+                ]
+              },
+              "peer": {
+                "enum": [
+                  "typescript",
+                  "python"
+                ]
+              },
+              "planned": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "statuses": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "observed",
+                  "error",
+                  "cancelled",
+                  "skipped"
+                ],
+                "properties": {
+                  "observed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "error": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "cancelled": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "skipped": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "attackSuccess": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "true",
+                  "false",
+                  "unknown",
+                  "total",
+                  "rateAmongKnown"
+                ],
+                "properties": {
+                  "true": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "false": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "unknown": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rateAmongKnown": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "benignSuccess": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "true",
+                  "false",
+                  "unknown",
+                  "total",
+                  "rateAmongKnown"
+                ],
+                "properties": {
+                  "true": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "false": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "unknown": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rateAmongKnown": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "falseDenial": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "true",
+                  "false",
+                  "unknown",
+                  "total",
+                  "rateAmongKnown"
+                ],
+                "properties": {
+                  "true": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "false": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "unknown": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rateAmongKnown": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "latencyMs": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "samples",
+                  "p50",
+                  "p95"
+                ],
+                "properties": {
+                  "samples": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "p50": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "p95": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "usage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observedProviderAttempts",
+            "unobservedTrials",
+            "observedAttemptTokenUpperBound",
+            "planTokenCeiling",
+            "actualTokens",
+            "actualCostUsd",
+            "planCostReservationMicroUsd"
+          ],
+          "properties": {
+            "observedProviderAttempts": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unobservedTrials": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "observedAttemptTokenUpperBound": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "planTokenCeiling": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "actualTokens": {
+              "type": "null"
+            },
+            "actualCostUsd": {
+              "type": "null"
+            },
+            "planCostReservationMicroUsd": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}
