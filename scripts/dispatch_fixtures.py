@@ -17,7 +17,7 @@ class Fixture:
         self.actor = {"tenantId":"tenant-a", "subjectId":"subject-a"}
         self.principal = {**self.actor, "scopes":["tools:list", "tools:call"]}
         self.calls = self.busy = 0
-        self.directory = tempfile.TemporaryDirectory(prefix="psp-dispatch-")
+        self.directory = tempfile.TemporaryDirectory(prefix="psp-dispatch-",dir=self.flags.get("temporaryRoot"))
         self.backend = SqliteBackend(str(Path(self.directory.name)/"state.sqlite"), "epoch-1", lambda:self.flags["now"])
         self.coordinator = OwnerCoordinator()
         self.store = WorkflowStore(self.backend, resume_secret=bytes([7])*32, authorize_persistence=lambda *_:not self.flags.get("denyPersistence"), coordinator=self.coordinator, durable_turns=bool(self.flags.get("durableTurns")), prompt_refresh=bool(self.flags.get("promptRefresh")), redirect_turns=bool(self.flags.get("redirectTurns")), scoped_turns=bool(self.flags.get("scopedTurns")))

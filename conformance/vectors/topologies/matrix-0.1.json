@@ -1,0 +1,480 @@
+{
+  "license": "CC0-1.0",
+  "profile": "PSP-WORKFLOW-MATRIX-0.1",
+  "configuration": {
+    "userMessage": "Read the synthetic report.",
+    "provider": "scripted-read-then-echo",
+    "clock": 1000,
+    "deadline": 1800,
+    "maxSteps": 4,
+    "transport": "stdio",
+    "peerMode": "benign",
+    "hostAliases": {
+      "mcp://reference/allowed": "read",
+      "mcp://reference/other": "read"
+    },
+    "profiles": [
+      "PSP-LLM-LOOP-0.1",
+      "PSP-MCP-DISPATCH-0.1",
+      "CDL-DETERMINISTIC-1.0",
+      "PSP-SIGNATURE-2.0"
+    ]
+  },
+  "cases": [
+    {
+      "id": "seed-cdl-conflict",
+      "kind": "workflow",
+      "seed": "CDL-001",
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [
+          "used-for-model-training"
+        ],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "POLICY_DENIED"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "seed-affinity-denied",
+      "kind": "workflow",
+      "seed": "PSP-001",
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/other",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "TOOL_NOT_ALLOWED"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "seed-affinity-allowed",
+      "kind": "workflow",
+      "seed": "PSP-002",
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "providerCalls": 2,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          },
+          {
+            "kind": "read",
+            "recordId": "public"
+          }
+        ],
+        "outputs": [
+          "Synthetic public report"
+        ],
+        "providerToolMessages": [
+          "Synthetic public report"
+        ],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "seed-unknown-key",
+      "kind": "workflow",
+      "seed": "PSP-003",
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none",
+        "kid": "synthetic-unknown",
+        "trustedKeys": []
+      },
+      "expected": {
+        "codes": [
+          "PROMPT_REJECTED"
+        ],
+        "providerCalls": 0,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "tenant-substitution",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-tenant",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "NOT_FOUND"
+        ],
+        "providerCalls": 0,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "cancel-before-dispatch",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "cancel-before-dispatch"
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "cancel-after-read",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "cancel-after-read"
+      },
+      "expected": {
+        "codes": [
+          "CANCELLED"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          },
+          {
+            "kind": "read",
+            "recordId": "public"
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "stale-state",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "stale-state"
+      },
+      "expected": {
+        "codes": [
+          "STALE_SESSION"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 2,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "replay-old-prompt",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "public",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "replay-old-prompt"
+      },
+      "expected": {
+        "codes": [
+          "OK",
+          "PROMPT_REJECTED"
+        ],
+        "providerCalls": 2,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          },
+          {
+            "kind": "read",
+            "recordId": "public"
+          }
+        ],
+        "outputs": [
+          "Synthetic public report"
+        ],
+        "providerToolMessages": [
+          "Synthetic public report"
+        ],
+        "sessionVersion": 2,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "display-denial",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/allowed",
+        "recordId": "restricted",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "display-denial"
+      },
+      "expected": {
+        "codes": [
+          "OUTPUT_DENIED"
+        ],
+        "providerCalls": 2,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          },
+          {
+            "kind": "read",
+            "recordId": "restricted"
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [
+          "PSP_SYNTHETIC_SECRET_39"
+        ],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "export-denied",
+      "kind": "workflow",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/export",
+        "recordId": "restricted",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "TOOL_NOT_ALLOWED"
+        ],
+        "providerCalls": 1,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          }
+        ],
+        "outputs": [],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "bypass-export-control",
+      "kind": "bypass",
+      "seed": null,
+      "input": {
+        "agents": [
+          "mcp://reference/allowed"
+        ],
+        "requestedAgent": "mcp://reference/export",
+        "recordId": "restricted",
+        "token": "test-owner",
+        "covenants": [
+          "no-training"
+        ],
+        "capabilities": [],
+        "perturbation": "none"
+      },
+      "expected": {
+        "codes": [
+          "OK"
+        ],
+        "providerCalls": 0,
+        "events": [
+          {
+            "kind": "isolation-probes-blocked",
+            "recordId": null
+          },
+          {
+            "kind": "export",
+            "recordId": "restricted"
+          }
+        ],
+        "outputs": [
+          "PSP_SYNTHETIC_SECRET_39"
+        ],
+        "providerToolMessages": [],
+        "sessionVersion": 1,
+        "authorityLeak": false
+      }
+    },
+    {
+      "id": "seed-untyped-declaration",
+      "kind": "blocked",
+      "seed": "CDL-002",
+      "reason": "The seed mixes class and covenant tokens without a declaration kind; #34 disposition is pending. No workflow adapter assigns normative semantics.",
+      "input": {
+        "declaration": "PII no-training"
+      },
+      "expected": null
+    }
+  ]
+}

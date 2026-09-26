@@ -14,7 +14,7 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 | M3: Reference services | Authenticated HTTP/MCP services; SQLite state and workflow operations; opt-in lifecycle and scan/decrypt/process drafts; isolated governed/adversarial fixtures. | [#19](https://github.com/realflowmick/psp-cdl/pull/19), [#20](https://github.com/realflowmick/psp-cdl/pull/20), [#21](https://github.com/realflowmick/psp-cdl/pull/21), [#56](https://github.com/realflowmick/psp-cdl/pull/56), [#57](https://github.com/realflowmick/psp-cdl/pull/57) |
 | M4: MCPProxy | Read-only gate, stdio/HTTP mediation, buffered output checks, provenance and approved revision refresh. | [#22](https://github.com/realflowmick/psp-cdl/pull/22), [#23](https://github.com/realflowmick/psp-cdl/pull/23), [#24](https://github.com/realflowmick/psp-cdl/pull/24), [#25](https://github.com/realflowmick/psp-cdl/pull/25) |
 | M5: LLMProxy | Buffered loop and opt-in OpenAI provider adapters; durable turns/recovery/lockdown; expiration/interval refresh and MCP discovery; completion redirects and scoped continuation. | [#26](https://github.com/realflowmick/psp-cdl/pull/26), [#27](https://github.com/realflowmick/psp-cdl/pull/27), [#28](https://github.com/realflowmick/psp-cdl/pull/28), [#30](https://github.com/realflowmick/psp-cdl/pull/30), [#31](https://github.com/realflowmick/psp-cdl/pull/31), [#32](https://github.com/realflowmick/psp-cdl/pull/32), [#53](https://github.com/realflowmick/psp-cdl/pull/53) |
-| M6: Evaluation | Scoped mixed-language checks and a draft study protocol. No effectiveness study has run; the five original workflow seed cases remain unimplemented. | [Conformance](../conformance/README.md), [study protocol](../evaluation/PROTOCOL.md) |
+| M6: Evaluation | Scoped mixed-language checks and a draft study protocol. No effectiveness study has run. The pending #48 implementation executes all five seeds across A/B/C, accounts for all 460 requirements and maps partial workflow evidence for 27. Whole-clause conformance remains pending. | [Conformance](../conformance/README.md), [study protocol](../evaluation/PROTOCOL.md) |
 | M7: Reviewed release | Release gates and local package-consumer checks exist. No reviewed release or independent security validation is claimed. | [Roadmap](../ROADMAP.md), [maintainers](../MAINTAINERS.md), [library API](library-api.md) |
 
 ## Merged slices and selected next work
@@ -43,13 +43,21 @@ earliest adoption at **2026-10-09T13:00:31Z** and also requires comment disposit
 and a recorded lead decision. Substantive amendments restart the comment window. Merging #58 does
 not adopt the candidate.
 
-The next conformance implementation target is [#48](https://github.com/realflowmick/psp-cdl/issues/48),
-building on the accepted #39 fixtures after the relevant #34 normative dispositions.
-It must retain explicit blocked/unsupported results for unresolved requirements.
+The [offline workflow matrix](workflow-matrix.md) completes the implementation
+scope of [#48](https://github.com/realflowmick/psp-cdl/issues/48) in
+[PR #60](https://github.com/realflowmick/psp-cdl/pull/60), pending review/merge. It
+executes 21 scenarios across 16 A/B/C language combinations (324 applicable runs,
+12 explicitly inapplicable A state cases), maps all five seeds and records partial
+evidence for 27 requirements alongside all 460 pending whole-clause dispositions.
+CDL-002 tests lexical tokenization already described by CDL sections 4.2/4.4; its
+earlier classification as blocked on #34 was too broad. No parser proposal is
+adopted. A uses a scripted provider control; C uses separate proxy and governed
+server processes. The full-conformance command still exits 2; normative review,
+semantic effectiveness testing and the M6 gates remain separate work.
 
 ## Remaining work
 
-**Review** identifies outstanding normative dispositions. **Coverage** extends merged infrastructure after its normative prerequisites. **Next** identifies the selected conformance target, subject to its dependencies. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication.
+**Review** identifies outstanding normative dispositions. **Coverage** extends merged infrastructure after its normative prerequisites. **In progress** identifies the selected conformance target and its pending implementation slice. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication.
 
 | Queue | Milestone | Task | Dependency or scope gate |
 | --- | --- | --- | --- |
@@ -65,7 +73,7 @@ It must retain explicit blocked/unsupported results for unresolved requirements.
 | Later | M5 | [#45 Completion/refresh/redirect composition](https://github.com/realflowmick/psp-cdl/issues/45) | Supported-mode matrix and atomic handoff contract |
 | Later | M5 | [#46 Scoped tools and revocation](https://github.com/realflowmick/psp-cdl/issues/46) | Fresh read-only authority; completed application state stays frozen |
 | Deferred | M5 | [#47 Additional refresh/signing integrations](https://github.com/realflowmick/psp-cdl/issues/47) | #34; separate required profile work from optional host products |
-| Next | M6 | [#48 Workflow conformance and topology harness](https://github.com/realflowmick/psp-cdl/issues/48) | #39 accepted/closed; #34 disposition remains; unavailable combinations stay explicit |
+| In progress | M6 | [#48 Workflow conformance and topology harness](https://github.com/realflowmick/psp-cdl/issues/48) | [A/B/C matrix](workflow-matrix.md) completed in PR #60, pending review/merge; whole-clause normative coverage remains pending |
 | Later | M6 | [#49 Preregister and run the effectiveness study](https://github.com/realflowmick/psp-cdl/issues/49) | #33 complete; #48, frozen protocol/corpus, operator opt-in, budget and independent grading remain |
 | Release | M7 | [#50 Repeatable artifacts and compatibility docs](https://github.com/realflowmick/psp-cdl/issues/50) | Local candidates only; publication stays disabled |
 | Release | M7 | [#51 Independent review and release decision](https://github.com/realflowmick/psp-cdl/issues/51) | #34, #48, #49, #50; reviewer appointments and recorded decision |

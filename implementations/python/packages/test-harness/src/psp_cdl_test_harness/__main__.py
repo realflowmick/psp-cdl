@@ -28,7 +28,7 @@ def main() -> int:
         data = json.loads((root / "conformance/requirements.json").read_text(encoding="utf-8"))
         print(json.dumps({"mode": "inventory", "executed": 0, "requirements": data["requirements"]}, indent=2))
         return 0
-    print(json.dumps({"mode": "conformance", "status": "not_implemented", "executed": 0, "passed": 0, "reason": "No implementation adapter is registered."}))
+    print(json.dumps({"mode": "conformance", "status": "not_implemented", "executed": 0, "passed": 0, "reason": "Whole-clause conformance is pending; run scripts/run-topology-matrix.py for scoped workflow fixtures."}))
     return 2
 
 

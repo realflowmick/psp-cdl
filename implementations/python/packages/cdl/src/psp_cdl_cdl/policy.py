@@ -30,9 +30,12 @@ def _ordered(codes) -> Decision:
     return _result(["INVALID_CONTEXT"] if values else [])
 
 
-def _tokens(kind: str, value: Any) -> list[str]:
-    if kind not in KINDS:
-        raise PspError("INVALID_DECLARATION")
+def tokenize_declaration(value: Any = MISSING) -> list[str]:
+    """Lexical terms in first-occurrence order; does not infer kind, vocabulary or authority."""
+    return _lexical_tokens(value)
+
+
+def _lexical_tokens(value: Any, kind=None) -> list[str]:
     if value is MISSING:
         return []
     if type(value) is str:
@@ -47,19 +50,26 @@ def _tokens(kind: str, value: Any) -> list[str]:
             raise PspError("LIMIT_EXCEEDED")
     except UnicodeError as exc:
         raise PspError("INVALID_DECLARATION") from exc
-    out = set()
+    out = dict()
     for token in raw:
         token = token.strip("\t\n\v\f\r ").translate(str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"))
         if not token:
             continue
         if len(token) > 128:
             raise PspError("LIMIT_EXCEEDED")
-        if re.fullmatch(r"!?[a-z0-9]+(?:-[a-z0-9]+)*", token) is None or (token.startswith("!") and kind != "covenants"):
+        if re.fullmatch(r"!?[a-z0-9]+(?:-[a-z0-9]+)*", token) is None or kind is not None and kind != 'covenants' and token.startswith('!'):
             raise PspError("INVALID_DECLARATION")
-        out.add(token)
-    if any(t.startswith("!") and t[1:] in out for t in out):
+        out[token] = None
+    return list(out)
+
+
+def _tokens(kind: str, value: Any) -> list[str]:
+    if kind not in KINDS:
+        raise PspError("INVALID_DECLARATION")
+    terms = _lexical_tokens(value,kind)
+    if any(t.startswith("!") and t[1:] in terms for t in terms):
         raise PspError("CONTRADICTORY_DECLARATION")
-    return sorted(out)
+    return sorted(terms)
 
 
 def _supported(kind: str, values: list[str]) -> None:

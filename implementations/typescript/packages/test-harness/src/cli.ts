@@ -13,6 +13,6 @@ if (process.argv.length === 3 && process.argv[2] === "--profiles") {
     console.log(JSON.stringify({mode:"inventory", executed:0, requirements:inventory.requirements}, null, 2));
   } catch { console.log(JSON.stringify({status:"error",reason:"Inventory requires the source workspace."})); process.exitCode=2; }
 } else {
-  console.log(JSON.stringify({mode:"conformance", status:"not_implemented", executed:0, passed:0, reason:"No implementation adapter is registered."}));
+  console.log(JSON.stringify({mode:"conformance", status:"not_implemented", executed:0, passed:0, reason:"Whole-clause conformance is pending; run scripts/run-topology-matrix.py for scoped workflow fixtures."}));
   process.exitCode = 2;
 }

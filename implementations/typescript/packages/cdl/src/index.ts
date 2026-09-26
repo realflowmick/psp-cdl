@@ -9,6 +9,7 @@ export const manifest = Object.freeze({
   },
   "implementedFeatures": [
     "cdl-declarations",
+    "cdl-lexical-tokens",
     "cdl-schema-inheritance",
     "cdl-deterministic-1.0",
     "topology-gates"
