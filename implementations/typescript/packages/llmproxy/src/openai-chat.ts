@@ -20,7 +20,12 @@ export interface OpenAIChatLimits {
 export interface OpenAIChatReply { status: number; contentType: string; body: Uint8Array }
 /** Trusted synthetic callback only. This callback receives no API credentials. */
 export type OfflineChatTransport = (body: Uint8Array, signal: AbortSignal) => OpenAIChatReply | Promise<OpenAIChatReply>;
-interface CommonConfig { sources: CapabilitySource[]; complete: true; now: () => number; limits: OpenAIChatLimits }
+export interface OpenAIChatUsage { attempt: number; promptTokens: number; completionTokens: number; totalTokens: number }
+interface CommonConfig {
+  sources: CapabilitySource[]; complete: true; now: () => number; limits: OpenAIChatLimits;
+  /** Synchronous host-only observer of fully validated replies; never budget authority. */
+  onUsage?: (usage: OpenAIChatUsage) => void;
+}
 export type OpenAIChatConfig = CommonConfig & (
   { mode: "live"; allowLive: true; apiKey: string } |
   { mode: "offline"; transport: OfflineChatTransport }
@@ -75,7 +80,9 @@ function encodeRequest(input: unknown, limits: OpenAIChatLimits): { body: Uint8A
   return { body: bytes, names };
 }
 
-function decodeReply(reply: OpenAIChatReply, names: string[], limits: OpenAIChatLimits): Record<string, unknown> {
+function decodeReply(reply: OpenAIChatReply, names: string[], limits: OpenAIChatLimits): {
+  result: Record<string, unknown>; usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number }
+} {
   if (!exact(reply, ["status", "contentType", "body"]) || !integer(reply.status)) fail("INVALID_RESPONSE");
   if (reply.status !== 200) fail("PROVIDER_HTTP_ERROR");
   if (typeof reply.contentType !== "string" || !/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(reply.contentType)) fail("INVALID_RESPONSE");
@@ -97,7 +104,7 @@ function decodeReply(reply: OpenAIChatReply, names: string[], limits: OpenAIChat
   if (!record(m) || !allowed(m, ["role", "content", "refusal", "annotations", "tool_calls"]) || m.role !== "assistant" || m.refusal != null ||
       m.annotations !== undefined && (!Array.isArray(m.annotations) || m.annotations.length !== 0)) fail("INVALID_RESPONSE");
   if (c.finish_reason === "stop" && typeof m.content === "string" && (m.tool_calls === undefined || Array.isArray(m.tool_calls) && m.tool_calls.length === 0)) {
-    return copy({ type: "final", text: m.content }, "INVALID_RESPONSE");
+    return { result: copy({ type: "final", text: m.content }, "INVALID_RESPONSE"), usage };
   }
   if (c.finish_reason !== "tool_calls" || !(m.content === null || m.content === "") || !Array.isArray(m.tool_calls) || m.tool_calls.length !== 1) fail("INVALID_RESPONSE");
   const t = m.tool_calls[0];
@@ -108,7 +115,7 @@ function decodeReply(reply: OpenAIChatReply, names: string[], limits: OpenAIChat
   let args: unknown;
   try { args = parseJson(t.function.arguments); } catch { return fail("INVALID_RESPONSE"); }
   if (!record(args)) fail("INVALID_RESPONSE");
-  return copy({ type: "tool", name: names[index], arguments: args }, "INVALID_RESPONSE");
+  return { result: copy({ type: "tool", name: names[index], arguments: args }, "INVALID_RESPONSE"), usage };
 }
 
 /** Fixed TLS endpoint, no redirects, retries, proxy lookup, decompression or SDK. */
@@ -144,7 +151,8 @@ function liveTransport(key: string, maxBytes: number, body: Uint8Array, signal: 
 export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegistration {
   if (!record(config) || !["live", "offline"].includes(config.mode) || typeof config.now !== "function") fail("INVALID_CONFIGURATION");
   const live = config.mode === "live";
-  if (!exact(config, ["mode", "sources", "complete", "now", "limits", ...(live ? ["allowLive", "apiKey"] : ["transport"])])) fail("INVALID_CONFIGURATION");
+  if (!exact(config, ["mode", "sources", "complete", "now", "limits", ...(live ? ["allowLive", "apiKey"] : ["transport"]),
+      ...("onUsage" in config ? ["onUsage"] : [])]) || "onUsage" in config && typeof config.onUsage !== "function") fail("INVALID_CONFIGURATION");
   if (live && (config.allowLive !== true || typeof config.apiKey !== "string" || !/^[\x21-\x7e]{1,4096}$/.test(config.apiKey)) ||
       !live && typeof config.transport !== "function") fail("INVALID_CONFIGURATION");
   const limits: OpenAIChatLimits = copy(config.limits, "INVALID_CONFIGURATION"), sources = copy(config.sources, "INVALID_CONFIGURATION");
@@ -153,7 +161,7 @@ export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegi
       limits.maxOutputTokens > 32_768 || limits.maxCalls > 32 || limits.timeoutMs > 120_000) fail("INVALID_CONFIGURATION");
   try { aggregateCapabilities(sources, config.complete); } catch { fail("INVALID_CONFIGURATION"); }
   if (config.complete !== true) fail("INVALID_CONFIGURATION");
-  const now = config.now, key = live ? config.apiKey : "", transport = live ? undefined : config.transport;
+  const now = config.now, key = live ? config.apiKey : "", transport = live ? undefined : config.transport, onUsage = config.onUsage;
   let calls = 0, reserved = 0, busy = false;
   return { id: live ? "openai-chat" : "openai-chat-offline", revision: OPENAI_CHAT_REVISION, sources, complete: true,
     invoke: async (input, options) => {
@@ -187,7 +195,11 @@ export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegi
         });
         const reply = await Promise.race([operation, interrupted]);
         check();
-        const result = decodeReply(reply, names, limits);
+        const { result, usage } = decodeReply(reply, names, limits);
+        if (onUsage) {
+          try { onUsage({ attempt: calls, promptTokens: usage.prompt_tokens, completionTokens: usage.completion_tokens, totalTokens: usage.total_tokens }); }
+          catch { fail("HOST_ERROR"); }
+        }
         check();
         return result;
       } catch (e) {

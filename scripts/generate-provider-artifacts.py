@@ -123,6 +123,28 @@ add("loop-budget-exhaustion", "PROVIDER_FAILED", 1, scope="loop", limits={"maxCa
 add("loop-provider-error", "PROVIDER_FAILED", scope="loop", status=429)
 add("loop-truncated-suppressed", "PROVIDER_FAILED", scope="loop", responses=[{**FINAL, "choices": [{**FINAL["choices"][0], "finish_reason": "length"}]}])
 
+# Optional host telemetry does not change the pinned request mapping or refund admission.
+usage = {"attempt": 1, "promptTokens": 30, "completionTokens": 4, "totalTokens": 34}
+for name, code, calls, expected_usage, settings in [
+    ("usage-final", "OK", 1, [usage], {}),
+    ("usage-tool", "OK", 1, [usage], {"responses": [TOOL]}),
+    ("usage-cancel-before-validation", "CANCELLED", 1, [], {"effect": "cancel"}),
+    ("usage-malformed-response", "INVALID_RESPONSE", 1, [], {"rawBody": "{"}),
+    ("usage-invalid-totals", "INVALID_RESPONSE", 1, [], {"responses": [{**FINAL, "usage": {**FINAL["usage"], "total_tokens": 1}}]}),
+    ("usage-http-error", "PROVIDER_HTTP_ERROR", 1, [], {"status": 429}),
+    ("usage-budget-rejected", "BUDGET_EXHAUSTED", 0, [], {"limits": {"budgetTokens": 1}}),
+    ("usage-observer-error", "HOST_ERROR", 1, [usage], {"usageEffect": "throw"}),
+    ("usage-cancel-after-observation", "CANCELLED", 1, [usage], {"usageEffect": "cancel"}),
+    ("usage-mutation-isolated", "OK", 1, [usage], {"usageEffect": "mutate"}),
+    ("usage-error-not-refunded", "BUDGET_EXHAUSTED", 1, [usage], {"usageEffect": "throw", "limits": {"maxCalls": 1}, "attempts": 2}),
+    ("usage-repeated", "OK", 2, [usage, {**usage, "attempt": 2}], {"attempts": 2, "released": 2}),
+]:
+    add(name, code, calls, observeUsage=True, **settings)
+    cases[-1]["expected"]["usage"] = expected_usage
+add("usage-invalid-observer", "INVALID_CONFIGURATION", 0, config={"onUsage": "not-a-callback"})
+add("usage-loop-denied-output", "OUTPUT_DENIED", 2, scope="loop", loop={"displayDenied": True}, expectedTools=1, observeUsage=True)
+cases[-1]["expected"]["usage"] = [usage, {**usage, "attempt": 2}]
+
 schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://realflowcloud.org/psp/schemas/openai-chat-0.1.json",
           "title": "PSP OpenAI Chat Adapter 0.1 draft host limits", "$comment": "CC0-1.0. Host configuration only; callbacks and credentials never enter model input.",
           "type": "object", "additionalProperties": False, "required": list(LIMITS),

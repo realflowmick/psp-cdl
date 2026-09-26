@@ -10,7 +10,7 @@ SUITE = json.loads((Path(__file__).resolve().parents[1]/"conformance/vectors/llm
 
 
 def run_case(case):
-    settings, requests, outputs, codes = case["settings"], [], [], []
+    settings, requests, outputs, codes, usage = case["settings"], [], [], [], []
     fixture = None
     flags = {"now": 1000, "cancelled": bool(settings.get("preCancel"))}
 
@@ -39,6 +39,13 @@ def run_case(case):
                   "sources": [{"id": "provider", "capabilities": ["used-for-model-training"] if settings.get("loop", {}).get("providerTraining") else []}],
                   "limits": {**SUITE["limits"], **settings.get("limits", {})}, "transport": transport, **settings.get("config", {})}
         if config["mode"] == "live": config.pop("transport")
+        if settings.get("observeUsage"):
+            def on_usage(value):
+                usage.append(deepcopy(value))
+                if settings.get("usageEffect") == "throw": raise RuntimeError("PRIVATE_USAGE_FAILURE")
+                if settings.get("usageEffect") == "cancel": flags["cancelled"] = True
+                if settings.get("usageEffect") == "mutate": value["totalTokens"] = 999
+            config["onUsage"] = on_usage
         provider = create_openai_chat_provider(config)
         if fixture:
             snapshot = fixture.snapshot
@@ -56,4 +63,4 @@ def run_case(case):
     finally:
         if fixture: fixture.close()
     return {"code": codes[-1], "codes": codes, "transportCalls": len(requests), "toolCalls": fixture.base.calls if fixture else 0,
-            "released": len(outputs), "requests": requests, "outputs": outputs}
+            "released": len(outputs), "requests": requests, "outputs": outputs, "usage": usage}

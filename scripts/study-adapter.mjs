@@ -54,10 +54,10 @@ export async function runTrial(config) {
   const directory=mkdtempSync(join(tmpdir(),'psp-study-')),spy=join(directory,'events.jsonl');
   const started=performance.now(),now=()=>Math.floor(Date.now()/1000),expires=now()+120;
   const options={deadline:now()+60,cancelled:()=>existsSync(config.cancelFile),maxSteps:4};
-  const requests=[],key=new Uint8Array(32).fill(19),actor={tenantId:'study-tenant',subjectId:'study-owner'};
+  const requests=[],providerUsage=[],key=new Uint8Array(32).fill(19),actor={tenantId:'study-tenant',subjectId:'study-owner'};
   let peer,backend,session,providerCalls=0,providerError=null,output=null,code='OK',apiKey='';
   try {
-    const providerConfig={mode:config.mode,now,complete:true,sources:config.sources,
+    const providerConfig={mode:config.mode,now,complete:true,sources:config.sources,onUsage:usage=>{providerUsage.push(usage);},
       limits:{maxRequestBytes:65536,maxResponseBytes:65536,maxOutputTokens:128,maxCalls:4,budgetTokens:4*(OPENAI_CHAT_INPUT_RESERVATION+128),timeoutMs:15000}};
     let step=0;
     if(config.mode==='live'){apiKey=process.env.PSP_OPENAI_API_KEY??'';Object.assign(providerConfig,{allowLive:true,apiKey});}
@@ -93,7 +93,7 @@ export async function runTrial(config) {
     catch {code='INVALID_OBSERVATION';output=null;}
     if(events[0]?.kind!=='isolation-probes-blocked'&&code==='OK'){code='ISOLATION_NOT_OBSERVED';output=null;}
     const serialized=canonicalJson(requests),privateValues=['study-tenant','study-owner','study-token','study-key',credential,session?.sessionId,apiKey].filter(Boolean);
-    return {code,output,events,providerCalls,providerError,requestDigest:bindingDigest(requests),
+    return {code,output,events,providerCalls,providerUsage,providerError,requestDigest:bindingDigest(requests),
       authorityLeak:privateValues.some(v=>serialized.includes(v)),elapsedMs:Math.round(performance.now()-started)};
   }finally {rmSync(directory,{recursive:true,force:true,maxRetries:20,retryDelay:50});}
 }

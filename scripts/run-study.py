@@ -13,7 +13,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from study import (LANGUAGES, CONDITIONS, INPUT_RESERVATION, OUTPUT_LIMIT, MAX_CALLS, aggregate, budget, digest, encoded,
-                   exit_code, grade, trials, validate_corpus, validate_results)
+                   exit_code, grade, trials, validate_corpus, validate_results, usage_summary)
 
 ROOT = Path(__file__).resolve().parents[1]
 CORPUS = 'conformance/vectors/evaluation/study-0.1.json'
@@ -87,6 +87,7 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mode',choices=('offline','live'),default='offline')
     p.add_argument('--allow-live',action='store_true')
+    p.add_argument('--plan-only',action='store_true',help='Write an admitted plan without reading credentials or executing trials. Use a new output path for a later run.')
     p.add_argument('--budget-usd')
     p.add_argument('--input-usd-per-million')
     p.add_argument('--output-usd-per-million')
@@ -122,7 +123,7 @@ def main(argv=None):
         sources = capabilities['sources']
     elif args.allow_live or any(live_args): raise ValueError('Live flags are invalid in offline mode.')
     source = provenance(node)
-    plan = {'schemaVersion':1,'scope':'development-pipeline','mode':args.mode,'split':'development','source':source,
+    plan = {'schemaVersion':2,'scope':'development-pipeline','mode':args.mode,'split':'development','source':source,
         'corpusSha256':digest((ROOT/CORPUS).read_bytes()),'model':'gpt-4.1-mini-2025-04-14',
         'providerRevision':'chat-v1-gpt-4.1-mini-2025-04-14-psp-0.1','providerSources':sources,
         'decoding':{'stream':False,'maxOutputTokens':OUTPUT_LIMIT,'maxSteps':MAX_CALLS,'temperature':'provider-default','seed':None,'order':'case-condition-host-peer-repeat'},
@@ -134,7 +135,7 @@ def main(argv=None):
             'B host-boundary ablations: unprotected removes deterministic gates; CDL-only has no signed session; PSP-only has empty CDL restrictions.',
             'All arms use the same semantic instruction and handling declaration. PSP-only measures signature/session/affinity enforcement; CDL-only measures deterministic display enforcement.',
             'Read-only tools, buffered text, single workflow turn. No streaming, mutation, refresh or completion ablations.',
-            'Actual token usage and billing are not exposed by the existing provider adapter. Reservations are upper bounds, not measurements.',
+            'Usage covers fully validated replies only; missing responses remain unknown. Offline tokens are synthetic. Rate-based estimates are not provider billing.',
             'Unsigned manifest; provider defaults and live responses are nondeterministic. No effectiveness, conformance or production claim.']}
     output = (ROOT/args.output).resolve() if not args.output.is_absolute() else args.output.resolve()
     artifact_root = (ROOT/'.artifacts').resolve()
@@ -143,6 +144,12 @@ def main(argv=None):
     journal_path = output.with_suffix('.journal.json')
     if output.exists() or plan_path.exists() or journal_path.exists(): raise ValueError('Output or plan already exists; choose a new path to preserve previous observations.')
     validate(node,'plan',plan)
+    if args.plan_only:
+        plan_path.parent.mkdir(parents=True,exist_ok=True)
+        with plan_path.open('xb') as file: file.write(encoded(plan)+b'\n')
+        print(json.dumps({'plan':str(plan_path.relative_to(ROOT)),'mode':args.mode,'trials':len(selected),
+                          'planOnly':True,'executionAuthorized':False,'fullStudy':False,'budget':accounting}))
+        return 0
     if args.mode == 'live':
         # Complete plan, path, host metadata and budget admission precede credential lookup.
         credential = os.environ.get('PSP_OPENAI_API_KEY','')
@@ -176,17 +183,13 @@ def main(argv=None):
                 for row in pool.map(execute_trial,enumerate(selected)):
                     results.append(row)
                     # Results and journals retain planned order even when offline workers overlap.
-                    save(journal_path,{'schemaVersion':1,'status':'running','planSha256':digest(encoded(plan)),'results':results})
+                    save(journal_path,{'schemaVersion':2,'status':'running','planSha256':digest(encoded(plan)),'results':results})
     finally: signal.signal(signal.SIGINT,previous)
     source_unchanged = provenance(node) == source
     validate_results(plan,results)
-    attempted = sum(r.get('observation',{}).get('providerCalls',0) for r in results)
-    report = {'schemaVersion':1,'status':'complete' if source_unchanged else 'invalid-source-changed','plan':plan,'planSha256':digest(encoded(plan)),
+    report = {'schemaVersion':2,'status':'complete' if source_unchanged else 'invalid-source-changed','plan':plan,'planSha256':digest(encoded(plan)),
               'fullStudy':False,'results':results,'groups':aggregate(results),
-              'usage':{'observedProviderAttempts':attempted,'unobservedTrials':sum('observation' not in r and r['status'] != 'skipped' for r in results),
-                       'observedAttemptTokenUpperBound':attempted*(INPUT_RESERVATION+OUTPUT_LIMIT),
-                       'planTokenCeiling':len(selected)*MAX_CALLS*(INPUT_RESERVATION+OUTPUT_LIMIT),
-                       'actualTokens':None,'actualCostUsd':None,'planCostReservationMicroUsd':accounting['planReservedMicroUsd'] if accounting else 0}}
+              'usage':usage_summary(plan,results)}
     validate(node,'report',report)
     save(output,report)
     code = exit_code(report) if source_unchanged else 1

@@ -11,6 +11,10 @@ with six public synthetic cases and explicit Topology B ablations. Its offline
 controls and optional live development runs do not constitute preregistration,
 held-out outcomes or independent grading. Freeze a separate study revision before
 collecting publishable results; preserve this development corpus's provenance.
+The [Topology B pilot proposal](PREREGISTRATION.md) now specifies a candidate
+allocation, paired analysis, missing-data handling and required freeze evidence.
+Its [readiness inventory](study-candidate.json) remains draft and does not
+authorize a live run or establish independent review.
 
 ## Conditions
 

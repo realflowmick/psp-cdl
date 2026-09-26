@@ -48,7 +48,7 @@ Scoped continuation checks run in both suites and `check-parity.py`. Isolate its
 
 Buffered provider checks run in both suites and `check-parity.py`. The
 [provider guide](llm-provider.md) covers host integration and explicit live opt-in.
-Run `python scripts/check-provider-parity.py` for 93 shared offline mapping/loop
+Run `python scripts/check-provider-parity.py` for 107 shared offline mapping/loop
 cases, `python scripts/check-provider-http.py` for 28 actual local TLS transport
 checks, and `python scripts/generate-provider-artifacts.py --check` for the draft
 limits schema and vectors. Package checks exercise the installed adapter too.

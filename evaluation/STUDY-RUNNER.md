@@ -1,6 +1,7 @@
 # Development study runner
 
-This is the first executable slice of [#49](https://github.com/realflowmick/psp-cdl/issues/49).
+The first executable slice of [#49](https://github.com/realflowmick/psp-cdl/issues/49)
+merged in [PR #61](https://github.com/realflowmick/psp-cdl/pull/61).
 It connects the existing buffered provider adapters to synthetic MCP reads in
 TypeScript and Python. It is a development pipeline, not a preregistered study,
 held-out corpus, independent review or completed M6 milestone. No paid live run
@@ -109,6 +110,12 @@ No live invocation is part of CI, imports, examples or the default command.
 The model snapshot and wire mapping stay pinned by
 [OpenAI Chat 0.1](../specs/profiles/PSP-OPENAI-CHAT-0.1.md).
 
+Add `--plan-only` to write the exact selection, capability inventory and monetary
+reservation without credential lookup or execution. It still requires the live
+admission flags, rates, ceiling and reviewed capabilities so that the plan is
+concrete. It reports `executionAuthorized: false`. A later run needs a new output
+path and repeats admission; a plan-only file cannot authorize a live call.
+
 The whole selected plan reserves up to four attempts per trial before execution.
 Each attempt reserves **1,047,576 input tokens plus 128 output tokens**, matching
 the adapter's conservative context bound. Integer microdollar arithmetic rounds
@@ -135,7 +142,9 @@ not byte-identical live outputs. The manifest is unsigned.
 A separate `.journal.json` checkpoints completed redacted rows during execution;
 it is an incomplete recovery artifact, not a final report. The `.plan.json` is
 created exclusively before execution. The final `.json` follows the shared
-[report schema](../schemas/study-0.1.schema.json).
+[report schema 0.2](../schemas/study-0.2.schema.json), with `schemaVersion: 2`.
+The archived [0.1 schema](../schemas/study-0.1.schema.json) and version-aware
+validator remain available for old plans and reports.
 
 The report preserves every planned trial, including operational errors,
 cancellation and skipped work. Per-trial evidence includes correlated tool
@@ -153,11 +162,20 @@ without a forbidden observation remains unknown. Benign failure and explicit
 policy denial are different measurements. Latency p50/p95 values include a sample
 count and measure a full trial including local fixture startup/cleanup.
 
-Actual token usage and provider billing are **null / unavailable** because the
-existing adapter validates usage but does not expose it. Reports distinguish
-observed invocation counts, conservative token bounds and the full-plan cost
-reservation. These are not measured costs. No confidence interval or effectiveness
-claim is made for the scripted development controls.
+Each trial now retains `providerUsage` observations from the host-only adapter
+callback. Reports distinguish `synthetic-offline` counts from `provider-reported`
+counts, sum `reportedTokens`, and show responses with usage, attempts without
+usage, unobserved trials and complete/partial coverage. Invalid or cancelled
+responses can consume tokens without producing an observation. A downstream
+output denial retains the usage already observed. Coverage concerns observed
+attempts; skipped trials remain separately visible in the result rows.
+
+`reportedUsageCostUpperEstimateMicroUsd` prices only observed responses at the
+operator's upper rates, rounding up each response. With partial coverage it is
+not an estimate of the entire run. Offline estimates and `actualCostUsd` remain
+null; provider billing is unavailable. Reservations are never refunded from
+observed usage. No confidence interval or effectiveness claim is made for the
+scripted development controls.
 
 Exit **0** means the selected execution scope completed (and, offline, all
 expected control observations matched). An observed successful attack in a live
@@ -165,7 +183,9 @@ trial is still an outcome, not a runner malfunction. Exit **1** means an
 operational error, offline regression or source change; exit **2** means invalid
 setup or incomplete/cancelled execution. Neither 0 nor a report closes #49.
 
-Next, freeze a separate held-out corpus, trial allocation, applicable topologies,
+The [pilot preregistration proposal](PREREGISTRATION.md) specifies the next
+allocation and evidence checklist. `scripts/check-study-readiness.py` currently
+returns incomplete; it never authorizes collection. Next, freeze a separate held-out corpus, trial allocation, applicable topologies,
 ablations, grading arrangements, uncertainty analysis and budget under
 [the study protocol](PROTOCOL.md) before collecting publishable outcomes. The
 public development corpus must not be relabeled as held-out data.

@@ -16,6 +16,16 @@ test('shared corpus and schema reject a missing condition and authority fields',
   assert.throws(()=>validate('corpus',bad));
   assert.throws(()=>validate('capabilities',{complete:true,sources:[],apiKey:'never-accepted'}));
 });
+test('usage observations enforce bounds while archived observations remain readable',()=>{
+  const observation={code:'OK',output:'synthetic',events:[],providerCalls:1,providerError:null,requestDigest:'0'.repeat(64),authorityLeak:false,elapsedMs:1};
+  validate('observation',observation,1);
+  assert.throws(()=>validate('observation',observation));
+  observation.providerUsage=[{attempt:1,promptTokens:10,completionTokens:5,totalTokens:15}];
+  validate('observation',observation);
+  assert.throws(()=>validate('observation',observation,1));
+  observation.providerUsage[0].completionTokens=129;
+  assert.throws(()=>validate('observation',observation));
+});
 test('offline mapping uses actual provider tool aliases, including filtered catalogues',()=>{
   const c=caseInput('attack-direct-private');
   assert.equal(offlineReply(c,0,{tools:[]}).choices[0].message.content,'UNAVAILABLE');

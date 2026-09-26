@@ -6,7 +6,7 @@ import {fixture as loopFixture} from './llm-fixtures.mjs';
 export const suite=JSON.parse(readFileSync(new URL('../conformance/vectors/llm/openai-chat-0.1.json',import.meta.url),'utf8'));
 
 export async function runCase(c) {
-  const s=c.settings,requests=[],outputs=[],codes=[];
+  const s=c.settings,requests=[],outputs=[],codes=[],usage=[];
   let f,clock=1000,cancelled=!!s.preCancel,provider;
   const base=()=>f?.baseFlags;
   const effect=()=>{
@@ -30,6 +30,12 @@ export async function runCase(c) {
       sources:[{id:'provider',capabilities:s.loop?.providerTraining?['used-for-model-training']:[]}],
       limits:{...suite.limits,...s.limits},transport,...s.config};
     if(config.mode==='live')delete config.transport;
+    if(s.observeUsage)config.onUsage=value=>{
+      usage.push(structuredClone(value));
+      if(s.usageEffect==='throw')throw Error('PRIVATE_USAGE_FAILURE');
+      if(s.usageEffect==='cancel')cancelled=true;
+      if(s.usageEffect==='mutate')value.totalTokens=999;
+    };
     provider=createOpenAIChatProvider(config);
     if(f) {
       const snapshot=f.loopHost.snapshot;
@@ -45,5 +51,5 @@ export async function runCase(c) {
     }
   }catch(e){codes.push(e.code??'UNEXPECTED_ERROR');}
   finally{f?.close();}
-  return {code:codes.at(-1),codes,transportCalls:requests.length,toolCalls:f?.stats().toolCalls??0,released:outputs.length,requests,outputs};
+  return {code:codes.at(-1),codes,transportCalls:requests.length,toolCalls:f?.stats().toolCalls??0,released:outputs.length,requests,outputs,usage};
 }

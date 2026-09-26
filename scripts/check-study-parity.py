@@ -21,6 +21,8 @@ def main():
     groups = {}
     for row in report['results']:
         if row['status'] != 'observed' or row['offlineExpectationMatched'] is not True: raise ValueError('Study observation failed')
+        expected_usage = [{'attempt':i+1,'promptTokens':10,'completionTokens':5,'totalTokens':15} for i in range(row['observation']['providerCalls'])]
+        if row['observation']['providerUsage'] != expected_usage: raise ValueError('Missing or incorrect offline usage')
         key = (row['caseId'],row['condition'],row['repeat'])
         observation = {k:v for k,v in row['observation'].items() if k != 'elapsedMs'}
         value = {'observation':observation,'outcome':row['outcome']}

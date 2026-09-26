@@ -1,6 +1,6 @@
 # Progress and actionable backlog
 
-Planning snapshot: 2026-09-26, based on merged main commit `1cb1adb` after PRs #59/#60 and the [acceptance reconciliation](reviews/2026-09-25-acceptance.md). PRs #53-#60 are merged; #33, #37, #39 and #48 are closed. The study-runner slice below is the current implementation proposal for #49. Update this index and the relevant GitHub tracker when a slice merges or its scope changes. Live issue state takes precedence over this dated snapshot. The [roadmap](../ROADMAP.md) retains milestone completion gates.
+Planning snapshot: 2026-09-26, based on merged main commit `5dbd6a0` after PR #61 and the [acceptance reconciliation](reviews/2026-09-25-acceptance.md). PRs #53-#61 are merged; #33, #37, #39 and #48 are closed. The development study runner is merged; the current #49 slice adds host-only usage reporting, plan-only admission and a pilot preregistration proposal. Update this index and the relevant GitHub tracker when a slice merges or its scope changes. Live issue state takes precedence over this dated snapshot. The [roadmap](../ROADMAP.md) retains milestone completion gates.
 
 The original eight open issues (#2-#9) are milestone trackers, not eight unstarted tasks. Of the 19 focused issues (#33-#51), 15 remain open; several already have merged implementation evidence and need normative disposition. Issue counts are not a completion percentage. M1-M5 remain incomplete; full workflow conformance, measured effectiveness and independent security review remain pending. Package publication stays disabled.
 
@@ -12,7 +12,7 @@ Substantial experimental libraries and scoped workflows are built. The full plan
 - **Needs review or adoption:** parser corrections, API standard and remaining security-tool dispositions (#34, #35, #38). Much of their implementation already exists.
 - **Needs evaluation or release work:** an actual effectiveness study, repeatable release artifacts and independent review (#49-#51). An offline test pass does not finish these tasks.
 
-**Selected next delivery: #49's development study runner.** The [runner guide](../evaluation/STUDY-RUNNER.md) documents six synthetic cases, four comparison conditions and four language pairs (96 offline trials), a separate opt-in live mode, budget admission and redacted reports. This first slice supplies evaluation infrastructure; it does not complete #49 or run the held-out study.
+**Current delivery: #49 usage reporting and study preparation.** The [runner guide](../evaluation/STUDY-RUNNER.md) documents six synthetic cases, four comparison conditions and four language pairs (96 offline trials), a separate opt-in live mode, budget admission and redacted reports. PR #61 supplies evaluation infrastructure. The follow-up adds versioned usage reports, plan-only preflight and a [pilot proposal](../evaluation/PREREGISTRATION.md) with explicit missing evidence. Neither slice completes #49 or runs the held-out study.
 
 ## Merged progress
 
@@ -24,7 +24,7 @@ Substantial experimental libraries and scoped workflows are built. The full plan
 | M3: Reference services | Authenticated HTTP/MCP services; SQLite state and workflow operations; opt-in lifecycle and scan/decrypt/process drafts; isolated governed/adversarial fixtures. | [#19](https://github.com/realflowmick/psp-cdl/pull/19), [#20](https://github.com/realflowmick/psp-cdl/pull/20), [#21](https://github.com/realflowmick/psp-cdl/pull/21), [#56](https://github.com/realflowmick/psp-cdl/pull/56), [#57](https://github.com/realflowmick/psp-cdl/pull/57) |
 | M4: MCPProxy | Read-only gate, stdio/HTTP mediation, buffered output checks, provenance and approved revision refresh. | [#22](https://github.com/realflowmick/psp-cdl/pull/22), [#23](https://github.com/realflowmick/psp-cdl/pull/23), [#24](https://github.com/realflowmick/psp-cdl/pull/24), [#25](https://github.com/realflowmick/psp-cdl/pull/25) |
 | M5: LLMProxy | Buffered loop and opt-in OpenAI provider adapters; durable turns/recovery/lockdown; expiration/interval refresh and MCP discovery; completion redirects and scoped continuation. | [#26](https://github.com/realflowmick/psp-cdl/pull/26), [#27](https://github.com/realflowmick/psp-cdl/pull/27), [#28](https://github.com/realflowmick/psp-cdl/pull/28), [#30](https://github.com/realflowmick/psp-cdl/pull/30), [#31](https://github.com/realflowmick/psp-cdl/pull/31), [#32](https://github.com/realflowmick/psp-cdl/pull/32), [#53](https://github.com/realflowmick/psp-cdl/pull/53) |
-| M6: Evaluation | #48 is merged and closed: all five seeds execute across A/B/C, accounting for all 460 requirements with partial workflow evidence for 27. No effectiveness study has run; whole-clause conformance remains pending. | [PR #60](https://github.com/realflowmick/psp-cdl/pull/60), [conformance](../conformance/README.md), [study protocol](../evaluation/PROTOCOL.md) |
+| M6: Evaluation | #48 is merged and closed: all five seeds execute across A/B/C, accounting for all 460 requirements with partial workflow evidence for 27. PR #61 adds the 96-trial development runner. No effectiveness study has run; whole-clause conformance remains pending. | [PR #61](https://github.com/realflowmick/psp-cdl/pull/61), [PR #60](https://github.com/realflowmick/psp-cdl/pull/60), [conformance](../conformance/README.md), [study protocol](../evaluation/PROTOCOL.md) |
 | M7: Reviewed release | Release gates and local package-consumer checks exist. No reviewed release or independent security validation is claimed. | [Roadmap](../ROADMAP.md), [maintainers](../MAINTAINERS.md), [library API](library-api.md) |
 
 ## Merged slices and selected next work
@@ -33,7 +33,7 @@ The implementation/review stack is applied to `main`: buffered provider adapters
 (#53), requirement inventory and proposals (#54), differential fuzzing (#55),
 isolated fixtures (#56), lifecycle/security tools (#57), and API adoption review
 artifacts (#58, included through #57), acceptance reconciliation (#59) and the
-offline workflow matrix (#60). None of these PRs is awaiting merge.
+offline workflow matrix (#60), and development study runner (#61). None of these PRs is awaiting merge.
 
 **[#33: Opt-in buffered live-provider adapters](https://github.com/realflowmick/psp-cdl/issues/33)** is closed. Its offline checks and paired adapter contract are recorded in [PR #53](https://github.com/realflowmick/psp-cdl/pull/53). A live smoke run still requires separate operator opt-in; credentials and authoritative policy/session state remain host-owned. Streaming remains unsupported pending [#44](https://github.com/realflowmick/psp-cdl/issues/44). Neither an adapter nor a live smoke check is an effectiveness study.
 
@@ -84,7 +84,7 @@ semantic effectiveness testing and the M6 gates remain separate work.
 | Later | M5 | [#45 Completion/refresh/redirect composition](https://github.com/realflowmick/psp-cdl/issues/45) | Supported-mode matrix and atomic handoff contract |
 | Later | M5 | [#46 Scoped tools and revocation](https://github.com/realflowmick/psp-cdl/issues/46) | Fresh read-only authority; completed application state stays frozen |
 | Deferred | M5 | [#47 Additional refresh/signing integrations](https://github.com/realflowmick/psp-cdl/issues/47) | #34; separate required profile work from optional host products |
-| In progress | M6 | [#49 Preregister and run the effectiveness study](https://github.com/realflowmick/psp-cdl/issues/49) | #33/#48 complete; [development runner](../evaluation/STUDY-RUNNER.md) is the first implementation slice. Held-out corpus/protocol freeze, further topologies/ablations, usage telemetry, operator opt-in, budget and independent grading remain |
+| In progress | M6 | [#49 Preregister and run the effectiveness study](https://github.com/realflowmick/psp-cdl/issues/49) | #33/#48 complete; [development runner](../evaluation/STUDY-RUNNER.md) merged in #61. Current follow-up supplies host usage observations and a [pilot readiness proposal](../evaluation/PREREGISTRATION.md). Held-out execution/corpus/protocol freeze, reviewed analysis, further topologies/ablations, operator budget/capabilities and independent grading remain |
 | Release | M7 | [#50 Repeatable artifacts and compatibility docs](https://github.com/realflowmick/psp-cdl/issues/50) | Local candidates only; publication stays disabled |
 | Release | M7 | [#51 Independent review and release decision](https://github.com/realflowmick/psp-cdl/issues/51) | #34, #48, #49, #50; reviewer appointments and recorded decision |
 
