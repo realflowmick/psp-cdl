@@ -71,3 +71,11 @@ parity check. Use `python scripts/generate-heldout-contract.py --check` for sche
 and fixture drift. Python unit tests cover frozen-input rejection, explicit
 admission, single-use bundles, cancellation, source drift and crash finalization.
 CI only uploads public synthetic runs; operator evidence remains ignored locally.
+
+Signed result checks run in both language suites. Use
+`python scripts/generate-result-contract.py --check` for draft schema/vector drift
+and `python scripts/check-result-parity.py` for shared signatures and rejection
+cases. The held-out parity check additionally signs its actual 96-trial public
+rehearsal evidence and verifies both signing directions through the CLIs. Private
+test keys live only in temporary directories. Isolated package checks cover both
+library implementations. See [signed results](../evaluation/SIGNED-RESULTS.md).

@@ -1,5 +1,10 @@
 # Reference implementation profiles
 
+[Signed Result Manifest 0.1](RESULT-MANIFEST-0.1.md) is an opt-in evaluation
+artifact draft for domain-separated Ed25519 signatures, exact evidence inventories
+and host-provisioned run-scoped trust. It does not change PSP section signatures
+or approve a study, publication or release.
+
 [PSP Signature Profile 2.0](PSP-SIGNATURE-2.0.md) is the normative proposed signing profile selected by PSP Core 3.2.0. It resolves PSP-E001 through PSP-E004 using three signed fields with complete protected content, strict expiration, JCS and explicit encoding/migration rules.
 
 [CDL Deterministic Policy Profile 1.0](CDL-DETERMINISTIC-1.0.md) resolves CDL unknown terms, authorized negation, inheritance, capability aggregation, matrix matching, evidence and decision ordering. Its finite machine-readable table accounts for every Appendix B.2/B.3 row; terms outside this revision fail closed.

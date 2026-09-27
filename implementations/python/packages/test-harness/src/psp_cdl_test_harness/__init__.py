@@ -9,7 +9,7 @@ _MANIFEST = {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": ["library-profile-adapters", "pilot-planning-analysis-0.1", "pilot-evidence-grading-0.1"]
+    "implementedFeatures": ["library-profile-adapters", "pilot-planning-analysis-0.1", "pilot-evidence-grading-0.1", "signed-result-manifest-0.1"]
 }
 
 
@@ -29,3 +29,4 @@ def require_implementation() -> None:
 from .profiles import execute_policy_case, run_policy_vectors, run_codec_vectors, run_signature_vectors, profile_report
 from .pilot import PilotError, create_pilot_plan, analyze_pilot, pilot_digest, validate_pilot_plan
 from .grading import validate_pilot_input, validate_pilot_steps, validate_pilot_case, validate_heldout_corpus, validate_pilot_observation, grade_pilot_evidence, grade_pilot_records
+from .results import ResultManifestError, validate_result_manifest, result_signing_input, sign_result_manifest, verify_result_manifest, verify_result_artifacts

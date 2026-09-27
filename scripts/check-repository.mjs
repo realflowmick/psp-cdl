@@ -8,6 +8,7 @@ import {validate as validateMatrix} from './validate-topology-matrix.mjs';
 import {validate as validateStudy} from './validate-study.mjs';
 import {validatePilot} from './validate-pilot.mjs';
 import {validateHeldout} from './validate-heldout.mjs';
+import {validateResult} from './validate-result.mjs';
 
 const root = process.cwd();
 const read = (p) => readFileSync(p, "utf8");
@@ -20,6 +21,7 @@ validatePilot('request',json('conformance/vectors/evaluation/pilot-request-0.1.j
 validatePilot('request',json('conformance/vectors/evaluation/pilot-0.1.json').request);
 validateHeldout('corpus',json('conformance/vectors/evaluation/heldout-corpus-0.1.json'));
 validateHeldout('rehearsal',json('conformance/vectors/evaluation/heldout-rehearsal-0.1.json'));
+validateResult('signed',json('conformance/vectors/evaluation/result-manifest-0.1.json').envelope);
 const ajv = new Ajv2020({allErrors:true});
 const validators = Object.fromEntries(["component","vector","result"].map(name => [name,ajv.compile(json("schemas/"+name+".schema.json"))]));
 const requiredFiles = ["LICENSE","LICENSES/CC0-1.0.txt","NOTICE","README.md","GOVERNANCE.md","CONTRIBUTING.md","SECURITY.md","ROADMAP.md",".github/CODEOWNERS","package-lock.json","uv.lock"];

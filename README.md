@@ -66,7 +66,10 @@ plans and paired cluster analyses in both languages, checked with synthetic
 labels at the proposed 1,920-trial allocation. The [held-out executor and grading
 adapter](evaluation/HELDOUT-EXECUTOR.md) add pinned external-corpus execution,
 recoverable evidence and shared automatic labels, tested with 96 public rehearsal
-trials. No paid live run or held-out effectiveness study has been performed.
+trials. The separate [signed result-manifest contract](evaluation/SIGNED-RESULTS.md)
+adds paired Ed25519 signing/verification, exact artifact inventories and host-owned
+run-scoped trust. Signatures preserve study limitations and original run status.
+No paid live run or held-out effectiveness study has been performed.
 
 ## Participate
 

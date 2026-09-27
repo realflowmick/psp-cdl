@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/result-manifest-0.1.schema.json",
+  "title": "Signed result manifest draft 0.1 (CC0-1.0)",
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "bytes",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?:analysis|bundle|corpus|grading|manifest|outcomes|operator-admission)\\.json|[0-9]{4}\\.(?:(?:record|started|timing|observation)\\.json|events\\.jsonl))(?![\\s\\S])"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4194304
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scope",
+        "bundleSha256",
+        "planSha256",
+        "corpusSha256",
+        "mode",
+        "status",
+        "recovered",
+        "evidencePolicy",
+        "fullStudy",
+        "independentReview",
+        "executionAuthorized",
+        "artifacts"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "scope": {
+          "const": "signed-result-manifest-0.1"
+        },
+        "bundleSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "planSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "corpusSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "mode": {
+          "enum": [
+            "offline",
+            "live"
+          ]
+        },
+        "status": {
+          "enum": [
+            "finalized",
+            "invalid-source-changed"
+          ]
+        },
+        "recovered": {
+          "type": "boolean"
+        },
+        "evidencePolicy": {
+          "const": "local-synthetic-raw-0.1"
+        },
+        "fullStudy": {
+          "const": false
+        },
+        "independentReview": {
+          "const": false
+        },
+        "executionAuthorized": {
+          "const": false
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact"
+          },
+          "minItems": 6,
+          "maxItems": 25001
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "algorithm",
+        "keyId",
+        "signedAt",
+        "value"
+      ],
+      "properties": {
+        "profile": {
+          "const": "result-ed25519-0.1"
+        },
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "keyId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,127}(?![\\s\\S])"
+        },
+        "signedAt": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{85}[AQgw](?![\\s\\S])"
+        }
+      }
+    },
+    "signed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "signature"
+      ],
+      "properties": {
+        "manifest": {
+          "$ref": "#/$defs/manifest"
+        },
+        "signature": {
+          "$ref": "#/$defs/signature"
+        }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "keyId",
+        "publicKey",
+        "status",
+        "bundleSha256"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "keyId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,127}(?![\\s\\S])"
+        },
+        "publicKey": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}(?![\\s\\S])"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "revoked"
+          ]
+        },
+        "bundleSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        }
+      }
+    }
+  }
+}

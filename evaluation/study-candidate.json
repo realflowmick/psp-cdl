@@ -22,7 +22,7 @@
     {"id": "independent-grading", "path": null, "sha256": null},
     {"id": "ordered-trial-plan", "path": null, "sha256": null},
     {"id": "operator-live-admission", "path": null, "sha256": null},
-    {"id": "signed-result-manifest-contract", "path": null, "sha256": null},
+    {"id": "signed-result-manifest-contract", "path": "specs/profiles/RESULT-MANIFEST-0.1.md", "sha256": "f08561c1fae1fc47cbd1799c0a9f0038a5ce07b92f72a69618c00e72cb9c75aa"},
     {"id": "preregistration-decision", "path": null, "sha256": null}
   ]
 }

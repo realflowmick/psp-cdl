@@ -8,8 +8,10 @@ evidence-to-label adapter. No held-out corpus or approved study is supplied by
 this repository; the checked-in cases are public rehearsal fixtures.
 
 This implements execution and grading infrastructure for [#49](https://github.com/realflowmick/psp-cdl/issues/49).
-It does not complete the study, authenticate independent reviewers, sign the
-result manifest or establish security effectiveness. Parser/API adoption and
+It does not complete the study, authenticate independent reviewers or establish
+security effectiveness. A separate [explicit signing step](SIGNED-RESULTS.md)
+now authenticates finalized evidence without changing this executor's output.
+Parser/API adoption and
 package publication gates are unchanged.
 
 ## Offline rehearsal
@@ -212,5 +214,7 @@ the frozen study's results. A successful command is pipeline completion only.
 Exit 0 means all rows were observed with unchanged sources. Exit 1 indicates
 trial errors or source drift; exit 2 indicates cancellation/skips or rejected
 inputs/state. All manifests retain `fullStudy: false`, `independentReview: false`
-and `signed: false`. Signed results, independent grading/method review, other
-topologies/ablations and the final preregistration decision remain #49 gates.
+and `signed: false`. The [signed result envelope](SIGNED-RESULTS.md) binds these
+unchanged files with host-owned keys and preserves every limitation and invalid
+status. Actual study results, independent grading/method review, other
+topologies/ablations and final preregistration remain #49 gates.
