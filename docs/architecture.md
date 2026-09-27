@@ -1,5 +1,10 @@
 # Architecture
 
+Evaluation artifacts have a separate [offline reproduction audit](../evaluation/RESULT-AUDIT.md).
+It authenticates signed evidence with host-owned trust before a bounded snapshot,
+then recomputes derived documents using installed deterministic grading/analysis.
+It supplies neither runtime authority nor independent study approval.
+
 ## Boundaries
 
 ```mermaid

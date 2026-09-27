@@ -69,6 +69,8 @@ recoverable evidence and shared automatic labels, tested with 96 public rehearsa
 trials. The separate [signed result-manifest contract](evaluation/SIGNED-RESULTS.md)
 adds paired Ed25519 signing/verification, exact artifact inventories and host-owned
 run-scoped trust. Signatures preserve study limitations and original run status.
+The [offline result audit](evaluation/RESULT-AUDIT.md) verifies signed evidence
+and reproduces outcomes, grading details and analysis in either language.
 No paid live run or held-out effectiveness study has been performed.
 
 ## Participate
