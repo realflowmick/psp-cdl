@@ -54,4 +54,5 @@ subprocess.run([sys.executable,"scripts/check-security-tools-parity.py"],cwd=ROO
 subprocess.run([sys.executable,"scripts/run-topology-matrix.py","--check","--output",".artifacts/workflow-matrix.json"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-study-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-pilot-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-heldout-parity.py"],cwd=ROOT,check=True)
 print("Seven manifests and three harness modes agree; library profiles and both interchange directions passed. Full workflow conformance is pending.")

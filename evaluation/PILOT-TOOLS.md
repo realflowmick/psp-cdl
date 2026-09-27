@@ -6,7 +6,9 @@ They perform no provider calls and authorize no execution. This is a draft
 analysis method awaiting review, with public synthetic test inputs. It does not
 freeze the study or establish effectiveness, corpus independence or grading
 accuracy. The separate [development runner](STUDY-RUNNER.md) does not execute
-these plans.
+these plans. The separate [held-out executor](HELDOUT-EXECUTOR.md) now consumes
+them with a pinned external corpus and evidence-to-label adapter. Its public
+rehearsal fixtures do not supply held-out study evidence.
 
 ## Reproduce the synthetic checks
 
@@ -94,11 +96,12 @@ and `fullStudy: false`. Analysis regenerates the entire expected plan; merely
 reordering trials and recomputing a checksum cannot pass validation. These
 hashes detect inconsistent inputs, not malicious replacement of an entire plan.
 
-A frozen executable plan still needs reviewed corpus/provenance, implementation
-and runtime/lockfile pins, model and decoding settings, evidence/redaction and
-grading contracts, admission/budget, a signed result manifest and the recorded
-preregistration decision. The [readiness candidate](study-candidate.json) keeps
-those evidence slots empty. No metadata plan is substituted for them.
+The [execution bundle](HELDOUT-EXECUTOR.md) now binds implementation/runtime and
+lockfile pins, model/decoding settings, corpus, grading method, local synthetic
+evidence policy and admission/budget. Real reviewed corpus/provenance, reviewer
+appointments, a signed result manifest and the recorded preregistration decision
+remain required. The [readiness candidate](study-candidate.json) keeps those
+evidence slots empty. No metadata plan or synthetic test run substitutes for them.
 
 ## Outcome labels and missingness
 
@@ -118,9 +121,10 @@ established false denial. Non-observed benign rows have both labels null.
 
 This analyzer consumes labels; it does not observe tools, grade model text,
 authenticate reviewers, or retain the underlying side-effect/disclosure split,
-latency or usage evidence. A future reviewed executor/grading adapter must
-produce these labels from the richer evidence required by the proposal and
-retain that evidence separately. It must use unknown for incomplete evidence.
+latency or usage evidence. The [executor/grading adapter](HELDOUT-EXECUTOR.md)
+now produces these labels and retains raw synthetic evidence, side-effect and
+disclosure details, timing and usage separately. Incomplete evidence remains
+unknown; independent review of the rubric and method remains outstanding.
 
 For every metric and condition, report true/false/unknown/total counts,
 `rateAmongKnown` (null when no labels are known), and bounds `true / total` and

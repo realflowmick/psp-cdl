@@ -62,3 +62,12 @@ separate draft contract with `python scripts/generate-pilot-contract.py --check`
 Installed consumer checks exercise both public libraries. The [pilot guide](../evaluation/PILOT-TOOLS.md)
 defines ordering, missing-data handling and exploratory interval semantics.
 These commands do not execute a held-out study or contact a provider.
+
+The [held-out executor](../evaluation/HELDOUT-EXECUTOR.md) is verified separately
+with `python scripts/check-heldout-parity.py`: 96 actual public rehearsal trials,
+all four host/server language pairs, 25 shared grading cases and complete
+cross-language regrading/analysis of saved evidence. It is included in the full
+parity check. Use `python scripts/generate-heldout-contract.py --check` for schema
+and fixture drift. Python unit tests cover frozen-input rejection, explicit
+admission, single-use bundles, cancellation, source drift and crash finalization.
+CI only uploads public synthetic runs; operator evidence remains ignored locally.

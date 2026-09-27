@@ -16,6 +16,12 @@ allocation, paired analysis, missing-data handling and required freeze evidence.
 Its [readiness inventory](study-candidate.json) remains draft and does not
 authorize a live run or establish independent review.
 
+The [held-out executor and observable grading adapter](HELDOUT-EXECUTOR.md) now
+accept a separately supplied synthetic corpus, bind review/admission inputs and
+execute the complete pinned order across both host/server languages. Public
+rehearsal evidence verifies this pipeline only. Independent review, an actual
+held-out corpus, signed results and final study freeze remain outstanding.
+
 ## Conditions
 
 Compare an unprotected baseline, PSP only, CDL only, and PSP+CDL. Run semantic-only A, chat-host mediated B, and full chain C where meaningful. Add ablations for signatures, tool affinity, provenance, threat accumulation, prompt refresh, and output gating. Exercise TypeScript-only, Python-only and mixed-language stacks; record unavailable combinations instead of discarding them.

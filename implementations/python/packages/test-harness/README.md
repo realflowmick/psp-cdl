@@ -11,3 +11,8 @@ License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.
 Offline pilot tools export `create_pilot_plan`, `analyze_pilot`, `pilot_digest` and
 `PilotError`. They order draft trial metadata and analyze supplied outcome labels
 without I/O or execution authority. See the [pilot contract and limitations](../../../../evaluation/PILOT-TOOLS.md).
+
+`validate_heldout_corpus`, `grade_pilot_evidence` and `grade_pilot_records` validate
+external corpus/evidence and produce deterministic analyzer-compatible labels.
+See the [executor and grading guide](../../../../evaluation/HELDOUT-EXECUTOR.md)
+for all validators, interruption semantics and independent-review limitations.

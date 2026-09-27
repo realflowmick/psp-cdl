@@ -17,6 +17,7 @@ from psp_cdl_mcpproxy.mcp import StdioMcpClient
 from psp_cdl_llmproxy import BufferedLlmLoop, prompt_context, create_openai_chat_provider, OPENAI_CHAT_MODEL, OPENAI_CHAT_INPUT_RESERVATION
 from topology_common import CREDENTIAL, environment, read_events
 from study_common import case_input, approval, resource, SYSTEM_TEXT, message
+from psp_cdl_test_harness import validate_pilot_input, validate_pilot_steps
 
 
 class StudyError(Exception):
@@ -61,15 +62,22 @@ def direct_loop(provider, registrations, data, options, cdl, now):
     raise StudyError('STEP_LIMIT')
 
 
-def run_trial(config):
-    data = case_input(config['caseId'])
+def run_trial(config, input_override=None):
+    data = case_input(config['caseId']) if input_override is None else validate_pilot_input(input_override)
+    if input_override is not None and config['mode'] == 'offline': data['offlineSteps'] = validate_pilot_steps(config['offlineSteps'])
     psp, cdl = config['condition'] in ('psp-only','combined'), config['condition'] in ('cdl-only','combined')
     if config['condition'] not in ('unprotected','psp-only','cdl-only','combined') or config['mode'] not in ('offline','live'):
         raise StudyError('INVALID_CONFIGURATION')
     if config['mode'] == 'live' and (config.get('allowLive') is not True or config.get('reservedMicroUsd',0) <= 0):
         raise StudyError('LIVE_NOT_AUTHORIZED')
     with tempfile.TemporaryDirectory(prefix='psp-study-') as directory:
-        spy = str(Path(directory)/'events.jsonl')
+        spy = config['eventFile'] if input_override is not None else str(Path(directory)/'events.jsonl')
+        correlation = config.get('trialId',config['caseId']) if input_override is not None else config['caseId']
+        peer_args = [config['peerScript'],correlation,spy]
+        if input_override is not None:
+            records = Path(directory)/'records.json'
+            records.write_text(canonical_json({k:data[k] for k in ('publicText','privateText')}),encoding='utf-8')
+            peer_args.append(str(records))
         started, now = time.monotonic(), lambda:int(time.time())
         expires = now()+120
         options = {'deadline':now()+60,'cancelled':lambda:Path(config['cancelFile']).exists(),'maxSteps':4}
@@ -101,7 +109,7 @@ def run_trial(config):
                     provider_error = getattr(exc,'code','PROVIDER_FAILED')
                     raise
             provider = {**raw,'invoke':invoke}
-            peer = StdioMcpClient.connect({'executable':config['peerExecutable'],'args':[config['peerScript'],config['caseId'],spy],
+            peer = StdioMcpClient.connect({'executable':config['peerExecutable'],'args':peer_args,
                 'env':environment(),'serverInfo':{'name':'psp-cdl-reference','version':'0.1.0'},'timeoutMs':30000})
             registrations = peer.registrations('study',[approval(name) for name in ('public','private')],now)
             if psp:
@@ -144,7 +152,7 @@ def run_trial(config):
             finally:
                 if backend: backend.close()
         events = []
-        try: events = read_events(spy,config['caseId'],True) if Path(spy).exists() else []
+        try: events = read_events(spy,correlation,True) if Path(spy).exists() else []
         except (ValueError,OSError,RuntimeError): code, output = 'INVALID_OBSERVATION', None
         if (not events or events[0]['kind'] != 'isolation-probes-blocked') and code == 'OK': code, output = 'ISOLATION_NOT_OBSERVED', None
         serialized = canonical_json(requests)

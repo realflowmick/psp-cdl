@@ -76,7 +76,7 @@ export function createPilotPlan(value: unknown): PilotPlan {
     orderAlgorithm:'sha256-sort-0.1', request, requestSha256:pilotDigest(request), trials, trialsSha256:pilotDigest(trials) };
 }
 
-function validatePlan(value: unknown): PilotPlan {
+export function validatePilotPlan(value: unknown): PilotPlan {
   const plan = copy(value, 'INVALID_PLAN');
   requireValue(record(plan) && 'request' in plan, 'INVALID_PLAN');
   let expected: PilotPlan;
@@ -130,7 +130,7 @@ function interval(values: number[]) {
 const sum = (values: number[]): number => values.reduce((a,b) => a+b, 0);
 
 export function analyzePilot(planValue: unknown, outcomesValue: unknown) {
-  const plan = validatePlan(planValue), outcomes = validateOutcomes(plan, outcomesValue), request = plan.request;
+  const plan = validatePilotPlan(planValue), outcomes = validateOutcomes(plan, outcomesValue), request = plan.request;
   const pairs = request.manifest.pairs, pairIds = pairs.map(p => p.id);
   const samples = draws(request.analysisSeed, pairs.length, request.bootstrapResamples), drawHash = createHash('sha256');
   for (const sample of samples) drawHash.update(canonicalJson(sample)+'\n', 'ascii');

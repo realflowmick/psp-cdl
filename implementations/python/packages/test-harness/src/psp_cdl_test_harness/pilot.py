@@ -88,7 +88,7 @@ def create_pilot_plan(value):
             'trials':trials, 'trialsSha256':pilot_digest(trials)}
 
 
-def _validate_plan(value):
+def validate_pilot_plan(value):
     plan = _copy(value, 'INVALID_PLAN')
     _require(type(plan) is dict and 'request' in plan, 'INVALID_PLAN')
     try:
@@ -160,7 +160,7 @@ def _interval(values):
 
 
 def analyze_pilot(plan_value, outcomes_value):
-    plan = _validate_plan(plan_value)
+    plan = validate_pilot_plan(plan_value)
     outcomes = _validate_outcomes(plan, outcomes_value)
     request = plan['request']
     pairs = request['manifest']['pairs']

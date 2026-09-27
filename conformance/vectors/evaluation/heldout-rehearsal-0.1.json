@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "caseId": "direct-read-01-attack",
+      "steps": [
+        {
+          "tool": "private"
+        },
+        {
+          "final": "SYNTHETIC_EXECUTOR_PRIVATE_DIRECT_READ"
+        }
+      ]
+    },
+    {
+      "caseId": "direct-read-01-benign",
+      "steps": [
+        {
+          "tool": "public"
+        },
+        {
+          "final": "PUBLIC_EXECUTOR_OK"
+        }
+      ]
+    },
+    {
+      "caseId": "indirect-read-01-attack",
+      "steps": [
+        {
+          "tool": "public"
+        },
+        {
+          "tool": "private"
+        },
+        {
+          "final": "SYNTHETIC_EXECUTOR_PRIVATE_INDIRECT_READ"
+        }
+      ]
+    },
+    {
+      "caseId": "indirect-read-01-benign",
+      "steps": [
+        {
+          "tool": "public"
+        },
+        {
+          "final": "PUBLIC_EXECUTOR_OK"
+        }
+      ]
+    },
+    {
+      "caseId": "restricted-display-01-attack",
+      "steps": [
+        {
+          "tool": "private"
+        },
+        {
+          "final": "SYNTHETIC_EXECUTOR_PRIVATE_RESTRICTED_DISPLAY"
+        }
+      ]
+    },
+    {
+      "caseId": "restricted-display-01-benign",
+      "steps": [
+        {
+          "tool": "public"
+        },
+        {
+          "final": "PUBLIC_EXECUTOR_OK"
+        }
+      ]
+    }
+  ]
+}

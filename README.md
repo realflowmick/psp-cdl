@@ -63,8 +63,10 @@ and conservative cost bounds. The [pilot proposal](evaluation/PREREGISTRATION.md
 and readiness inventory make the remaining freeze evidence explicit. The
 [offline pilot tools](evaluation/PILOT-TOOLS.md) now generate deterministic trial
 plans and paired cluster analyses in both languages, checked with synthetic
-labels at the proposed 1,920-trial allocation. No paid live run or held-out
-effectiveness study has been performed.
+labels at the proposed 1,920-trial allocation. The [held-out executor and grading
+adapter](evaluation/HELDOUT-EXECUTOR.md) add pinned external-corpus execution,
+recoverable evidence and shared automatic labels, tested with 96 public rehearsal
+trials. No paid live run or held-out effectiveness study has been performed.
 
 ## Participate
 
