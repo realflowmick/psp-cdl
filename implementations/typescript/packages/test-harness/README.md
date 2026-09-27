@@ -7,3 +7,7 @@ See the [public API guide](../../../../docs/library-api.md), [codec profile](../
 Passing library tests is not full RFC conformance, measured attack resistance or production readiness. Package publication remains disabled until release review. Install local tarballs/wheels to evaluate the library independently; `scripts/check-packages.py` verifies this path.
 
 License: Apache-2.0. Founding sponsor: RealflowCloud, Inc.
+
+Offline pilot tools export `createPilotPlan`, `analyzePilot`, `pilotDigest` and
+`PilotError`. They order draft trial metadata and analyze supplied outcome labels
+without I/O or execution authority. See the [pilot contract and limitations](../../../../evaluation/PILOT-TOOLS.md).

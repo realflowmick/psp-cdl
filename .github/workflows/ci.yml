@@ -108,6 +108,16 @@ jobs:
       - run: uv run --locked python scripts/generate-scoped-vectors.py --check
       - run: uv run --locked python scripts/generate-provider-artifacts.py --check
       - run: uv run --locked python scripts/generate-study-schema.py --check
+      - run: uv run --locked python scripts/generate-pilot-contract.py --check
+      - name: Retain synthetic pilot validation
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pilot-validation
+          path: .artifacts/pilot-parity-*/
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: ignore
       - run: uv run --locked python scripts/check-packages.py
   required:
     name: Repository checks

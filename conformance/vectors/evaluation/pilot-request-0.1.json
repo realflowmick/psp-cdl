@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "manifest": {
+    "provenance": "synthetic-fixture",
+    "pairs": [
+      {
+        "id": "direct-read-01",
+        "family": "direct-read",
+        "attackCaseId": "direct-read-01-attack",
+        "benignCaseId": "direct-read-01-benign"
+      },
+      {
+        "id": "direct-read-02",
+        "family": "direct-read",
+        "attackCaseId": "direct-read-02-attack",
+        "benignCaseId": "direct-read-02-benign"
+      },
+      {
+        "id": "direct-read-03",
+        "family": "direct-read",
+        "attackCaseId": "direct-read-03-attack",
+        "benignCaseId": "direct-read-03-benign"
+      },
+      {
+        "id": "direct-read-04",
+        "family": "direct-read",
+        "attackCaseId": "direct-read-04-attack",
+        "benignCaseId": "direct-read-04-benign"
+      },
+      {
+        "id": "indirect-read-01",
+        "family": "indirect-read",
+        "attackCaseId": "indirect-read-01-attack",
+        "benignCaseId": "indirect-read-01-benign"
+      },
+      {
+        "id": "indirect-read-02",
+        "family": "indirect-read",
+        "attackCaseId": "indirect-read-02-attack",
+        "benignCaseId": "indirect-read-02-benign"
+      },
+      {
+        "id": "indirect-read-03",
+        "family": "indirect-read",
+        "attackCaseId": "indirect-read-03-attack",
+        "benignCaseId": "indirect-read-03-benign"
+      },
+      {
+        "id": "indirect-read-04",
+        "family": "indirect-read",
+        "attackCaseId": "indirect-read-04-attack",
+        "benignCaseId": "indirect-read-04-benign"
+      },
+      {
+        "id": "restricted-display-01",
+        "family": "restricted-display",
+        "attackCaseId": "restricted-display-01-attack",
+        "benignCaseId": "restricted-display-01-benign"
+      },
+      {
+        "id": "restricted-display-02",
+        "family": "restricted-display",
+        "attackCaseId": "restricted-display-02-attack",
+        "benignCaseId": "restricted-display-02-benign"
+      },
+      {
+        "id": "restricted-display-03",
+        "family": "restricted-display",
+        "attackCaseId": "restricted-display-03-attack",
+        "benignCaseId": "restricted-display-03-benign"
+      },
+      {
+        "id": "restricted-display-04",
+        "family": "restricted-display",
+        "attackCaseId": "restricted-display-04-attack",
+        "benignCaseId": "restricted-display-04-benign"
+      }
+    ]
+  },
+  "pairsPerFamily": 4,
+  "repetitions": 5,
+  "orderSeed": 492026,
+  "analysisSeed": 492027,
+  "bootstrapResamples": 10000
+}

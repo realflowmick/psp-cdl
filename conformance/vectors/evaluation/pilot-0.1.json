@@ -1,0 +1,152 @@
+{
+  "license": "CC0-1.0",
+  "scope": "synthetic-analysis-tests-only",
+  "request": {
+    "schemaVersion": 1,
+    "manifest": {
+      "provenance": "synthetic-fixture",
+      "pairs": [
+        {
+          "id": "direct-read-01",
+          "family": "direct-read",
+          "attackCaseId": "direct-read-01-attack",
+          "benignCaseId": "direct-read-01-benign"
+        },
+        {
+          "id": "indirect-read-01",
+          "family": "indirect-read",
+          "attackCaseId": "indirect-read-01-attack",
+          "benignCaseId": "indirect-read-01-benign"
+        },
+        {
+          "id": "restricted-display-01",
+          "family": "restricted-display",
+          "attackCaseId": "restricted-display-01-attack",
+          "benignCaseId": "restricted-display-01-benign"
+        }
+      ]
+    },
+    "pairsPerFamily": 1,
+    "repetitions": 2,
+    "orderSeed": 492026,
+    "analysisSeed": 492027,
+    "bootstrapResamples": 200
+  },
+  "cases": [
+    {
+      "id": "known-improvement",
+      "code": "OK",
+      "lower": -1,
+      "upper": -1,
+      "degenerate": true
+    },
+    {
+      "id": "all-unknown",
+      "code": "OK",
+      "lower": -1,
+      "upper": 1,
+      "degenerate": true
+    },
+    {
+      "id": "matched-clusters",
+      "code": "OK",
+      "lower": 0,
+      "upper": 0,
+      "degenerate": true
+    },
+    {
+      "id": "varying-clusters",
+      "code": "OK",
+      "lower": -0.3333333333333333,
+      "upper": -0.3333333333333333,
+      "degenerate": false
+    },
+    {
+      "id": "effect-before-error",
+      "code": "OK",
+      "lower": 1,
+      "upper": 1,
+      "degenerate": true
+    },
+    {
+      "id": "missing-row",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "duplicate-row",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "reordered-rows",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "extra-row",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "wrong-plan-digest",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "wrong-provenance",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "extra-authority",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "wrong-kind",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "error-as-defense",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "skipped-as-success",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "utility-denial-conflict",
+      "code": "INVALID_OUTCOMES"
+    },
+    {
+      "id": "changed-trial",
+      "code": "INVALID_PLAN"
+    },
+    {
+      "id": "rehashed-order",
+      "code": "INVALID_PLAN"
+    },
+    {
+      "id": "execution-claim",
+      "code": "INVALID_PLAN"
+    },
+    {
+      "id": "duplicate-case",
+      "code": "INVALID_MANIFEST"
+    },
+    {
+      "id": "missing-family",
+      "code": "INVALID_MANIFEST"
+    },
+    {
+      "id": "newline-identifier",
+      "code": "INVALID_MANIFEST"
+    },
+    {
+      "id": "boolean-seed",
+      "code": "INVALID_REQUEST"
+    },
+    {
+      "id": "unknown-request-field",
+      "code": "INVALID_REQUEST"
+    },
+    {
+      "id": "trial-bound",
+      "code": "LIMIT_EXCEEDED"
+    }
+  ]
+}

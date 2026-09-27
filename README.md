@@ -60,7 +60,11 @@ evaluation slice: six synthetic cases, four host-control conditions and four
 language pairs, with an offline default and separately admitted live mode.
 It records tool effects, redacted outcomes, latency, host-only usage observations
 and conservative cost bounds. The [pilot proposal](evaluation/PREREGISTRATION.md)
-and readiness inventory make the remaining freeze evidence explicit. No paid live run or held-out effectiveness study has been performed.
+and readiness inventory make the remaining freeze evidence explicit. The
+[offline pilot tools](evaluation/PILOT-TOOLS.md) now generate deterministic trial
+plans and paired cluster analyses in both languages, checked with synthetic
+labels at the proposed 1,920-trial allocation. No paid live run or held-out
+effectiveness study has been performed.
 
 ## Participate
 
