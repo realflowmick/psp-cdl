@@ -72,6 +72,8 @@ run-scoped trust. Signatures preserve study limitations and original run status.
 The [offline result audit](evaluation/RESULT-AUDIT.md) verifies signed evidence
 and reproduces outcomes, grading details and analysis in either language.
 No paid live run or held-out effectiveness study has been performed.
+The [freeze review brief](evaluation/FREEZE-REVIEW.md) maps the seven remaining
+evidence items to responsible roles, review questions and the preparation order.
 
 ## Participate
 
