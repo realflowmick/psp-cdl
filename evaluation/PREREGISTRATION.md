@@ -5,6 +5,9 @@ This is a concrete next slice of [#49](https://github.com/realflowmick/psp-cdl/i
 The public six-case development corpus remains development data. The
 [machine-readable candidate](study-candidate.json) and readiness command below
 record missing evidence without converting it into acceptance.
+The [freeze review brief](FREEZE-REVIEW.md) organizes the remaining evidence,
+reviewer responsibilities and the order of preregistration, bundle preparation
+and operator admission. It records no approval and changes no pilot allocation.
 
 ## Proposed allocation and scope
 
