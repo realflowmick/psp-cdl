@@ -32,7 +32,8 @@ Keep the existing model snapshot `gpt-4.1-mini-2025-04-14`, provider revision an
 buffered mapping. Record provider-default temperature and absent provider seed;
 do not imply reproducible model randomness. The [offline pilot planner](PILOT-TOOLS.md)
 now precomputes and hashes the complete trial order using `sha256-sort-0.1`.
-The future held-out executor must persist and verify that order at execution.
+The [held-out executor](HELDOUT-EXECUTOR.md) now persists and verifies that order
+and binds a separately supplied corpus, source/runtime pins and admission inputs.
 Fix order seed **492026** and analysis seed **492027** before collection.
 Current `run-study.py` remains a development executor with fixed order; it does
 not execute this proposal. A draft metadata plan does not supply the remaining
@@ -67,8 +68,10 @@ exploratory and do not make multiple-comparison significance claims. The analysi
 implementation and synthetic edge-case tests must be reviewed before freezing.
 The paired [pilot tools](PILOT-TOOLS.md) implement a proposed deterministic
 resampling stream and nearest-rank percentile rule, with shared synthetic
-edge cases and complete cross-language interchange. They take supplied labels;
-reviewed grading and held-out execution remain unimplemented.
+edge cases and complete cross-language interchange. The [observable grading
+adapter](HELDOUT-EXECUTOR.md) now converts recorded effects and buffered outputs
+to those labels, preserving partial effects and unknowns. Independent rubric,
+corpus and method review remain prerequisites to collecting study outcomes.
 
 Show known-only rates alongside full-plan lower/upper bounds that respectively
 treat unknown outcomes as failures/successes. Never silently drop unknown trials.

@@ -50,6 +50,14 @@ Credentials, private keys, and authoritative node/session identity stay outside 
 
 The library harness executes profile fixtures without running servers or tools. Read-only security adapters and opt-in [workflow HTTP/MCP adapters](workflow-api.md) use these libraries. An integration must construct authenticated facts, resolve every contributing data location, preserve policy origins, bind decisions to operations, and enforce them before side effects.
 
+The separate [held-out study coordinator](../evaluation/HELDOUT-EXECUTOR.md)
+consumes a complete pinned pilot order and external synthetic corpus. Host/server
+workers receive case inputs; rubrics and review/admission records stay outside
+their model-visible data. Paired library graders consume bounded observations
+and durable tool-effect logs, preserve unknowns and produce the analyzer's shared
+labels. Hash-bound local evidence supports later review without asserting that
+the corpus, reviewers or scientific claims have already been independently verified.
+
 The [service layer](service-api.md) resides in `api-server`, independently of transport. Both HTTP and `mcp-server` depend on it; it depends only on core/CDL and host authority interfaces. This dependency direction prevents parser, verification and policy copies inside transports. There is no service listener or credential lookup on import.
 
 The [persistence layer](persistence.md) is an explicit `api-server` submodule. `WorkflowStore` owns state transitions and depends on a replaceable atomic compare-and-write backend; `SqliteBackend` supplies local durable transactions in both languages. Core/CDL imports remain independent of storage. Hosts authenticate actors, authorize transitions and approve the full write set against persistence policy before a commit. Database atomicity covers state, checkpoint consumption and receipts; remote tool effects need a future outbox/recipient-idempotency contract.

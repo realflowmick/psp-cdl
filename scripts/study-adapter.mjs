@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import {readFileSync,mkdtempSync,rmSync,existsSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdtempSync,rmSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -14,6 +14,7 @@ import {StdioMcpClient} from '@psp-cdl/mcpproxy/mcp';
 import {BufferedLlmLoop,promptContext,createOpenAIChatProvider,OPENAI_CHAT_MODEL,OPENAI_CHAT_INPUT_RESERVATION} from '@psp-cdl/llmproxy';
 import {environment,credential,readEvents} from './topology-common.mjs';
 import {caseInput,approval,resource,systemText,message} from './study-common.mjs';
+import {validatePilotInput,validatePilotSteps} from '@psp-cdl/test-harness';
 
 const fail=code=>{throw Object.assign(Error(code),{code});};
 export function offlineReply(input,step,request) {
@@ -47,11 +48,14 @@ export async function directLoop(provider,registrations,input,options,cdl,now) {
   fail('STEP_LIMIT');
 }
 
-export async function runTrial(config) {
-  const input=caseInput(config.caseId),psp=['psp-only','combined'].includes(config.condition),cdl=['cdl-only','combined'].includes(config.condition);
+export async function runTrial(config,inputOverride) {
+  const input=inputOverride===undefined?caseInput(config.caseId):validatePilotInput(inputOverride),psp=['psp-only','combined'].includes(config.condition),cdl=['cdl-only','combined'].includes(config.condition);
+  if(inputOverride!==undefined&&config.mode==='offline')input.offlineSteps=validatePilotSteps(config.offlineSteps);
   if(!['unprotected','psp-only','cdl-only','combined'].includes(config.condition)||!['offline','live'].includes(config.mode))fail('INVALID_CONFIGURATION');
   if(config.mode==='live'&&(config.allowLive!==true||config.reservedMicroUsd<=0))fail('LIVE_NOT_AUTHORIZED');
-  const directory=mkdtempSync(join(tmpdir(),'psp-study-')),spy=join(directory,'events.jsonl');
+  const directory=mkdtempSync(join(tmpdir(),'psp-study-')),spy=inputOverride===undefined?join(directory,'events.jsonl'):config.eventFile;
+  const correlation=inputOverride===undefined?config.caseId:config.trialId??config.caseId,peerArgs=[config.peerScript,correlation,spy];
+  if(inputOverride!==undefined){const records=join(directory,'records.json');writeFileSync(records,canonicalJson({publicText:input.publicText,privateText:input.privateText}),{flag:'wx'});peerArgs.push(records);}
   const started=performance.now(),now=()=>Math.floor(Date.now()/1000),expires=now()+120;
   const options={deadline:now()+60,cancelled:()=>existsSync(config.cancelFile),maxSteps:4};
   const requests=[],providerUsage=[],key=new Uint8Array(32).fill(19),actor={tenantId:'study-tenant',subjectId:'study-owner'};
@@ -67,7 +71,7 @@ export async function runTrial(config) {
       requests.push(structuredClone(request));providerCalls++;
       try{return await raw.invoke(request,controls);}catch(error){providerError=error.code??'PROVIDER_FAILED';throw error;}
     }};
-    peer=await StdioMcpClient.connect({executable:config.peerExecutable,args:[config.peerScript,config.caseId,spy],env:environment(),serverInfo:{name:'psp-cdl-reference',version:'0.1.0'},timeoutMs:30000});
+    peer=await StdioMcpClient.connect({executable:config.peerExecutable,args:peerArgs,env:environment(),serverInfo:{name:'psp-cdl-reference',version:'0.1.0'},timeoutMs:30000});
     const registrations=peer.registrations('study',['public','private'].map(approval),now);
     if(psp) {
       backend=new SqliteBackend(join(directory,'state.sqlite'),'study-epoch',now);
@@ -89,7 +93,7 @@ export async function runTrial(config) {
   finally {try{await peer?.close();}finally{backend?.close();}}
   try {
     let events=[];
-    try {events=existsSync(spy)?readEvents(spy,config.caseId,true):[];}
+    try {events=existsSync(spy)?readEvents(spy,correlation,true):[];}
     catch {code='INVALID_OBSERVATION';output=null;}
     if(events[0]?.kind!=='isolation-probes-blocked'&&code==='OK'){code='ISOLATION_NOT_OBSERVED';output=null;}
     const serialized=canonicalJson(requests),privateValues=['study-tenant','study-owner','study-token','study-key',credential,session?.sessionId,apiKey].filter(Boolean);

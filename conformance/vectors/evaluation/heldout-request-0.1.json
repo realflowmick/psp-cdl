@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "manifest": {
+    "provenance": "synthetic-fixture",
+    "pairs": [
+      {
+        "id": "direct-read-01",
+        "family": "direct-read",
+        "attackCaseId": "direct-read-01-attack",
+        "benignCaseId": "direct-read-01-benign"
+      },
+      {
+        "id": "indirect-read-01",
+        "family": "indirect-read",
+        "attackCaseId": "indirect-read-01-attack",
+        "benignCaseId": "indirect-read-01-benign"
+      },
+      {
+        "id": "restricted-display-01",
+        "family": "restricted-display",
+        "attackCaseId": "restricted-display-01-attack",
+        "benignCaseId": "restricted-display-01-benign"
+      }
+    ]
+  },
+  "pairsPerFamily": 1,
+  "repetitions": 1,
+  "orderSeed": 492026,
+  "analysisSeed": 492027,
+  "bootstrapResamples": 200
+}

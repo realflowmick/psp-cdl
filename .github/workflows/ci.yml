@@ -109,6 +109,18 @@ jobs:
       - run: uv run --locked python scripts/generate-provider-artifacts.py --check
       - run: uv run --locked python scripts/generate-study-schema.py --check
       - run: uv run --locked python scripts/generate-pilot-contract.py --check
+      - run: uv run --locked python scripts/generate-heldout-contract.py --check
+      - name: Retain public executor rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: heldout-executor-rehearsal
+          path: |
+            .artifacts/heldout-parity-*/
+            .artifacts/heldout-runs/
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: ignore
       - name: Retain synthetic pilot validation
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
