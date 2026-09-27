@@ -83,5 +83,6 @@ before=(directory/'manifest.json').read_bytes()
 assert call(command,2)['code'] == 'INVALID_HELDOUT_INPUT_OR_STATE'
 assert call([sys.executable,'scripts/run-heldout.py','finalize','--bundle',str(RUN/'bundle.json'),'--corpus',str(corpus_path)],2)['code'] == 'INVALID_HELDOUT_INPUT_OR_STATE'
 assert (directory/'manifest.json').read_bytes() == before
+subprocess.run([sys.executable,'scripts/check-result-parity.py','--directory',str(directory)],cwd=ROOT,check=True)
 print(json.dumps({'scope':'public-synthetic-executor-validation','gradingCases':len(suite['cases']),'executedTrials':96,
                   'languagePairs':4,'fullEvidenceRegrading':True,'manifest':str(directory.relative_to(ROOT)/'manifest.json'),'fullStudy':False}))

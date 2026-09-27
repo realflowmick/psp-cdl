@@ -1,0 +1,713 @@
+{
+  "schemaVersion": 1,
+  "description": "Public synthetic signature and hash-binding fixtures; minimal documents are not executor outputs or study results.",
+  "testKey": {
+    "seedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "publicKey": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg"
+  },
+  "files": {
+    "bundle.json": "{\"corpusSha256\":\"68eff84eae78fa18db37d748806e6c7a3542a23ed02c8a79c73c93599030eddc\",\"evidencePolicy\":\"local-synthetic-raw-0.1\",\"mode\":\"offline\",\"plan\":{\"fixture\":\"result-byte-binding-only\",\"number\":1.25,\"unicode\":\"雪 🧪 é\"},\"planSha256\":\"29949c8b23d7485ff62f9b94d494933704b90fc896f659a104a06436e24e0640\"}\n",
+    "corpus.json": "{\"cases\":[],\"syntheticData\":true}\n",
+    "analysis.json": "{\"fixture\":true}\n",
+    "outcomes.json": "{\"rows\":[]}\n",
+    "grading.json": "{\"independentReview\":false}\n",
+    "manifest.json": "{\"bundleSha256\":\"e8092f352179b8a18a8886312ca9fea061dd73d060fde66e49c8d2c7be6639fc\",\"corpusSha256\":\"68eff84eae78fa18db37d748806e6c7a3542a23ed02c8a79c73c93599030eddc\",\"files\":[{\"path\":\"analysis.json\",\"sha256\":\"218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9\"},{\"path\":\"bundle.json\",\"sha256\":\"c76394472a4b659d6185f892d9876bb784032ba33fc48b2fdd76b76e92381eef\"},{\"path\":\"corpus.json\",\"sha256\":\"fadfbaa290ed3621acbf7cc0c8f1b7ade574841c231251917a3fceaefabc34b6\"},{\"path\":\"grading.json\",\"sha256\":\"69a41676f6c473bc9ad1490f3798c97a523e6313fe0609332ee70b04198d250f\"},{\"path\":\"outcomes.json\",\"sha256\":\"6c45288a5e9d1444ab024fac905b02495e73426d74e22544bbf867e5f4811680\"}],\"fullStudy\":false,\"independentReview\":false,\"mode\":\"offline\",\"planSha256\":\"29949c8b23d7485ff62f9b94d494933704b90fc896f659a104a06436e24e0640\",\"recovered\":false,\"schemaVersion\":1,\"scope\":\"heldout-execution-result-0.1\",\"signed\":false,\"status\":\"finalized\"}\n"
+  },
+  "envelope": {
+    "manifest": {
+      "schemaVersion": 1,
+      "scope": "signed-result-manifest-0.1",
+      "bundleSha256": "e8092f352179b8a18a8886312ca9fea061dd73d060fde66e49c8d2c7be6639fc",
+      "planSha256": "29949c8b23d7485ff62f9b94d494933704b90fc896f659a104a06436e24e0640",
+      "corpusSha256": "68eff84eae78fa18db37d748806e6c7a3542a23ed02c8a79c73c93599030eddc",
+      "mode": "offline",
+      "status": "finalized",
+      "recovered": false,
+      "evidencePolicy": "local-synthetic-raw-0.1",
+      "fullStudy": false,
+      "independentReview": false,
+      "executionAuthorized": false,
+      "artifacts": [
+        {
+          "path": "analysis.json",
+          "bytes": 17,
+          "sha256": "218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9"
+        },
+        {
+          "path": "bundle.json",
+          "bytes": 309,
+          "sha256": "c76394472a4b659d6185f892d9876bb784032ba33fc48b2fdd76b76e92381eef"
+        },
+        {
+          "path": "corpus.json",
+          "bytes": 34,
+          "sha256": "fadfbaa290ed3621acbf7cc0c8f1b7ade574841c231251917a3fceaefabc34b6"
+        },
+        {
+          "path": "grading.json",
+          "bytes": 28,
+          "sha256": "69a41676f6c473bc9ad1490f3798c97a523e6313fe0609332ee70b04198d250f"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 928,
+          "sha256": "bcf88806b25c11a11fb54b9f2433650575e13254e2b1a4d2abe53bedeaf40320"
+        },
+        {
+          "path": "outcomes.json",
+          "bytes": 12,
+          "sha256": "6c45288a5e9d1444ab024fac905b02495e73426d74e22544bbf867e5f4811680"
+        }
+      ]
+    },
+    "signature": {
+      "profile": "result-ed25519-0.1",
+      "algorithm": "ed25519",
+      "keyId": "public-result-fixture",
+      "signedAt": 1700000000,
+      "value": "r1d1bUeEW_xS-1tsrkrdYsOBrnC8z7uHS8bBuwAEb9CpgzpXrfPQUIjkBrDSfUvMle1AEzAOD9bF9doH0B6KBw"
+    }
+  },
+  "policy": {
+    "keyId": "public-result-fixture",
+    "publicKey": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+    "status": "active",
+    "bundleSha256": "e8092f352179b8a18a8886312ca9fea061dd73d060fde66e49c8d2c7be6639fc",
+    "now": 1700000010
+  },
+  "signingInputHex": "5053502d43444c2d524553554c542d4d414e49464553542d302e310a7b226d616e6966657374223a7b22617274696661637473223a5b7b226279746573223a31372c2270617468223a22616e616c797369732e6a736f6e222c22736861323536223a2232313835383933323363626538306237656430373765336565333666313636336537636235663866346534616430326339333861643861356332633561366239227d2c7b226279746573223a3330392c2270617468223a2262756e646c652e6a736f6e222c22736861323536223a2263373633393434373261346236353964363138356638393264393837366262373834303332626133336663343862326664643736623736653932333831656566227d2c7b226279746573223a33342c2270617468223a22636f727075732e6a736f6e222c22736861323536223a2266616466626161323930656433363231616362663763633063386631623761646535373438343163323331323531393137613366636561656661626333346236227d2c7b226279746573223a32382c2270617468223a2267726164696e672e6a736f6e222c22736861323536223a2236396134313637366636633437336263396164313439306633373938633937613532336536333133666530363039333332656537306230343139386432353066227d2c7b226279746573223a3932382c2270617468223a226d616e69666573742e6a736f6e222c22736861323536223a2262636638383830366232356331316131316662353462396632343333363530353735653133323534653262316134643261626535336265646561663430333230227d2c7b226279746573223a31322c2270617468223a226f7574636f6d65732e6a736f6e222c22736861323536223a2236633435323838613565396431343434616230323466616339303562303234393565373334323664373465323235343462626638363765356634383131363830227d5d2c2262756e646c65536861323536223a2265383039326633353231373962386131386138383836333132636139666561303631646437336430363066646536366534396338643263376265363633396663222c22636f72707573536861323536223a2236386566663834656165373866613138646233376437343838303665366337613335343261323365643032633861373963373363393335393930333065646463222c2265766964656e6365506f6c696379223a226c6f63616c2d73796e7468657469632d7261772d302e31222c22657865637574696f6e417574686f72697a6564223a66616c73652c2266756c6c5374756479223a66616c73652c22696e646570656e64656e74526576696577223a66616c73652c226d6f6465223a226f66666c696e65222c22706c616e536861323536223a2232393934396338623233643734383566663632663962393464343934393333373034623930666338393666363539613130346130363433366532346530363430222c227265636f7665726564223a66616c73652c22736368656d6156657273696f6e223a312c2273636f7065223a227369676e65642d726573756c742d6d616e69666573742d302e31222c22737461747573223a2266696e616c697a6564227d2c227369676e6174757265223a7b22616c676f726974686d223a2265643235353139222c226b65794964223a227075626c69632d726573756c742d66697874757265222c2270726f66696c65223a22726573756c742d656432353531392d302e31222c227369676e65644174223a313730303030303030307d7d",
+  "cases": [
+    {
+      "id": "valid-public-fixture",
+      "code": "OK",
+      "target": null,
+      "path": [],
+      "value": null,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "no-fullStudy-promotion",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "fullStudy"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "no-independentReview-promotion",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "independentReview"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "no-executionAuthorized-promotion",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "executionAuthorized"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unknown-root",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "extra"
+      ],
+      "value": "untrusted",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unknown-manifest-field",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "claim"
+      ],
+      "value": "approved",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unknown-signature-field",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "publicKey"
+      ],
+      "value": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "no-embedded-key-trust",
+      "code": "UNKNOWN_RESULT_KEY",
+      "target": "policy",
+      "path": [
+        "keyId"
+      ],
+      "value": "other",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "revoked-key",
+      "code": "REVOKED_RESULT_KEY",
+      "target": "policy",
+      "path": [
+        "status"
+      ],
+      "value": "revoked",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "wrong-public-key",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "policy",
+      "path": [
+        "publicKey"
+      ],
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "wrong-run-policy",
+      "code": "RESULT_SCOPE_MISMATCH",
+      "target": "policy",
+      "path": [
+        "bundleSha256"
+      ],
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "future-signature",
+      "code": "RESULT_NOT_YET_VALID",
+      "target": "policy",
+      "path": [
+        "now"
+      ],
+      "value": 1699999999,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "invalid-policy-clock",
+      "code": "INVALID_RESULT_POLICY",
+      "target": "policy",
+      "path": [
+        "now"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "short-public-key",
+      "code": "INVALID_RESULT_POLICY",
+      "target": "policy",
+      "path": [
+        "publicKey"
+      ],
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unsupported-profile",
+      "code": "UNSUPPORTED_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "profile"
+      ],
+      "value": "2.0",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unsupported-algorithm",
+      "code": "UNSUPPORTED_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "algorithm"
+      ],
+      "value": "hmac-sha256",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "padded-signature",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "value"
+      ],
+      "value": "r1d1bUeEW_xS-1tsrkrdYsOBrnC8z7uHS8bBuwAEb9CpgzpXrfPQUIjkBrDSfUvMle1AEzAOD9bF9doH0B6KBw==",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "noncanonical-pad-bits",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "value"
+      ],
+      "value": "r1d1bUeEW_xS-1tsrkrdYsOBrnC8z7uHS8bBuwAEb9CpgzpXrfPQUIjkBrDSfUvMle1AEzAOD9bF9doH0B6KBR",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "short-signature",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "value"
+      ],
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "boolean-timestamp",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "signedAt"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "negative-timestamp",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "signedAt"
+      ],
+      "value": -1,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "altered-signing-time",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "signedAt"
+      ],
+      "value": 1700000001,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "altered-key-id",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "signature",
+        "keyId"
+      ],
+      "value": "other",
+      "delete": false,
+      "resign": false,
+      "matchingKeyId": true
+    },
+    {
+      "id": "altered-plan",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "planSha256"
+      ],
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "altered-status",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "status"
+      ],
+      "value": "invalid-source-changed",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "altered-recovery",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "recovered"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "invalid-version",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "schemaVersion"
+      ],
+      "value": 2,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "boolean-version",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "schemaVersion"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "traversal",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "path"
+      ],
+      "value": "../analysis.json",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "absolute-path",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "path"
+      ],
+      "value": "C:/analysis.json",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "reserved-name",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "path"
+      ],
+      "value": "nul.json",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "boolean-size",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "bytes"
+      ],
+      "value": true,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "oversized-file",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "bytes"
+      ],
+      "value": 4194305,
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "unordered-files",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts"
+      ],
+      "value": [
+        {
+          "path": "outcomes.json",
+          "bytes": 12,
+          "sha256": "6c45288a5e9d1444ab024fac905b02495e73426d74e22544bbf867e5f4811680"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 928,
+          "sha256": "bcf88806b25c11a11fb54b9f2433650575e13254e2b1a4d2abe53bedeaf40320"
+        },
+        {
+          "path": "grading.json",
+          "bytes": 28,
+          "sha256": "69a41676f6c473bc9ad1490f3798c97a523e6313fe0609332ee70b04198d250f"
+        },
+        {
+          "path": "corpus.json",
+          "bytes": 34,
+          "sha256": "fadfbaa290ed3621acbf7cc0c8f1b7ade574841c231251917a3fceaefabc34b6"
+        },
+        {
+          "path": "bundle.json",
+          "bytes": 309,
+          "sha256": "c76394472a4b659d6185f892d9876bb784032ba33fc48b2fdd76b76e92381eef"
+        },
+        {
+          "path": "analysis.json",
+          "bytes": 17,
+          "sha256": "218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9"
+        }
+      ],
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "duplicate-file",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts"
+      ],
+      "value": [
+        {
+          "path": "analysis.json",
+          "bytes": 17,
+          "sha256": "218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9"
+        },
+        {
+          "path": "analysis.json",
+          "bytes": 17,
+          "sha256": "218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9"
+        },
+        {
+          "path": "bundle.json",
+          "bytes": 309,
+          "sha256": "c76394472a4b659d6185f892d9876bb784032ba33fc48b2fdd76b76e92381eef"
+        },
+        {
+          "path": "corpus.json",
+          "bytes": 34,
+          "sha256": "fadfbaa290ed3621acbf7cc0c8f1b7ade574841c231251917a3fceaefabc34b6"
+        },
+        {
+          "path": "grading.json",
+          "bytes": 28,
+          "sha256": "69a41676f6c473bc9ad1490f3798c97a523e6313fe0609332ee70b04198d250f"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 928,
+          "sha256": "bcf88806b25c11a11fb54b9f2433650575e13254e2b1a4d2abe53bedeaf40320"
+        },
+        {
+          "path": "outcomes.json",
+          "bytes": 12,
+          "sha256": "6c45288a5e9d1444ab024fac905b02495e73426d74e22544bbf867e5f4811680"
+        }
+      ],
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "missing-inventory",
+      "code": "INVALID_RESULT_MANIFEST",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts"
+      ],
+      "value": [
+        {
+          "path": "analysis.json",
+          "bytes": 17,
+          "sha256": "218589323cbe80b7ed077e3ee36f1663e7cb5f8f4e4ad02c938ad8a5c2c5a6b9"
+        },
+        {
+          "path": "bundle.json",
+          "bytes": 309,
+          "sha256": "c76394472a4b659d6185f892d9876bb784032ba33fc48b2fdd76b76e92381eef"
+        },
+        {
+          "path": "corpus.json",
+          "bytes": 34,
+          "sha256": "fadfbaa290ed3621acbf7cc0c8f1b7ade574841c231251917a3fceaefabc34b6"
+        },
+        {
+          "path": "grading.json",
+          "bytes": 28,
+          "sha256": "69a41676f6c473bc9ad1490f3798c97a523e6313fe0609332ee70b04198d250f"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 928,
+          "sha256": "bcf88806b25c11a11fb54b9f2433650575e13254e2b1a4d2abe53bedeaf40320"
+        }
+      ],
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "live-needs-admission",
+      "code": "INVALID_ARTIFACT_INVENTORY",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "mode"
+      ],
+      "value": "live",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "missing-file",
+      "code": "MISSING_RESULT_ARTIFACT",
+      "target": "files",
+      "path": [
+        "outcomes.json"
+      ],
+      "value": null,
+      "delete": true,
+      "resign": false
+    },
+    {
+      "id": "tampered-file",
+      "code": "RESULT_ARTIFACT_MISMATCH",
+      "target": "files",
+      "path": [
+        "outcomes.json"
+      ],
+      "value": "{}\n",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "newline-is-hashed",
+      "code": "RESULT_ARTIFACT_MISMATCH",
+      "target": "files",
+      "path": [
+        "analysis.json"
+      ],
+      "value": "{\"fixture\":true}",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "changed-signed-inventory",
+      "code": "INVALID_RESULT_SIGNATURE",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "artifacts",
+        0,
+        "sha256"
+      ],
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "delete": false,
+      "resign": false
+    },
+    {
+      "id": "resigned-wrong-plan",
+      "code": "RESULT_BINDING_MISMATCH",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "planSha256"
+      ],
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "delete": false,
+      "resign": true
+    },
+    {
+      "id": "resigned-source-drift",
+      "code": "RESULT_BINDING_MISMATCH",
+      "target": "envelope",
+      "path": [
+        "manifest",
+        "status"
+      ],
+      "value": "invalid-source-changed",
+      "delete": false,
+      "resign": true
+    },
+    {
+      "id": "utf8-bom",
+      "code": "INVALID_RESULT_ARTIFACT",
+      "target": "files",
+      "path": [
+        "analysis.json"
+      ],
+      "value": "﻿{\"fixture\":true}\n",
+      "delete": false,
+      "resign": true,
+      "rehashArtifact": "analysis.json"
+    },
+    {
+      "id": "duplicate-json-members",
+      "code": "INVALID_RESULT_ARTIFACT",
+      "target": "files",
+      "path": [
+        "analysis.json"
+      ],
+      "value": "{\"fixture\":true,\"fixture\":false}",
+      "delete": false,
+      "resign": true,
+      "rehashArtifact": "analysis.json"
+    }
+  ]
+}

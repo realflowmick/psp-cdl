@@ -6,3 +6,8 @@ The [development runner](../STUDY-RUNNER.md) writes its pre-execution plan and
 redacted observations under `.artifacts/`. These unsigned development artifacts
 are not reviewed effectiveness reports. Actual usage/billing, independent
 grading and a held-out study remain pending.
+
+The separate [signed-result tools](../SIGNED-RESULTS.md) can authenticate finalized
+local executor evidence. They preserve the unsigned source manifest and all
+negative/unknown results. A valid signature is not independent review, a reviewed
+report or permission to publish the raw local evidence.

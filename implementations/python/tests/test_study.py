@@ -217,11 +217,12 @@ class StudyTests(unittest.TestCase):
         observation['providerUsage'][1] = observation['providerUsage'][0]
         with self.assertRaises(ValueError): grade(case,'combined',observation,'live')
 
-    def test_pilot_candidate_records_all_missing_evidence_and_never_authorizes(self):
+    def test_pilot_candidate_pins_result_contract_but_never_authorizes(self):
         candidate = json.loads((ROOT/'evaluation/study-candidate.json').read_text())
         result = inspect_candidate(candidate,ROOT)
         self.assertEqual(result['status'],'incomplete')
-        self.assertEqual({b['id'] for b in result['blockers']},EVIDENCE)
+        self.assertEqual({b['id'] for b in result['blockers']},EVIDENCE-{'signed-result-manifest-contract'})
+        self.assertEqual(result['verifiedArtifactHashes'],['signed-result-manifest-contract'])
         self.assertEqual(result['plannedTrials'],1920)
         self.assertEqual(result['maximumProviderAttempts'],7680)
         self.assertFalse(result['executionAuthorized'])

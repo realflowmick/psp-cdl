@@ -1,5 +1,10 @@
 # Shared contracts
 
+The [signed result manifest 0.1 schema](result-manifest-0.1.schema.json) is a
+separate evaluation draft. Runtime checks additionally enforce canonical signing
+bytes, trusted keys, run scope, sorted complete inventories and exact artifact
+hashes; structural validation alone does not establish any of these properties.
+
 The component, vector and result schemas describe repository metadata and test artifacts. They are versioned **project draft contracts**, not claims of complete RFC grammar or API conformance. Every contract change must be tested in both language workspaces. The future HTTP OpenAPI and MCP method contracts belong in `api/` and `mcp/` when M3 starts.
 
 The PSP signature envelope 2.0 schema is a normative structural companion to PSP Core 3.2.0. It does not by itself verify signatures, key authority, time intervals, duplicate-name handling, or scope; those are required by the signature profile.

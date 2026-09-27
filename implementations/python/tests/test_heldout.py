@@ -78,6 +78,7 @@ class HeldoutTests(unittest.TestCase):
         self.assertEqual(calls,[t['id'] for t in bundle['plan']['trials'][:2]])
         self.assertEqual(sum(g['statuses']['skipped'] for g in result['groups']),94)
         self.assertEqual(sum(g['statuses']['error'] for g in result['groups']),2)
+        self.check_result_signature(bundle,result)
         self.assertEqual(result['usage']['unobservedTrials'],2)
         with self.assertRaises(FileExistsError): heldout.run(bundle,CORPUS,'node',REHEARSAL,execute_trial=execute)
 
@@ -99,6 +100,25 @@ class HeldoutTests(unittest.TestCase):
         with patch.object(heldout,'source_files_unchanged',side_effect=[True,False,False]):
             result = heldout.run(bundle,CORPUS,'node',REHEARSAL,execute_trial=execute)
         self.assertEqual(len(calls),1);self.assertEqual(result['status'],'invalid-source-changed')
+        self.check_result_signature(bundle,result)
+
+    def check_result_signature(self,bundle,result):
+        from result_files import prepare_manifest, verify_directory
+        from result_fixtures import SUITE
+        from psp_cdl_test_harness import sign_result_manifest, verify_result_manifest
+        import base64
+        directory = heldout.run_directory(bundle)
+        # Python-only CI has no npm dependencies. The full parity integration
+        # exercises the repository CLI's Ajv schema check on actual worker output.
+        with patch('result_files.check_source_schema'):
+            manifest = prepare_manifest(directory,pilot_digest(bundle))
+        signed = sign_result_manifest(manifest,'public-result-fixture',0,bytes.fromhex(SUITE['testKey']['seedHex']))
+        verified = verify_result_manifest(signed,{'keyId':'public-result-fixture','publicKey':base64.urlsafe_b64decode(SUITE['testKey']['publicKey']+'='),
+            'status':'active','bundleSha256':pilot_digest(bundle),'now':0})
+        with patch('result_files.check_source_schema'):
+            verify_directory(verified,directory)
+        self.assertEqual(verified['status'],result['status'])
+        self.assertFalse(verified['fullStudy']);self.assertFalse(verified['independentReview']);self.assertFalse(verified['executionAuthorized'])
 
     def test_recovery_preserves_partial_effect_and_refuses_active_lock(self):
         request = deepcopy(REQUEST)

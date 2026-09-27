@@ -88,6 +88,11 @@ reconciled independently; cache discounts and unobserved cancelled requests
 prevent equating a token-rate estimate with an invoice. Full-plan reservations
 remain charged for admission regardless of observed usage.
 
+The [signed result-manifest contract](SIGNED-RESULTS.md) now defines separate
+Ed25519 envelopes and verification of complete local artifact inventories.
+Its draft specification is pinned in the readiness candidate for review; this
+does not supply signed study outcomes, reviewer authentication or collection approval.
+
 ## Required freeze evidence
 
 The candidate requires immutable, SHA-256-bound artifacts for the separate

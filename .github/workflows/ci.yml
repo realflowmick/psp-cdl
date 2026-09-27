@@ -110,6 +110,7 @@ jobs:
       - run: uv run --locked python scripts/generate-study-schema.py --check
       - run: uv run --locked python scripts/generate-pilot-contract.py --check
       - run: uv run --locked python scripts/generate-heldout-contract.py --check
+      - run: uv run --locked python scripts/generate-result-contract.py --check
       - name: Retain public executor rehearsal evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

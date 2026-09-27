@@ -20,7 +20,10 @@ The [held-out executor and observable grading adapter](HELDOUT-EXECUTOR.md) now
 accept a separately supplied synthetic corpus, bind review/admission inputs and
 execute the complete pinned order across both host/server languages. Public
 rehearsal evidence verifies this pipeline only. Independent review, an actual
-held-out corpus, signed results and final study freeze remain outstanding.
+held-out corpus, actual signed study results and final study freeze remain
+outstanding. The separate [signed-result tools](SIGNED-RESULTS.md) now authenticate
+saved local evidence under host-provisioned run-scoped keys; they do not approve
+its scientific claims or publication.
 
 ## Conditions
 

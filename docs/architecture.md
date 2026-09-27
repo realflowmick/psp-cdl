@@ -58,6 +58,13 @@ and durable tool-effect logs, preserve unknowns and produce the analyzer's share
 labels. Hash-bound local evidence supports later review without asserting that
 the corpus, reviewers or scientific claims have already been independently verified.
 
+The separate [result-signing layer](../evaluation/SIGNED-RESULTS.md) runs only
+after finalization. Paired library APIs sign domain-separated canonical manifests
+and enforce a host-provided public key and expected bundle digest. Explicit local
+CLIs verify each inventoried file and preserve the executor's original status.
+Signing keys never enter workers or model inputs; signature validity does not
+change collection authority, independent-review claims or publication approval.
+
 The [service layer](service-api.md) resides in `api-server`, independently of transport. Both HTTP and `mcp-server` depend on it; it depends only on core/CDL and host authority interfaces. This dependency direction prevents parser, verification and policy copies inside transports. There is no service listener or credential lookup on import.
 
 The [persistence layer](persistence.md) is an explicit `api-server` submodule. `WorkflowStore` owns state transitions and depends on a replaceable atomic compare-and-write backend; `SqliteBackend` supplies local durable transactions in both languages. Core/CDL imports remain independent of storage. Hosts authenticate actors, authorize transitions and approve the full write set against persistence policy before a commit. Database atomicity covers state, checkpoint consumption and receipts; remote tool effects need a future outbox/recipient-idempotency contract.
