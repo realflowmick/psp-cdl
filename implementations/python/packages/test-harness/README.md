@@ -16,3 +16,7 @@ without I/O or execution authority. See the [pilot contract and limitations](../
 external corpus/evidence and produce deterministic analyzer-compatible labels.
 See the [executor and grading guide](../../../../evaluation/HELDOUT-EXECUTOR.md)
 for all validators, interruption semantics and independent-review limitations.
+
+`audit_result_manifest` authenticates signed saved evidence and reproduces outcomes,
+grading and analysis without running workers. See the [audit guide](../../../../evaluation/RESULT-AUDIT.md)
+for trust inputs, resource limits and the explicit limits of the report.

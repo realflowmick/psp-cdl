@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/result-audit-0.1.schema.json",
+  "$comment": "CC0-1.0; project draft. Reproduction does not establish observation truth or study approval.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "scope": {
+      "const": "result-reproduction-audit-0.1"
+    },
+    "status": {
+      "enum": [
+        "reproduced",
+        "mismatch"
+      ]
+    },
+    "signedEnvelopeSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "bundleSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "planSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "corpusSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "mode": {
+      "enum": [
+        "offline",
+        "live"
+      ]
+    },
+    "runStatus": {
+      "enum": [
+        "finalized",
+        "invalid-source-changed"
+      ]
+    },
+    "recovered": {
+      "type": "boolean"
+    },
+    "signatureVerified": {
+      "const": true
+    },
+    "artifactsVerified": {
+      "const": true
+    },
+    "fullStudy": {
+      "const": false
+    },
+    "independentReview": {
+      "const": false
+    },
+    "executionAuthorized": {
+      "const": false
+    },
+    "trials": {
+      "type": "integer",
+      "minimum": 96,
+      "maximum": 4096
+    },
+    "evidenceSources": {
+      "type": "object",
+      "properties": {
+        "record": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "observation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "partial": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        }
+      },
+      "required": [
+        "record",
+        "observation",
+        "partial",
+        "skipped"
+      ],
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifact": {
+            "enum": [
+              "outcomes.json",
+              "grading.json",
+              "analysis.json"
+            ]
+          },
+          "savedSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "reproducedSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "matches": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "artifact",
+          "savedSha256",
+          "reproducedSha256",
+          "matches"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "notAudited": {
+      "const": [
+        "worker-observation-truth",
+        "usage-and-latency-summaries",
+        "source-reexecution",
+        "study-readiness"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "scope",
+    "status",
+    "signedEnvelopeSha256",
+    "bundleSha256",
+    "planSha256",
+    "corpusSha256",
+    "mode",
+    "runStatus",
+    "recovered",
+    "signatureVerified",
+    "artifactsVerified",
+    "fullStudy",
+    "independentReview",
+    "executionAuthorized",
+    "trials",
+    "evidenceSources",
+    "checks",
+    "notAudited"
+  ],
+  "additionalProperties": false
+}

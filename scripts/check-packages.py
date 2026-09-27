@@ -34,6 +34,12 @@ packages = {f'@psp-cdl/{component}': 'file:' + (ARTIFACTS / f'psp-cdl-{component
 (CONSUMER / 'package.json').write_text(json.dumps({'private': True, 'type': 'module', 'dependencies': packages}), encoding='utf-8')
 run([NPM, 'install', '--ignore-scripts', '--no-audit', '--no-fund'], CONSUMER)
 shutil.copyfile(ROOT/'conformance/vectors/evaluation/result-manifest-0.1.json',CONSUMER/'result-fixture.json')
+from audit_fixtures import SUITE as AUDIT_SUITE, audit_input
+audit_envelope,audit_policy,audit_files = audit_input(AUDIT_SUITE['cases'][0])
+import base64
+(CONSUMER/'audit-fixture.json').write_text(json.dumps({'envelope':audit_envelope,
+    'policy':{**audit_policy,'publicKey':base64.urlsafe_b64encode(audit_policy['publicKey']).decode().rstrip('=')},
+    'files':{k:v.decode('utf-8') for k,v in audit_files.items()}}),encoding='utf-8')
 node_source = r'''
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
@@ -47,6 +53,10 @@ const resultFixture=JSON.parse(readResultFixture('result-fixture.json','utf8'));
 const resultEnvelope=harness.signResultManifest(resultFixture.envelope.manifest,resultFixture.envelope.signature.keyId,resultFixture.envelope.signature.signedAt,Buffer.from(resultFixture.testKey.seedHex,'hex'));
 assert.deepEqual(resultEnvelope,resultFixture.envelope);
 harness.verifyResultArtifacts(harness.verifyResultManifest(resultEnvelope,{...resultFixture.policy,publicKey:Buffer.from(resultFixture.policy.publicKey,'base64url')}),name=>Buffer.from(resultFixture.files[name],'utf8'));
+const auditFixture=JSON.parse(readResultFixture('audit-fixture.json','utf8'));
+const audited=harness.auditResultManifest(auditFixture.envelope,{...auditFixture.policy,publicKey:Buffer.from(auditFixture.policy.publicKey,'base64url')},name=>Buffer.from(auditFixture.files[name]));
+assert.equal(audited.status,'reproduced');assert.equal(audited.trials,96);assert(audited.checks.every(c=>c.matches));
+assert.deepEqual(audited.evidenceSources,{record:2,observation:1,partial:3,skipped:90});
 const pilotPlan=harness.createPilotPlan({schemaVersion:1,manifest:{provenance:'synthetic-fixture',pairs:
   ['direct-read','indirect-read','restricted-display'].map(family=>({id:family,family,attackCaseId:family+'-attack',benignCaseId:family+'-benign'}))},
   pairsPerFamily:1,repetitions:1,orderSeed:492026,analysisSeed:492027,bootstrapResamples:200});
@@ -218,6 +228,10 @@ result_fixture=json.loads(Path('result-fixture.json').read_text(encoding='utf-8'
 result_envelope=harness.sign_result_manifest(result_fixture['envelope']['manifest'],result_fixture['envelope']['signature']['keyId'],result_fixture['envelope']['signature']['signedAt'],bytes.fromhex(result_fixture['testKey']['seedHex']))
 assert result_envelope==result_fixture['envelope']
 harness.verify_result_artifacts(harness.verify_result_manifest(result_envelope,{**result_fixture['policy'],'publicKey':base64.urlsafe_b64decode(result_fixture['policy']['publicKey']+'=')}),lambda name:result_fixture['files'][name].encode('utf-8'))
+audit_fixture=json.loads(Path('audit-fixture.json').read_text(encoding='utf-8'))
+audited=harness.audit_result_manifest(audit_fixture['envelope'],{**audit_fixture['policy'],'publicKey':base64.urlsafe_b64decode(audit_fixture['policy']['publicKey']+'=')},lambda name:audit_fixture['files'][name].encode('utf-8'))
+assert audited['status']=='reproduced' and audited['trials']==96 and all(c['matches'] for c in audited['checks'])
+assert audited['evidenceSources']==dict(record=2,observation=1,partial=3,skipped=90)
 pilot_plan=harness.create_pilot_plan({'schemaVersion':1,'manifest':{'provenance':'synthetic-fixture','pairs':[
     {'id':family,'family':family,'attackCaseId':family+'-attack','benignCaseId':family+'-benign'}
     for family in ('direct-read','indirect-read','restricted-display')]},'pairsPerFamily':1,'repetitions':1,

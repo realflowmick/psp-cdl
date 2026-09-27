@@ -72,6 +72,10 @@ inventory and run bindings; repository CLIs additionally enforce the complete
 directory inventory and existing source-manifest schema. Verification does not
 independently recompute labels or statistics.
 
+The separate [`audit` command](RESULT-AUDIT.md) verifies these same inputs and
+recomputes outcomes, grading details and analysis. Its reproduction report keeps
+observation truth, usage/latency and study approval explicitly out of scope.
+
 ```sh
 uv run --locked python scripts/generate-result-contract.py --check
 uv run --locked python scripts/check-result-parity.py

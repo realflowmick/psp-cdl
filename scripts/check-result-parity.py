@@ -2,6 +2,7 @@
 """Shared signature vectors and both signing directions against actual executor evidence."""
 import argparse
 import base64
+import hashlib
 import json
 import subprocess
 import sys
@@ -13,6 +14,7 @@ from cryptography.hazmat.primitives import serialization
 from psp_cdl_test_harness import sign_result_manifest, result_signing_input
 from result_fixtures import SUITE, run_result_case
 from result_files import prepare_manifest
+from audit_fixtures import SUITE as AUDIT_SUITE, run_audit_case
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +26,11 @@ def call(args, expected=0, data=None):
 
 
 def check(directory=None):
+    subprocess.run([sys.executable,'scripts/generate-result-audit.py','--check'],cwd=ROOT,check=True,stdout=subprocess.DEVNULL)
+    audits = call(['node','--input-type=module','-e',
+        "import {suite,runAuditCase} from './scripts/audit-fixtures.mjs';console.log(JSON.stringify(suite.cases.map(runAuditCase)));"])
+    assert audits == [run_audit_case(c) for c in AUDIT_SUITE['cases']]
+    assert [r['code'] for r in audits] == [c['expectedCode'] for c in AUDIT_SUITE['cases']]
     subprocess.run([sys.executable,'scripts/generate-result-contract.py','--check'],cwd=ROOT,check=True,stdout=subprocess.DEVNULL)
     actual = call(['node','--input-type=module','-e',
         "import {suite,runResultCase} from './scripts/result-fixtures.mjs';console.log(JSON.stringify(suite.cases.map(runResultCase)));"])
@@ -37,7 +44,7 @@ def check(directory=None):
     assert actual == {'envelope':sign_result_manifest(e['manifest'],e['signature']['keyId'],e['signature']['signedAt'],bytes.fromhex(SUITE['testKey']['seedHex'])),
                       'input':result_signing_input(e).hex()}
     if directory is None:
-        print(json.dumps({'sharedResultCases':len(expected),'canonicalBytesAndSignatures':True}))
+        print(json.dumps({'sharedResultCases':len(expected),'sharedAuditCases':len(audits),'canonicalBytesAndSignatures':True}))
         return
     directory = Path(directory).resolve()
     source = json.loads((directory/'manifest.json').read_text(encoding='utf-8'))
@@ -61,6 +68,11 @@ def check(directory=None):
         for command in ([sys.executable,'scripts/result-manifest.py'],['node','scripts/result-manifest.mjs']):
             summary = call([*command,'verify','--directory',str(directory),'--signed',str(signed),'--trust',str(trust)])
             assert summary == {**signed_summary,'status':'verified'}
+        audit_args = ['audit','--directory',str(directory),'--signed',str(signed),'--trust',str(trust)]
+        reports = [call([*command,*audit_args]) for command in ([sys.executable,'scripts/result-manifest.py'],['node','scripts/result-manifest.mjs'])]
+        assert reports[0] == reports[1] and reports[0]['status'] == 'reproduced'
+        assert reports[0]['evidenceSources'] == dict(record=96,observation=0,partial=0,skipped=0)
+        (output/'audit.json').write_text(json.dumps(reports[0],indent=2)+'\n',encoding='utf-8')
         # Independent TS signing using a public fixture key, then Python CLI verification.
         ts_signed = output/'typescript-signed.json'
         m = prepare_manifest(directory,source['bundleSha256'])
@@ -92,10 +104,32 @@ def check(directory=None):
             for cmd in ([sys.executable,'scripts/result-manifest.py'],['node','scripts/result-manifest.mjs']):
                 assert call([*cmd,*args],2)['code'] == 'RESULT_DIRECTORY_MISMATCH'
         finally: extra.unlink()
+        # A signer can authenticate incorrect derived labels. The audit must
+        # report a calculation mismatch even though signature verification passes.
+        source_path = directory/'manifest.json';source_bytes = source_path.read_bytes()
+        saved_signature = ts_signed.read_bytes()
+        try:
+            changed = json.loads(saved);changed['schemaVersion'] = 99
+            target.write_text(json.dumps(changed),encoding='utf-8')
+            changed_source = json.loads(source_bytes)
+            for f in changed_source['files']:
+                if f['path'] == 'outcomes.json': f['sha256'] = hashlib.sha256(target.read_bytes()).hexdigest()
+            source_path.write_text(json.dumps(changed_source),encoding='utf-8')
+            resigned = sign_result_manifest(prepare_manifest(directory,source['bundleSha256']),SUITE['policy']['keyId'],
+                                           SUITE['envelope']['signature']['signedAt'],bytes.fromhex(SUITE['testKey']['seedHex']))
+            ts_signed.write_text(json.dumps(resigned),encoding='utf-8')
+            mismatches = []
+            for cmd in ([sys.executable,'scripts/result-manifest.py'],['node','scripts/result-manifest.mjs']):
+                assert call([*cmd,*args])['artifactsVerified']
+                mismatches.append(call([*cmd,'audit',*args[1:]],1))
+            assert mismatches[0] == mismatches[1]
+            assert [c['artifact'] for c in mismatches[0]['checks'] if not c['matches']] == ['outcomes.json']
+        finally:
+            target.write_bytes(saved);source_path.write_bytes(source_bytes);ts_signed.write_bytes(saved_signature)
         wrong_trust = {**fixture_trust,'bundleSha256':'0'*64};trust.write_text(json.dumps(wrong_trust),encoding='utf-8')
         for cmd in ([sys.executable,'scripts/result-manifest.py'],['node','scripts/result-manifest.mjs']):
             assert call([*cmd,*args],2)['code'] == 'RESULT_SCOPE_MISMATCH'
-    print(json.dumps({'sharedResultCases':len(expected),'canonicalBytesAndSignatures':True,'actualExecutorArtifacts':len(m['artifacts']),
+    print(json.dumps({'sharedResultCases':len(expected),'sharedAuditCases':len(audits),'pairedReproductionAudit':True,'canonicalBytesAndSignatures':True,'actualExecutorArtifacts':len(m['artifacts']),
                       'signingDirections':2,'signatureIsStudyApproval':False}))
 
 
