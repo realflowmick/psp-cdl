@@ -169,6 +169,20 @@ function constraints(attributes: Record<string, unknown>) {
   return { trust, priority, signed, endpoints };
 }
 
+/** Internal static validation shared with application compilation; no facts are evaluated. */
+export function prepareTransitionDefinitions(nodeId: string, siblings: unknown[], transitions: unknown[]) {
+  return transitions.map((edge, index) => {
+    if (!record(edge) || !exact(edge, ["target_node"], ["source_node", "condition", "priority"]) || !id(edge.target_node) ||
+        own(edge, "source_node") && !id(edge.source_node) || own(edge, "condition") && typeof edge.condition !== "string" ||
+        own(edge, "priority") && !Number.isSafeInteger(edge.priority)) return fail("INVALID_TRANSITION_REQUEST");
+    const source = (own(edge, "source_node") ? edge.source_node : nodeId) as string;
+    if (!siblings.includes(source) || !siblings.includes(edge.target_node)) fail("TRANSITION_SCOPE_VIOLATION");
+    return { index, source, target: edge.target_node, priority: (edge.priority ?? 0) as number, ...compile((edge.condition ?? "true") as string) };
+  });
+}
+/** Internal control validation; callers must first admit ordinary JSON attributes. */
+export function validateTransitionControls(attributes: Record<string, unknown>): void { constraints(attributes); }
+
 /** Host-only selection. Provenance must be authenticated out of band; selection does not authorize a commit. */
 export function selectTransition(value: unknown): TransitionSelection {
   const input = validateJson(value);
@@ -196,14 +210,7 @@ export function selectTransition(value: unknown): TransitionSelection {
     }
     admitted.set(name, { value: f.value, qualified });
   }
-  const compiled = transitions.map((edge, index) => {
-    if (!record(edge) || !exact(edge, ["target_node"], ["source_node", "condition", "priority"]) || !id(edge.target_node) ||
-        own(edge, "source_node") && !id(edge.source_node) || own(edge, "condition") && typeof edge.condition !== "string" ||
-        own(edge, "priority") && !Number.isSafeInteger(edge.priority)) return fail("INVALID_TRANSITION_REQUEST");
-    const source = (own(edge, "source_node") ? edge.source_node : nodeId) as string;
-    if (!siblings.includes(source) || !siblings.includes(edge.target_node)) fail("TRANSITION_SCOPE_VIOLATION");
-    return { index, source, target: edge.target_node, priority: (edge.priority ?? 0) as number, ...compile((edge.condition ?? "true") as string) };
-  });
+  const compiled = prepareTransitionDefinitions(nodeId, siblings, transitions);
   if (!input.completed) fail("NODE_INCOMPLETE");
   compiled.sort((a, b) => b.priority - a.priority || a.index - b.index);
   for (const edge of compiled) {

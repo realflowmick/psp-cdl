@@ -3,7 +3,8 @@ export * from "./json.js";
 export * from "./markup.js";
 export * from "./signatures.js";
 export * from "./trust.js";
-export * from "./transitions.js";
+export {TRANSITION_PROFILE, selectTransition, type TransitionSelection} from "./transitions.js";
+export * from "./graph.js";
 export const manifest = Object.freeze({
   "id": "core",
   "status": "experimental",
@@ -16,7 +17,8 @@ export const manifest = Object.freeze({
     "strict-json",
     "signature-profile-2.0",
     "trusted-key-verification",
-    "qualified-transitions-0.1"
+    "qualified-transitions-0.1",
+    "scoped-application-graph-0.1"
   ]
 } as const);
 export function requireImplementation(): never { throw Object.assign(new Error("Use a named library API; complete workflow execution is not implemented."), {code:"NOT_IMPLEMENTED"}); }

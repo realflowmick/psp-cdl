@@ -1,0 +1,303 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/application-graph-0.1.schema.json",
+  "title": "PSP application graph 0.1",
+  "description": "CC0-1.0. Structural JSON shape only; the compiler enforces scope, limits and expressions. This does not establish execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "document"
+  ],
+  "properties": {
+    "profile": {
+      "const": "PSP-APPLICATION-GRAPH-0.1"
+    },
+    "document": {
+      "$ref": "#/$defs/document"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/id"
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/text"
+        },
+        {
+          "$ref": "#/$defs/section"
+        }
+      ]
+    },
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "kind": {
+          "const": "text"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "attributes",
+        "children"
+      ],
+      "properties": {
+        "kind": {
+          "const": "section"
+        },
+        "attributes": {
+          "type": "object",
+          "maxProperties": 256,
+          "required": [
+            "type"
+          ],
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_.:-]*$",
+            "not": {
+              "pattern": "[^A-Za-z0-9_.:-]"
+            }
+          },
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$",
+              "not": {
+                "pattern": "[^a-z0-9-]"
+              }
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        }
+      }
+    },
+    "document": {
+      "title": "PSP Codec Profile 1.0 normalized document",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "children"
+      ],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "profile": {
+          "const": "PSP-CODEC-1.0"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_-]{0,127}$"
+    },
+    "graphNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "parentPath",
+        "id",
+        "nodeType",
+        "version",
+        "attributes",
+        "children",
+        "entryPath",
+        "text",
+        "sections",
+        "transitions"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "parentPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nodeType": {
+          "enum": [
+            "application",
+            "composite",
+            "loop",
+            "prompt",
+            "connector",
+            "checkpoint",
+            "reset"
+          ]
+        },
+        "version": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entryPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_node"
+            ],
+            "properties": {
+              "target_node": {
+                "$ref": "#/$defs/id"
+              },
+              "source_node": {
+                "$ref": "#/$defs/id"
+              },
+              "condition": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "rootPath",
+        "entryPath",
+        "executionSupported",
+        "nodes"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-APPLICATION-GRAPH-0.1"
+        },
+        "rootPath": {
+          "const": "/"
+        },
+        "entryPath": {
+          "type": "string"
+        },
+        "executionSupported": {
+          "const": false
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 1024,
+          "items": {
+            "$ref": "#/$defs/graphNode"
+          }
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "sourcePath",
+        "targetPath",
+        "transitionIndex",
+        "usedFacts"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-APPLICATION-GRAPH-0.1"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "targetPath": {
+          "type": "string"
+        },
+        "transitionIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "usedFacts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

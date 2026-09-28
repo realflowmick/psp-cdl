@@ -14,6 +14,9 @@ effectiveness studies. The [implementation queue](docs/protocol-implementation.m
 includes missing workflow semantics beyond the older integration backlog. The
 paired [qualified transition engine](docs/transitions.md) now implements ordered
 expression branching with source, trust, priority and signature qualification.
+The paired [application compiler](docs/application-graphs.md) now validates scoped
+graphs and routes through their compiled transitions. Durable graph execution is
+the next implementation stage.
 
 | Document | Version | Status |
 | --- | --- | --- |

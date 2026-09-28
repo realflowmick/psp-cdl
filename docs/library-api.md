@@ -2,7 +2,9 @@
 
 For deterministic PSP branching and provenance qualification, use the paired
 [transition selector](transitions.md). It supports expression-based transitions
-and can be used inside existing host transition authorization.
+and can be used inside existing host transition authorization. Compile parsed PSP
+documents with the paired [scoped application graph API](application-graphs.md)
+to validate node structure, entry points and transition ownership.
 
 For durable workflow state, see the [persistence API and storage options](persistence.md). Its replaceable store uses these core JSON codecs and leaves parsing independent of database I/O.
 

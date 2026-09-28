@@ -222,6 +222,22 @@ def _constraints(attributes):
     return trust, priority, signed, endpoints
 
 
+def _prepare_transition_definitions(node_id, siblings, transitions):
+    compiled = []
+    for index, edge in enumerate(transitions):
+        if (not _exact(edge, ("target_node",), ("source_node", "condition", "priority")) or not _id(edge["target_node"])
+                or ("source_node" in edge and not _id(edge["source_node"]))
+                or ("condition" in edge and type(edge["condition"]) is not str)
+                or ("priority" in edge and (type(edge["priority"]) not in (int, float) or edge["priority"] % 1 != 0))):
+            _fail("INVALID_TRANSITION_REQUEST")
+        source = edge.get("source_node", node_id)
+        if source not in siblings or edge["target_node"] not in siblings:
+            _fail("TRANSITION_SCOPE_VIOLATION")
+        expression, references = _compile(edge.get("condition", "true"))
+        compiled.append((edge.get("priority", 0), index, source, edge["target_node"], expression, references))
+    return compiled
+
+
 def select_transition(value):
     """Select a same-scope edge; no state mutation, I/O or model authority."""
     value = validate_json(value)
@@ -257,18 +273,7 @@ def select_transition(value):
                          and (not signed or origin["signatureVerified"])
                          and (endpoints is None or any(p[:2] == uri[:2] and p[2] in ("*", uri[2]) for p in endpoints)))
         admitted[name] = (fact["value"], qualified)
-    compiled = []
-    for index, edge in enumerate(transitions):
-        if (not _exact(edge, ("target_node",), ("source_node", "condition", "priority")) or not _id(edge["target_node"])
-                or ("source_node" in edge and not _id(edge["source_node"]))
-                or ("condition" in edge and type(edge["condition"]) is not str)
-                or ("priority" in edge and (type(edge["priority"]) not in (int, float) or edge["priority"] % 1 != 0))):
-            _fail("INVALID_TRANSITION_REQUEST")
-        source = edge.get("source_node", node_id)
-        if source not in siblings or edge["target_node"] not in siblings:
-            _fail("TRANSITION_SCOPE_VIOLATION")
-        expression, references = _compile(edge.get("condition", "true"))
-        compiled.append((edge.get("priority", 0), index, source, edge["target_node"], expression, references))
+    compiled = _prepare_transition_definitions(node_id, siblings, transitions)
     if not value["completed"]:
         _fail("NODE_INCOMPLETE")
     compiled.sort(key=lambda edge: (-edge[0], edge[1]))

@@ -17,11 +17,12 @@ protocol completion. Whole-clause dispositions remain pending.
 
 1. **Deterministic workflow execution.** Start with the now-implemented
    [qualified transition selector](transitions.md): PSP §§9.3–9.4, 12.5–12.7, 15.
-   Next compile parsed applications into validated scoped graphs; enforce node
-   identity/version, entry points and structural rules; integrate source-bound
-   output validation and persisted transition/error handling. Then execute prompt,
-   decision, composite, connector, checkpoint, loop, reset and child-application
+   The paired [application compiler](application-graphs.md) now validates scoped
+   graphs, node identity/version, entry points and structural rules. Next integrate
+   source-bound output validation and persisted transition/error handling. Then
+   execute prompt, composite, connector, checkpoint, loop, reset and child-application
    semantics with authoritative state, durable restart and accumulated output.
+   Branching uses transitions; `decision` is not a registered node type in �30.1.
 2. **Complete node and session controls.** Implement hierarchical agent affinity,
    wildcard capability matching, model/capability resolution, restrictive child
    application boundaries, and remaining refresh triggers/failure handling.
