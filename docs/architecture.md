@@ -5,12 +5,25 @@ It authenticates signed evidence with host-owned trust before a bounded snapshot
 then recomputes derived documents using installed deterministic grading/analysis.
 It supplies neither runtime authority nor independent study approval.
 
+## Execution ownership
+
+PSP executes inside the LLM context. The LLM interprets the application, evaluates
+natural-language and expression-like transitions, executes node semantics and
+maintains workflow state. Proxies and services authenticate requests, verify
+cryptographic evidence, enforce permissions and persist authorized updates.
+They must not become a second PSP interpreter. See the
+[correction and component audit](in-context-execution.md).
+
+Model-visible workflow state and application/session metadata are distinct from
+private credentials and host authentication/policy authority. Preserve the former
+in context; keep the latter outside model input.
+
 ## Boundaries
 
 ```mermaid
 flowchart LR
     Client[Application or chat host] --> LLM[LLMProxy]
-    LLM --> Provider[Inference provider]
+    LLM --> Provider[LLM context: PSP/CDL interpreter]
     LLM --> MCP[MCPProxy]
     MCP --> Services[Reference MCP servers]
     LLM --> API[Reference API server]
@@ -21,7 +34,7 @@ flowchart LR
     Harness -.-> Services
 ```
 
-The diagram is the target mediated deployment. The first read-only security service adapters are implemented; the full mediated workflow remains pending. The reference LLMProxy must own the dispatch loop or integrate with a chat host that does; merely forwarding model API traffic cannot enforce CDL Topology B's complete-mediation promise.
+The diagram is the target mediated deployment. The first read-only security service adapters are implemented; the full mediated workflow remains pending. The reference LLMProxy or chat host mediates model-requested tool I/O to enforce CDL Topology B boundaries. Owning that transport loop does not confer ownership of PSP branching, node execution or condition evaluation.
 
 | Component | Scope | Exclusions |
 | --- | --- | --- |
@@ -43,7 +56,7 @@ The [offline workflow harness](workflow-matrix.md) now executes paired A/B/C ada
 
 Map Topology A to semantic-only experiments; Topology B to an authoritative chat-host/LLMProxy dispatch loop; Topology C additionally mediates MCP and enforces output covenants at servers. Declare all enabled enforcement points in each run. Layers that share a library, signing authority, or configuration may have correlated failures; do not assume statistical independence.
 
-Credentials, private keys, and authoritative node/session identity stay outside model-visible input. Before side effects, bind identity, session, active node, policy version, tool identifier and capability provenance. Validate returned schemas/provenance and enforce display covenants before releasing buffered output. Streaming requires an explicit gating policy before any confidential bytes leave the boundary.
+Credentials, private keys and authoritative host authentication/policy bindings stay outside model-visible input. Model-visible node/session metadata and workflow state remain in context and do not confer operation authority. Before side effects, bind identity, session, active node, policy version, tool identifier and capability provenance. Validate returned schemas/provenance and enforce display covenants before releasing buffered output. Streaming requires an explicit gating policy before any confidential bytes leave the boundary.
 
 ## Contract evolution
 

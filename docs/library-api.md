@@ -1,12 +1,8 @@
 # Reusable library API
 
-For deterministic PSP branching and provenance qualification, use the paired
-[transition selector](transitions.md). It supports expression-based transitions
-and can be used inside existing host transition authorization.
-
 For durable workflow state, see the [persistence API and storage options](persistence.md). Its replaceable store uses these core JSON codecs and leaves parsing independent of database I/O.
 
-For authenticated HTTP/MCP session and checkpoint operations, see the [workflow API](workflow-api.md) and [runnable examples](../examples/workflow/README.md). Hosts own authentication, transition approval, policy revisions and data-release views.
+For authenticated HTTP/MCP session and checkpoint operations, see the [workflow API](workflow-api.md) and [runnable examples](../examples/workflow/README.md). Hosts own authentication, permission checks for requested state writes, policy revisions and data-release views. The LLM owns workflow interpretation and branching; see [execution ownership](in-context-execution.md).
 
 The experimental TypeScript and Python packages implement the same [codec profile](../specs/profiles/PSP-CODEC-1.0.md), [signature profile](../specs/profiles/PSP-SIGNATURE-2.0.md) and [finite CDL profile](../specs/profiles/CDL-DETERMINISTIC-1.0.md). Their runtime does not read this repository or call a service. Use them directly from proxies, MCP servers, applications or model integration tooling. They do not implement an inference engine or workflow executor.
 

@@ -30,6 +30,15 @@ Importing the package opens no listener or database and looks up no credentials.
 The credential needs `models:invoke`, `tools:list`, and `tools:call` for tool use.
 The session selector and controls come from authenticated host routing.
 
+## PSP execution ownership
+
+The model interprets PSP inside context, including natural-language transitions.
+`prompt` must deliver the approved interpreter instructions and relevant complete
+application/context, not an externally chosen node fragment. This class mediates
+provider/tool I/O and release; it does not select PSP transitions. See the
+[in-context example](../examples/in-context/README.md) and
+[component audit](in-context-execution.md).
+
 ## Host and provider contracts
 
 | Input | Responsibility |

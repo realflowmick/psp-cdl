@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Bounded host-embedded model/tool loop. No implicit credentials or provider SDK."""
+"""Provider/tool transport and boundary enforcement; the LLM interprets PSP in context.
+
+The host prompt contains approved interpreter/application context, preserving
+natural-language conditions. Do not select nodes or evaluate conditions here.
+"""
 from psp_cdl_core import canonical_json
 from psp_cdl_core.crypto import verify_envelope
 from psp_cdl_cdl import aggregate_capabilities, evaluate_batch

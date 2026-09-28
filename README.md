@@ -5,15 +5,17 @@ Open standards and reference implementations for protecting LLM workflows, spons
 - **Prompt State Protocol (PSP)** describes signed prompt sections, workflow state, node/tool affinity, provenance, and session controls.
 - **Covenant Declaration Language (CDL)** describes data classifications, handling constraints, and processing capabilities.
 
-**Status: proposed standards; experimental reusable libraries.** TypeScript and Python implement PSP markup/object/JSON codecs, signatures and deterministic CDL policy evaluation. Reusable HTTP/MCP adapters expose authenticated security checks and opt-in workflow operations on durable SQLite sessions, nodes and single-use checkpoints. MCPProxy adds host-approved read-only dispatch, buffered output checks and bounded stdio and authenticated Streamable HTTP mediation. Hosts supply identity, transition approval and permitted data views. An opt-in buffered model/tool loop now checks host-signed prompts and governs inference, dispatch and final output. A separate durable loop adds atomic turns, host-approved completion, explicit lockdown and authorized recovery. An opt-in refresh loop adds host-approved expiration/interval refresh with durable counters and version continuity. OAuth client flows and remaining M3 tools are pending. Library tests establish scoped behavior, not production readiness, full protocol conformance or measured security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
+**Status: proposed standards; experimental reusable libraries.** TypeScript and Python implement PSP markup/object/JSON codecs, signatures and deterministic CDL policy evaluation. Reusable HTTP/MCP adapters expose authenticated security checks and opt-in workflow operations on durable SQLite sessions, nodes and single-use checkpoints. MCPProxy adds host-approved read-only dispatch, buffered output checks and bounded stdio and authenticated Streamable HTTP mediation. The LLM interprets PSP in context; hosts supply authenticated identity, permission checks for requested state writes and permitted data views. An opt-in buffered model/tool loop now checks host-signed prompts and governs inference, dispatch and final output. A separate durable loop adds atomic turns, host-approved completion, explicit lockdown and authorized recovery. An opt-in refresh loop adds host-approved expiration/interval refresh with durable counters and version continuity. OAuth client flows and remaining M3 tools are pending. Library tests establish scoped behavior, not production readiness, full protocol conformance or measured security effectiveness. This repository is independent of the sponsor's commercial SaaS; no RealflowCloud account is required.
+
+**Implementation priority (2026-09-28):** PSP/CDL execute inside the LLM context,
+including natural-language transitions. The external transition engine is removed
+and the proposed external graph executor is withdrawn. See the
+[architecture correction](docs/in-context-execution.md) and
+[implementation-first backlog](docs/protocol-implementation.md). Next: reconcile
+the in-context interpreter and connect model-produced state to supporting services.
+Effectiveness studies follow implementation.
 
 ## Standards
-
-**Implementation priority (2026-09-28):** complete PSP/CDL execution before
-effectiveness studies. The [implementation queue](docs/protocol-implementation.md)
-includes missing workflow semantics beyond the older integration backlog. The
-paired [qualified transition engine](docs/transitions.md) now implements ordered
-expression branching with source, trust, priority and signature qualification.
 
 | Document | Version | Status |
 | --- | --- | --- |

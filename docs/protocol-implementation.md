@@ -1,54 +1,33 @@
 # Protocol implementation first
 
-Direction recorded 2026-09-28: implement all PSP and CDL before asking the project
-owner to run effectiveness studies. Development tests, cross-language parity and
-deterministic failure tests continue as implementation work. Study collection and
-freeze preparation are sequenced after protocol implementation. Published RFCs
-and review/adoption requirements remain intact; explicit draft profiles allow
-implementation choices to be tested without silently changing those baselines.
+Implement PSP and CDL before effectiveness studies. PSP execution takes place
+inside the LLM context, as specified in PSP Core §§4, 15–16. The external graph
+executor direction is withdrawn; see the [architecture correction and component
+audit](in-context-execution.md). External deterministic security controls remain
+required at operation boundaries.
 
-The old focused backlog is not a complete list of missing protocol behavior.
-Use the [460-requirement register](../conformance/requirements.json) and RFC
-sections as the coverage authority, with explicit applicability and evidence.
-Neither the number of closed issues nor existing profile checks measures full
-protocol completion. Whole-clause dispositions remain pending.
+## Progress and next implementation stages
 
-## Required implementation sequence
+| Stage | Status | Concrete next work |
+| --- | --- | --- |
+| Restore execution ownership | Corrected: external expression selector removed; graph-executor proposal withdrawn; natural-language context transport covered in both languages | Keep all workflow conditions available to the model |
+| In-context PSP interpreter | Incomplete; existing local system prompts are not yet a reconciled Core 3.2.0 implementation | Reconcile interpreter instructions against node, transition, state, checkpoint, refresh, exception, completion and portability requirements; preserve natural-language reasoning |
+| In-context CDL interpretation | Incomplete; external finite policy libraries are supporting controls | Reconcile CDL 1.5 semantic instructions, nested inheritance, authorized negation and governance of derived data with the model-visible context |
+| Context and service integration | Codecs, signed prompt transport, MCP/API services, persistence and boundary gates exist | Deliver complete relevant application/state context; validate and persist model-produced updates; return service denials and checkpoint results to the interpreting model |
+| Remaining external controls | Partial | Finish affinity/capability enforcement, required service forms, revocation, coordination and effect recovery without interpreting PSP business logic |
+| Coverage, evaluations and release | Pending | Map both in-context behavior and infrastructure obligations to the 460-requirement register; effectiveness studies and publication follow implementation |
 
-1. **Deterministic workflow execution.** Start with the now-implemented
-   [qualified transition selector](transitions.md): PSP §§9.3–9.4, 12.5–12.7, 15.
-   Next compile parsed applications into validated scoped graphs; enforce node
-   identity/version, entry points and structural rules; integrate source-bound
-   output validation and persisted transition/error handling. Then execute prompt,
-   decision, composite, connector, checkpoint, loop, reset and child-application
-   semantics with authoritative state, durable restart and accumulated output.
-2. **Complete node and session controls.** Implement hierarchical agent affinity,
-   wildcard capability matching, model/capability resolution, restrictive child
-   application boundaries, and remaining refresh triggers/failure handling.
-   Compose completion, refresh, redirect and scoped continuation with explicit
-   current-authority checks; complete tool access and revocation after completion.
-3. **Complete CDL handling across those paths.** Audit each CDL requirement for
-   parsing, nested inheritance/authorized negation, schema/data binding,
-   classification vocabulary and policy-table behavior. Implement missing forms
-   with retained origin/obligation evidence at input, connector, computation,
-   storage, handoff and release boundaries. Keep unsupported policy forms explicit
-   until implemented; a flattened label union is not sufficient evidence.
-4. **Complete service and effect execution.** Finish API/security-tool forms and
-   their normative dispositions, distributed coordination and mutating dispatch
-   with recipient idempotency/recovery. PostgreSQL and OAuth are integration
-   tracks, not substitutes for node execution. Track optional host products
-   separately from required protocol behavior.
-5. **Reconcile executable coverage.** Map actual behavior and negative cases to
-   every applicable RFC obligation in both languages. Resolve blocked semantics
-   through the existing parser/API review process. Explicitly identify requirements
-   needing inference-engine support; host libraries cannot implement attention
-   masking by asserting it in a prompt. Resolve all remaining unsupported behavior
-   before claiming complete protocol coverage.
-6. **Evaluate and release.** Only after implementation coverage is reconciled,
-   return to #49 studies and #50–51 reviewed release work. Existing study tooling
-   is retained. Package publication remains disabled until its reviewed gate.
+The next stage is the in-context interpreter and its context/service integration,
+not a TypeScript or Python workflow execution engine. Existing system prompts
+under the local `specs/systemprompts/` directory remain untouched by this correction;
+their older version labels must not be presented as complete current-RFC coverage.
+The [example execution preamble](../examples/in-context/execution-boundary.txt)
+only establishes ownership and supplements approved interpreter instructions.
 
-PSP's real-time-streaming exclusion means #44 is a separate gateway feature,
-not the first missing PSP requirement. It remains on the roadmap with its own
-release-boundary contract. No requirement is marked implemented merely by this
-queue, a helper API, a schema, or a successful build.
+Use the [requirement register](../conformance/requirements.json) and published
+RFCs as the coverage authority. Passing transport tests and finite policy tests
+is not evidence that the LLM interprets every PSP/CDL obligation correctly.
+Development tests continue; no owner-run effectiveness study is a prerequisite
+for implementing missing behavior. Parser/API reviews retain their adoption
+requirements. Attention-layer features require inference-engine support, and
+package publication remains disabled until the reviewed release milestone.

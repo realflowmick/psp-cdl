@@ -35,7 +35,12 @@ result = loop.run(credential, session_id, {"message": user_text}, {
 Clocks use Unix seconds. The credential requires `sessions:write` and
 `models:invoke`, plus the buffered loop's tool scopes. Request IDs share the
 existing owner-wide receipt namespace. Only the host chooses controls/session
-identity. Model input accepts exactly `{message}` and cannot select completion.
+identity. The transport input accepts exactly `{message}`. The LLM reports workflow progress and completion in its output/context; the host validates that report before committing a lifecycle effect. A provider final answer alone does not imply application completion.
+
+`planTurn` / `plan_turn` validates and projects model-produced state for storage;
+it must not evaluate transition conditions or choose the next PSP node.
+`authorizeTransition` / `authorize_transition` authorizes the requested store
+operation. See the [execution responsibility audit](in-context-execution.md).
 
 ## Additional host callbacks
 
