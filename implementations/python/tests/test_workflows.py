@@ -10,11 +10,52 @@ from psp_cdl_api_server.operations import SessionOperations
 from psp_cdl_api_server.service import ServiceError
 from psp_cdl_mcp_server import McpServer
 from psp_cdl_core.crypto import sign_envelope
-from psp_cdl_core import serialize_markup, envelope_to_section
+from psp_cdl_core import serialize_markup, envelope_to_section, select_transition, TRANSITION_PROFILE, PspError
 from psp_cdl_api_server.http import handle_http
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_qualified_transitions_guard_real_commits(self):
+        f = Fixture()
+        try:
+            trust_level, faults = 5, []
+
+            def authorize(principal, context):
+                command, current = context["command"], context["current"]
+                if command["action"] != "updateSession" or context["replay"] or current["nodeId"] != "entry" or command["status"] != "running":
+                    return False
+                try:
+                    selected = select_transition({"profile": TRANSITION_PROFILE, "nodeId": current["nodeId"], "completed": True,
+                        "siblings": ["entry", "next"], "attributes": {"transition-endpoints": "mcp://erp/*"},
+                        "transitions": [{"condition": "approved == true", "target_node": "next"}],
+                        "facts": {"approved": {"value": True, "origins": [{"endpoint": "mcp://erp/approval", "trustLevel": trust_level,
+                            "priority": 50, "signatureVerified": True}]}}})
+                    return selected["targetNode"] == command["nodeId"] and command["nodeVersion"] == "1"
+                except PspError as error:
+                    faults.append(error.code)
+                    return False
+
+            f.authorize = authorize
+            command = {"requestId": "qualified-transition", "sessionId": f.refs["@session"], "expectedVersion": 1,
+                       "nodeId": "next", "nodeVersion": "1", "status": "running", "state": {"stage": "routed", "approved": True, "trustLevel": 0}}
+            with self.assertRaises(ServiceError) as caught:
+                f.service.invoke("updateSession", command, "test-owner")
+            self.assertEqual(caught.exception.code, "AUTHORIZATION_DENIED")
+            self.assertEqual(faults, ["INSUFFICIENT_QUALIFIED_DATA"])
+            self.assertEqual(f.store.execute(f.actor, {"action": "getSession", "sessionId": f.refs["@session"]})["version"], 1)
+            trust_level = 3
+            with self.assertRaises(ServiceError) as caught:
+                f.service.invoke("updateSession", {**command, "nodeId": "entry"}, "test-owner")
+            self.assertEqual(caught.exception.code, "AUTHORIZATION_DENIED")
+            result = f.service.invoke("updateSession", command, "test-owner")
+            self.assertEqual(result["result"]["version"], 2)
+            self.assertEqual(f.store.execute(f.actor, {"action": "getSession", "sessionId": f.refs["@session"]})["nodeId"], "next")
+            with self.assertRaises(ServiceError) as caught:
+                f.service.invoke("updateSession", {**command, "requestId": "stale"}, "test-owner")
+            self.assertEqual(caught.exception.code, "STATE_CONFLICT")
+        finally:
+            f.close()
+
     def test_access_context_preserves_storage_size_limits(self):
         f = Fixture()
         try:

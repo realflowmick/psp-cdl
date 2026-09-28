@@ -9,6 +9,12 @@ Open standards and reference implementations for protecting LLM workflows, spons
 
 ## Standards
 
+**Implementation priority (2026-09-28):** complete PSP/CDL execution before
+effectiveness studies. The [implementation queue](docs/protocol-implementation.md)
+includes missing workflow semantics beyond the older integration backlog. The
+paired [qualified transition engine](docs/transitions.md) now implements ordered
+expression branching with source, trust, priority and signature qualification.
+
 | Document | Version | Status |
 | --- | --- | --- |
 | [PSP Core](specs/psp/RFC-PSP-CORE-v3_2_0.md) | 3.2.0 | Proposed Standard |

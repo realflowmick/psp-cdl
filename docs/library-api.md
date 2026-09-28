@@ -1,5 +1,9 @@
 # Reusable library API
 
+For deterministic PSP branching and provenance qualification, use the paired
+[transition selector](transitions.md). It supports expression-based transitions
+and can be used inside existing host transition authorization.
+
 For durable workflow state, see the [persistence API and storage options](persistence.md). Its replaceable store uses these core JSON codecs and leaves parsing independent of database I/O.
 
 For authenticated HTTP/MCP session and checkpoint operations, see the [workflow API](workflow-api.md) and [runnable examples](../examples/workflow/README.md). Hosts own authentication, transition approval, policy revisions and data-release views.
