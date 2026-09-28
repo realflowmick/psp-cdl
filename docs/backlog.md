@@ -1,6 +1,6 @@
 # Progress and actionable backlog
 
-Planning snapshot: 2026-09-27, based on merged main commit `5d35c42` after PR #66 and the [acceptance reconciliation](reviews/2026-09-25-acceptance.md). PRs #53-#66 are merged; #33, #37, #39 and #48 are closed. Development execution, usage/admission preparation, pilot planning/analysis and external-corpus execution/grading are merged. Signed result manifests and offline reproduction audits are merged in #65/#66. The current #49 work is assembling the study freeze review inputs; see the [review brief](../evaluation/FREEZE-REVIEW.md). Update this index and the relevant GitHub tracker when a slice merges or its scope changes. Live issue state takes precedence over this dated snapshot. The [roadmap](../ROADMAP.md) retains milestone completion gates.
+Planning snapshot: 2026-09-27, based on merged main commit `5d35c42` after PR #66 and the [acceptance reconciliation](reviews/2026-09-25-acceptance.md). PRs #53-#66 are merged; #33, #37, #39 and #48 are closed. Development execution, usage/admission preparation, pilot planning/analysis and external-corpus execution/grading are merged. Signed result manifests and offline reproduction audits are merged in #65/#66. The 2026-09-28 implementation-first direction below supersedes the previous #49 study-preparation priority. Update this index and the relevant GitHub tracker when a slice merges or its scope changes. Live issue state takes precedence over this dated snapshot. The [roadmap](../ROADMAP.md) retains milestone completion gates.
 
 The original eight open issues (#2-#9) are milestone trackers, not eight unstarted tasks. Of the 19 focused issues (#33-#51), 15 remain open; several already have merged implementation evidence and need normative disposition. Issue counts are not a completion percentage. M1-M5 remain incomplete; full workflow conformance, measured effectiveness and independent security review remain pending. Package publication stays disabled.
 
@@ -12,7 +12,9 @@ Substantial experimental libraries and scoped workflows are built. The full plan
 - **Needs review or adoption:** parser corrections, API standard and remaining security-tool dispositions (#34, #35, #38). Much of their implementation already exists.
 - **Needs evaluation or release work:** an actual effectiveness study, repeatable release artifacts and independent review (#49-#51). An offline test pass does not finish these tasks.
 
-**Current delivery: #49 study freeze review preparation.** The [signed-result guide](../evaluation/SIGNED-RESULTS.md) documents paired Ed25519 APIs, host-owned run-scoped trust and exact artifact verification. The separate envelope preserves the executor's files, negative/unknown outcomes and invalid-source status. Shared vectors and signing in both language directions cover public rehearsal evidence. The [audit guide](../evaluation/RESULT-AUDIT.md) documents the paired offline regrading and analysis reproduction merged in #66, including recovered evidence and explicit mismatches; usage/latency and observation truth remain outside its scope. Use the [freeze review brief](../evaluation/FREEZE-REVIEW.md) to assemble validation evidence, obtain independent corpus/rubric/method review and record the study freeze. Prepare the reviewed bundle before obtaining the operator admission bound to its exact digest. All collection gates remain pending. No held-out corpus, paid run or completed study is claimed; #49 remains open.
+**Current delivery: complete PSP/CDL implementation.** Follow the [protocol implementation queue](protocol-implementation.md), including workflow semantics missing from the older focused issues. The paired [qualified transition engine](transitions.md) adds expression branching, source qualification and same-scope target selection; actual service commit tests cover denied and allowed transitions. Next implement graph compilation and durable orchestration of the required node types. This additive draft profile does not complete the workflow runtime or adopt pending specification changes.
+
+**Study sequencing:** #49 freeze review and collection follow protocol implementation coverage. The merged planners, grading, signed-result tools and offline audits remain available. No held-out effectiveness study has run. The [freeze review brief](../evaluation/FREEZE-REVIEW.md) remains a later-stage checklist.
 
 ## Merged progress
 
@@ -36,7 +38,7 @@ artifacts (#58, included through #57), acceptance reconciliation (#59) and the
 offline workflow matrix (#60), development study runner (#61) and usage/readiness
 proposal (#62), offline pilot planning/analysis (#63), and external-corpus execution
 with paired grading (#64), signed result manifests (#65), and offline reproduction
-audits (#66). None of these PRs is awaiting merge. The next preparation step is
+audits (#66). None of these PRs is awaiting merge. The later study preparation step is
 the [study freeze review](../evaluation/FREEZE-REVIEW.md); independent reviewers,
 a held-out corpus and the collection decision remain outstanding.
 
@@ -73,10 +75,11 @@ semantic effectiveness testing and the M6 gates remain separate work.
 
 ## Remaining work
 
-**Review** identifies outstanding normative dispositions. **Coverage** extends merged infrastructure after its normative prerequisites. **In progress** identifies the selected evaluation preparation work. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication.
+**Review** identifies outstanding normative dispositions. **Coverage** extends merged infrastructure after its normative prerequisites. **Implementation** identifies protocol execution work; **Later study** follows implementation coverage. **Later** work has its own contract and dependency gates. **Deferred** candidates need explicit scope decisions. **Release** tasks prepare and review artifacts without authorizing publication.
 
 | Queue | Milestone | Task | Dependency or scope gate |
 | --- | --- | --- | --- |
+| Implementation | M2–M5 | [Complete protocol execution](protocol-implementation.md), starting with [qualified transitions](transitions.md) and application graphs | Shared contracts, paired behavior tests; preserve published baselines |
 | Review | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | First three acceptance criteria evidenced; [Parser 0.2 review](../specs/reviews/parser-review-0.2.json) and recorded normative decision remain |
 | Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | First three acceptance criteria evidenced; API comment window and recorded adoption decision remain pending |
 | Coverage | M2 | [#36 Differential fuzzing and grammar gaps](https://github.com/realflowmick/psp-cdl/issues/36) | #55 infrastructure merged; #34 gates accepted grammar changes |
@@ -89,7 +92,7 @@ semantic effectiveness testing and the M6 gates remain separate work.
 | Later | M5 | [#45 Completion/refresh/redirect composition](https://github.com/realflowmick/psp-cdl/issues/45) | Supported-mode matrix and atomic handoff contract |
 | Later | M5 | [#46 Scoped tools and revocation](https://github.com/realflowmick/psp-cdl/issues/46) | Fresh read-only authority; completed application state stays frozen |
 | Deferred | M5 | [#47 Additional refresh/signing integrations](https://github.com/realflowmick/psp-cdl/issues/47) | #34; separate required profile work from optional host products |
-| In progress | M6 | [#49 Preregister and run the effectiveness study](https://github.com/realflowmick/psp-cdl/issues/49) | #33/#48 complete; execution, usage/readiness, planning/analysis and external-corpus grading merged in #61–#64. Signed result manifests and [offline reproduction audits](../evaluation/RESULT-AUDIT.md) are merged in #65/#66; current work assembles the [freeze review inputs](../evaluation/FREEZE-REVIEW.md). Actual signed study results, held-out corpus/protocol freeze, independent review, further topologies/ablations and operator admission remain |
+| Later study | M6 | [#49 Preregister and run the effectiveness study](https://github.com/realflowmick/psp-cdl/issues/49) | #33/#48 complete; execution, usage/readiness, planning/analysis and external-corpus grading merged in #61–#64. Signed result manifests and [offline reproduction audits](../evaluation/RESULT-AUDIT.md) are merged in #65/#66; freeze review follows protocol implementation coverage. Actual signed study results, held-out corpus/protocol freeze, independent review, further topologies/ablations and operator admission remain |
 | Release | M7 | [#50 Repeatable artifacts and compatibility docs](https://github.com/realflowmick/psp-cdl/issues/50) | Local candidates only; publication stays disabled |
 | Release | M7 | [#51 Independent review and release decision](https://github.com/realflowmick/psp-cdl/issues/51) | #34, #48, #49, #50; reviewer appointments and recorded decision |
 

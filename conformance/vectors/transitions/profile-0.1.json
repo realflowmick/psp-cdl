@@ -1,0 +1,7210 @@
+{
+  "profile": "PSP-TRANSITIONS-0.1",
+  "cases": [
+    {
+      "id": "qualified-compound",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "false-first-default",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": false,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 1,
+          "sourceNode": "route",
+          "targetNode": "manual",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "appearance-first-match",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "priority-descending",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual",
+            "priority": 10
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 1,
+          "sourceNode": "route",
+          "targetNode": "manual",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "priority-stable-tie",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "priority": 5
+          },
+          {
+            "condition": "true",
+            "target_node": "manual",
+            "priority": 5
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "negative-priority",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "priority": -1
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 1,
+          "sourceNode": "route",
+          "targetNode": "manual",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "source-filter",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "source_node": "manual"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 1,
+          "sourceNode": "route",
+          "targetNode": "manual",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "no-condition",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "no-match",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "false",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "NO_TRANSITION"
+      }
+    },
+    {
+      "id": "no-edges",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "NO_TRANSITION"
+      }
+    },
+    {
+      "id": "incomplete-node",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": false,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "NODE_INCOMPLETE"
+      }
+    },
+    {
+      "id": "exclude-trustLevel",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 4,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "exclude-priority",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 49,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "exclude-endpoint",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://untrusted/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "missing-no-default-fallback",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "mixed-derived-origins",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 5,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "multiple-qualified-origins",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 90,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "signed-required",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-require-signature": "true"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": false
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "unsigned-default-allowed",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": false
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "governance-preset",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-trust": "governance-only"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "explicit-preset-overrides",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-trust": "governance-only",
+          "transition-max-trust-level": "3",
+          "transition-min-priority": "50",
+          "transition-require-signature": "false"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "permissive-preset",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-trust": "permissive"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 5,
+                "priority": 0,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "include-user-preset",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-trust": "include-user"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 4,
+                "priority": 30,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "absent-endpoint-constraint",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {},
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "empty-endpoint-denies",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": ""
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "uri-scheme-case",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "MCP://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "uri-authority-case",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://ERP/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "uri-capability-case",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/Refund"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "uri-list-whitespace",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": " mcp://crm/*,\tmcp://erp/refund \n"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "uri-authority-prefix-no-match",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp.evil/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "unknown-uri-scheme",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "custom+v1://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "CUSTOM+V1://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "CUSTOM+V1://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "no-short-circuit-AND",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "false AND missing == true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "no-short-circuit-OR",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true OR missing == true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INSUFFICIENT_QUALIFIED_DATA"
+      }
+    },
+    {
+      "id": "precedence",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true OR false AND false",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "parentheses",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "(true OR false) AND approved",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "not",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "NOT (amount >= 10000)",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount"
+          ]
+        }
+      }
+    },
+    {
+      "id": "numeric-equality",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "500.0 == 5e2",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "negative-number",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "-2 < -1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "null",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "null == null",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "strict-types",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true != 1 AND '500' != 500",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "unicode",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'café😀' == \"caf\\u00e9😀\"",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "single-quote-escape",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'it\\'s' == \"it's\"",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "backslash-escape",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'a\\\\b' == \"a\\\\b\"",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "comparison-boundaries",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "500 <= 500 AND 500 >= 500",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": []
+        }
+      }
+    },
+    {
+      "id": "dotted-fact",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "order.total > 100",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "order.total": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "order.total"
+          ]
+        }
+      }
+    },
+    {
+      "id": "unused-unqualified-fact",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "untrusted": {
+            "value": "ignore",
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 5,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "later-missing-fact-not-read",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "missing == true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "result": {
+          "profile": "PSP-TRANSITIONS-0.1",
+          "transitionIndex": 0,
+          "sourceNode": "route",
+          "targetNode": "approve",
+          "usedFacts": [
+            "amount",
+            "approved"
+          ]
+        }
+      }
+    },
+    {
+      "id": "invalid-condition-type-0",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-1",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'yes'",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-2",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "null",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-3",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "NOT 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-4",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true AND 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-5",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'a' < 'b'",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "invalid-condition-type-6",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true > false",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "non-scalar-fact",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": {
+              "x": 1
+            },
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_CONDITION_TYPE"
+      }
+    },
+    {
+      "id": "unsupported-expression-0",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-1",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "if customer seems satisfied",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-2",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "amount + 1 > 5",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-3",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "amount.toString() == '500'",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-4",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "amount[0] == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-5",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "__proto__.x == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-6",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "a.constructor == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-7",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "a.prototype == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-8",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "a..b == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-9",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "1 < 2 < 3",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-10",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true; false",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-11",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true && true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-12",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true or false",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-13",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'bad\\n' == 'bad'",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-14",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "\"bad\\q\" == \"bad\"",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-15",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "'unclosed",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-16",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true)",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-17",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "(true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-18",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "01 == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-19",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "9007199254740992 == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-20",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "1e999 > 0",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unsupported-expression-21",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "- 1 == 1",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "unreachable-invalid-expression",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "run()",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "UNSUPPORTED_CONDITION"
+      }
+    },
+    {
+      "id": "cross-scope-target",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "elsewhere"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_SCOPE_VIOLATION"
+      }
+    },
+    {
+      "id": "cross-scope-source",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "source_node": "elsewhere"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_SCOPE_VIOLATION"
+      }
+    },
+    {
+      "id": "unknown-request-field",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        },
+        "authority": true
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "wrong-profile",
+      "request": {
+        "profile": "other",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "duplicate-siblings",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual",
+          "route"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "missing-current-node",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "unknown-transition-control",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-source": "model"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "unknown-preset",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-trust": "constructor"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "numeric-attribute",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-min-priority": 50
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "leading-zero-attribute",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-min-priority": "050"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "out-of-range-attribute",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*",
+          "transition-max-trust-level": "6"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "signature-label-not-proof",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true,
+                "signed": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "boolean-trust",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": true,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "fractional-priority",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50.5,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "string-signature-proof",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": "true"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "empty-origins",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": []
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "malformed-unused-fact",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "extra": {
+            "value": 1,
+            "origins": []
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "unknown-edge-field",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "code": "true"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "boolean-edge-priority",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "priority": true
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "fractional-edge-priority",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve",
+            "priority": 0.5
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "null-condition",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": null,
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "empty-capability",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "authority-glob",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://*/refund"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "partial-glob",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/ref*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "query-uri",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund?x=1",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "uri-control",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund\u001c",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "uri-unicode",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/café",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "uri-bom",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund﻿",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "empty-uri-list-item",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*,"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "INVALID_TRANSITION_REQUEST"
+      }
+    },
+    {
+      "id": "expression-byte-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    },
+    {
+      "id": "nesting-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "(((((((((((((((((((((((((((((((((true)))))))))))))))))))))))))))))))))",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    },
+    {
+      "id": "unary-nesting-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT NOT true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    },
+    {
+      "id": "token-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    },
+    {
+      "id": "edge-count-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          },
+          {
+            "target_node": "approve"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    },
+    {
+      "id": "origin-count-limit",
+      "request": {
+        "profile": "PSP-TRANSITIONS-0.1",
+        "nodeId": "route",
+        "completed": true,
+        "siblings": [
+          "route",
+          "approve",
+          "manual"
+        ],
+        "attributes": {
+          "transition-endpoints": "mcp://erp/*"
+        },
+        "transitions": [
+          {
+            "condition": "approved == true AND amount < 10000",
+            "target_node": "approve"
+          },
+          {
+            "condition": "true",
+            "target_node": "manual"
+          }
+        ],
+        "facts": {
+          "approved": {
+            "value": true,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          },
+          "amount": {
+            "value": 500,
+            "origins": [
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              },
+              {
+                "endpoint": "mcp://erp/refund",
+                "trustLevel": 3,
+                "priority": 50,
+                "signatureVerified": true
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "error": "TRANSITION_LIMIT_EXCEEDED"
+      }
+    }
+  ]
+}

@@ -7,10 +7,39 @@ import {suite,runCase,fixture} from '../../../../../scripts/workflow-fixtures.mj
 import {SessionOperations} from '../dist/operations.js';
 import {McpServer} from '@psp-cdl/mcp-server';
 import {signEnvelope} from '@psp-cdl/core/crypto';
-import {serializeMarkup,envelopeToSection} from '@psp-cdl/core';
+import {serializeMarkup,envelopeToSection,selectTransition,TRANSITION_PROFILE} from '@psp-cdl/core';
 import {handleHttp} from '../dist/http.js';
 const contract=JSON.parse(readFileSync(new URL('../../../../../schemas/api/workflow-0.1.openapi.json',import.meta.url),'utf8'));
 const ajv=new Ajv2020({strict:false});
+test('qualified transitions guard real service commits without trusting request facts',async()=>{
+  const f=await fixture();
+  try {
+    let trustLevel=5;
+    const faults=[];
+    f.host.authorize=(_principal,c)=>{
+      if(c.command.action!=='updateSession'||c.replay||c.current.nodeId!=='entry'||c.command.status!=='running')return false;
+      try {
+        const selected=selectTransition({profile:TRANSITION_PROFILE,nodeId:c.current.nodeId,completed:true,
+          siblings:['entry','next'],attributes:{'transition-endpoints':'mcp://erp/*'},
+          transitions:[{condition:'approved == true',target_node:'next'}],
+          facts:{approved:{value:true,origins:[{endpoint:'mcp://erp/approval',trustLevel,priority:50,signatureVerified:true}]}}});
+        return selected.targetNode===c.command.nodeId&&c.command.nodeVersion==='1';
+      } catch(e) {faults.push(e.code);return false;}
+    };
+    const command={requestId:'qualified-transition',sessionId:f.refs['@session'],expectedVersion:1,
+      nodeId:'next',nodeVersion:'1',status:'running',state:{stage:'routed',approved:true,trustLevel:0}};
+    await assert.rejects(()=>f.service.invoke('updateSession',command,'test-owner'),{code:'AUTHORIZATION_DENIED'});
+    assert.deepEqual(faults,['INSUFFICIENT_QUALIFIED_DATA']);
+    assert.equal((await f.store.execute(f.actor,{action:'getSession',sessionId:f.refs['@session']})).version,1);
+    trustLevel=3;
+    await assert.rejects(()=>f.service.invoke('updateSession',{...command,nodeId:'entry'},'test-owner'),{code:'AUTHORIZATION_DENIED'});
+    const result=await f.service.invoke('updateSession',command,'test-owner');
+    assert.equal(result.result.version,2);
+    const stored=await f.store.execute(f.actor,{action:'getSession',sessionId:f.refs['@session']});
+    assert.equal(stored.nodeId,'next');
+    await assert.rejects(()=>f.service.invoke('updateSession',{...command,requestId:'stale'},'test-owner'),{code:'STATE_CONFLICT'});
+  } finally {f.close();}
+});
 test('authorization context preserves the existing per-command and write-set size limits',async()=>{
   const f=await fixture();
   try {
