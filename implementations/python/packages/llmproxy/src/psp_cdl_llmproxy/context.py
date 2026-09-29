@@ -186,6 +186,7 @@ class ContextLlmLoop(BufferedLlmLoop):
             if operation == "createCheckpoint" and event["event"] == "service-result":
                 latest = self._store.execute(owner, {"action":"getSession", "sessionId":session_id})
                 authority_now = self._snapshot(principal, latest)
+                if canonical_json(authority_now) != canonical_json(authority): raise LoopError("STALE_AUTHORITY")
                 self._check(controls, min(latest["expiresAt"], authority_now["expires"]))
                 self._decide(principal, {**binding, "sessionVersion":latest["version"]}, {**service_data, "event":event}, "release", aggregate_capabilities(authority_now["releaseSources"], authority_now["releaseComplete"]))
                 live = identity()

@@ -477,6 +477,31 @@
       }
     },
     {
+      "id": "checkpoint-delivery-authority-drift",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "driftDelivery": true
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting"
+      }
+    },
+    {
       "id": "checkpoint-release-denial-not-rollback",
       "proposals": [
         {

@@ -150,6 +150,7 @@ export class ContextLlmLoop extends BufferedLlmLoop {
       await identity();
       if(operation==="createCheckpoint"&&event.event==="service-result") {
         const latest=await this.store.execute(owner,{action:"getSession",sessionId}),a=await this.snapshot(principal,latest);
+        if(!same(a,authority))fail("STALE_AUTHORITY");
         this.check(controls,Math.min(latest.expiresAt as number,a.expires));
         await this.decide(principal,{...binding,sessionVersion:latest.version}, {...serviceData,event},"release",aggregateCapabilities(a.releaseSources,a.releaseComplete));
         const live=await identity();

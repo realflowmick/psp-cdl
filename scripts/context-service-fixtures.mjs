@@ -41,7 +41,7 @@ export async function runCase(c) {
         return true;
       },
       present:(_p,operation,data)=>{if(flags.projectionFail&&operation==='updateSession')throw new Error('PRIVATE_SERVICE_DETAIL');return data;},
-      deliverCheckpoint:(_p,data)=>{if(flags.deliverFail)throw new Error('PRIVATE_SERVICE_DETAIL');tokens.set(data.checkpointId,data.resumeToken);},
+      deliverCheckpoint:(_p,data)=>{if(flags.deliverFail)throw new Error('PRIVATE_SERVICE_DETAIL');tokens.set(data.checkpointId,data.resumeToken);if(flags.driftDelivery)f.baseFlags.drift=true;},
       resumeToken:(_p,id)=>tokens.get(id)??null});
     const make=()=>new ContextLlmLoop(f.store,f.gate,host,f.provider,service,configuration);
     result=await make().run('test-owner',f.session.sessionId,{message:'Please review my situation.'},{...f.options,requestId:'context-turn',maxRounds:flags.maxRounds??4});

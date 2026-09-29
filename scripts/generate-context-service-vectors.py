@@ -24,6 +24,7 @@ case('checkpoint-resume-denied',[save('help'),checkpoint],{'code':'AUTHORIZATION
 case('checkpoint-resume-session-mismatch',[save('help'),checkpoint],{'code':'AUTHORIZATION_DENIED','calls':2,'version':3,'status':'waiting'},{'resume':True,'resumeWrongSession':True})
 case('checkpoint-delivery-failure-not-rollback',[checkpoint,answer],{'code':'CHECKPOINT_DELIVERY_FAILED','calls':1,'version':2,'status':'waiting'},{'deliverFail':True})
 case('checkpoint-release-drift-not-rollback',[checkpoint,answer],{'code':'STALE_AUTHORITY','calls':1,'version':2,'status':'waiting'},{'driftPhase':'release'})
+case('checkpoint-delivery-authority-drift',[checkpoint,answer],{'code':'STALE_AUTHORITY','calls':1,'version':2,'status':'waiting'},{'driftDelivery':True})
 case('checkpoint-release-denial-not-rollback',[checkpoint,answer],{'code':'OUTPUT_DENIED','calls':1,'version':2,'status':'waiting'},{'displayDenied':True})
 case('projection-failure-after-commit-stops',[save('help'),answer],{'code':'INTERNAL_ERROR','calls':1,'version':2},{'projectionFail':True})
 case('forged-authority-field',[{**save('help'),'arguments':{**save('help')['arguments'],'sessionId':'other'}}],{'code':'INVALID_RESPONSE','version':1})

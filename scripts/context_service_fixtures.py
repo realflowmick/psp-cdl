@@ -57,6 +57,7 @@ def run_case(case):
         def deliver(_p,data):
             if flags.get('deliverFail'):raise ValueError('PRIVATE_SERVICE_DETAIL')
             tokens[data['checkpointId']]=data['resumeToken']
+            if flags.get('driftDelivery'):base.flags['drift']=True
         service=WorkflowService(base.store,SimpleNamespace(**vars(host),resolve=lambda *_:None,policy_version=lambda *_:'policy-1',authorize=authorize,present=present,deliver_checkpoint=deliver,resume_token=lambda p,k:tokens.get(k)))
         def make():return ContextLlmLoop(base.store,base.gate,host,f.provider,service,CONFIGURATION)
         result=make().run('test-owner',base.session['sessionId'],{'message':'Please review my situation.'},{**f.options,'requestId':'context-turn','maxRounds':flags.get('maxRounds',4)})
