@@ -6,6 +6,11 @@ all of it. `execution-boundary.txt` is a supplemental ownership preamble, not a
 complete PSP/CDL interpreter. Example artifacts are Apache-2.0; generated shared
 vectors are CC0-1.0.
 
+The [PSP Core 3.2.0 instruction candidate](../../docs/psp-interpreter.md) is the
+separate interpreter-reconciliation artifact. This scripted transport example does
+not install or validate that candidate; CDL reconciliation and service integration
+remain pending.
+
 A host composes its approved interpreter instructions, the preamble, the application
 and relevant workflow context into the text it signs for `LoopHost.prompt`:
 
