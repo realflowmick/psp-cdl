@@ -1,0 +1,4016 @@
+{
+  "schemaVersion": 1,
+  "status": "instruction-candidate; model-behavior-not-evaluated",
+  "date": "2026-09-29",
+  "scope": "All PSP register IDs indexed by review topic; not clause-complete semantic coverage. CDL deferred to priority 3.",
+  "candidate": {
+    "path": "specs/systemprompts/PSP-Core-v3_2_0-Interpreter-draft-0_1.md",
+    "sha256": "a928234c9c4dc661bca37f37af25a537a03cff53142ae4e0e738eea41d6c2082",
+    "hashEncoding": "utf8-lf"
+  },
+  "sources": [
+    {
+      "path": "conformance/requirements.json",
+      "sha256": "946d14709882c20b96b06db5ded8d0a963864710ae49c24b7db1ec49590dfd8c",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/psp/RFC-PSP-CORE-v3_2_0.md",
+      "sha256": "6453e9f75196de9ca20933fe637f4f4ed76117b56d7bcafc8143af382212d04a",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/profiles/PSP-SIGNATURE-2.0.md",
+      "sha256": "d3ce9ab4147bb07e91a922740df1c4ae87ae7db2849a2027a8e353e83ab9504c",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/profiles/PSP-TRUST-1.0.md",
+      "sha256": "385833de969ac2cc847c1a3e0c1474c3fef6d784335ca477968587ad7d771b91",
+      "hashEncoding": "utf8-lf"
+    }
+  ],
+  "legacyInputs": [
+    {
+      "path": "specs/systemprompts/CDL_Governance_System_Prompt1_1.md",
+      "sha256": "5349ba3b599cef6cce300ad6a0b514ead1ac555cbae30a0f7bc8f4f4b68187f7",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Adherence-Stances-v3_1_1.md",
+      "sha256": "fa6f5d140173850d3134ea3ca77b6205e79229fad20d5ec789987b767805a694",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Core-v3_1_2-Lite-Preamble.md",
+      "sha256": "c93dd9ad601ee2fe9a4258571aa31289c6544985f62bacdaca93f0125badfe42",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Core-v3_1_2-Lite-Preamble_min.md",
+      "sha256": "0ceb641f4c592dc37ebdfbf5c9bc1acf30472b7ee606274159d89ccc0de69ed5",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Core-v3_1_2-SystemPrompt.md",
+      "sha256": "d3f753171217d362b5df53d184fd0749750a559e9d6c231817dded8460600329",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Core-v3_1_2-SystemPrompt_min.md",
+      "sha256": "594d5ce1b7b92aa7d2c20ed4a25df6da1c46b29b952782c8f27ad7d2a292dbcf",
+      "hashEncoding": "raw-bytes"
+    },
+    {
+      "path": "specs/systemprompts/PSP_Form_Node_System_Prompt.md",
+      "sha256": "cf036e6191a0958be3d73d95ad5958d9b3548d0ca6085ec19ea915a14cf07e40",
+      "hashEncoding": "raw-bytes"
+    }
+  ],
+  "topics": {
+    "ownership": {
+      "promptSections": [
+        "P01",
+        "P04"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Live model/state integration remains pending."
+    },
+    "syntax": {
+      "promptSections": [
+        "P02"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Structural parsing is external; PSP-E007 and parent-scope ambiguity remain open."
+    },
+    "trust": {
+      "promptSections": [
+        "P03"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Host provenance required; attention isolation is unsupported by this prompt."
+    },
+    "signatures": {
+      "promptSections": [
+        "P03",
+        "P11"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Cryptographic operations and authoritative key/time/scope checks cannot be performed by prompt text."
+    },
+    "turns": {
+      "promptSections": [
+        "P04",
+        "P05"
+      ],
+      "disposition": "instruction-candidate",
+      "remainingGap": "Multi-turn, composite, loop and reset behavior has not been exercised with a model."
+    },
+    "affinity": {
+      "promptSections": [
+        "P06",
+        "P08"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Effective tool bindings and nested scope authorization require service integration."
+    },
+    "transitions": {
+      "promptSections": [
+        "P07"
+      ],
+      "disposition": "instruction-candidate",
+      "remainingGap": "Natural-language qualification/branching remains untested; priority semantics may need disposition."
+    },
+    "nested": {
+      "promptSections": [
+        "P08"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Independent child-session composition is not implemented by this artifact."
+    },
+    "output": {
+      "promptSections": [
+        "P09"
+      ],
+      "disposition": "instruction-candidate",
+      "remainingGap": "Actual state/output channel contract and schema projection remain priority 4."
+    },
+    "persistence": {
+      "promptSections": [
+        "P01",
+        "P04",
+        "P09",
+        "P13"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Atomic persistence requires real receipts; remote effects are not covered by database atomicity."
+    },
+    "checkpoint": {
+      "promptSections": [
+        "P10",
+        "P11"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Private token projection and authenticated checkpoint/resume integration remain pending."
+    },
+    "refresh": {
+      "promptSections": [
+        "P11"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "PSP-E009 pending; adaptive/checkpoint/degraded adapter support remains incomplete."
+    },
+    "threat": {
+      "promptSections": [
+        "P12"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Raw scoring is untested; deterministic accumulation/enforcement belongs to host controls."
+    },
+    "errors": {
+      "promptSections": [
+        "P13"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "No model behavior evidence; mutating effect recovery requires a separate contract."
+    },
+    "completion": {
+      "promptSections": [
+        "P14"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Host enforcement and mode composition remain separately gated."
+    },
+    "portability": {
+      "promptSections": [
+        "P15"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "No cross-model interpretation/handoff execution evidence."
+    },
+    "encryption": {
+      "promptSections": [
+        "P16"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Keys/decryption are external; existing unsupported forms remain unsupported."
+    },
+    "libraries": {
+      "promptSections": [
+        "P16"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Library/edit/setting binding services require explicit integration."
+    },
+    "modes": {
+      "promptSections": [
+        "P12",
+        "P17"
+      ],
+      "disposition": "review-required",
+      "remainingGap": "Mode skips and profile requirements need explicit host configuration; no implicit downgrade."
+    },
+    "confidentiality": {
+      "promptSections": [
+        "P12",
+        "P14"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Zone terminology needs review; prompts alone cannot establish non-disclosure."
+    },
+    "api": {
+      "promptSections": [
+        "P06",
+        "P10",
+        "P17"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "API adoption and actual control-channel tool bindings remain pending."
+    }
+  },
+  "requirements": [
+    {
+      "id": "PSP-SIG-001",
+      "sourceSection": "17.3;17.4",
+      "sourceLine": null,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-SIG-002",
+      "sourceSection": "17.4",
+      "sourceLine": null,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-JSON-001",
+      "sourceSection": "17.8",
+      "sourceLine": null,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-PARSE-001",
+      "sourceSection": "6;7",
+      "sourceLine": null,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-KEY-001",
+      "sourceSection": "17.5",
+      "sourceLine": null,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-AFF-001",
+      "sourceSection": "11",
+      "sourceLine": null,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-PROV-001",
+      "sourceSection": "12",
+      "sourceLine": null,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-STATE-001",
+      "sourceSection": "22",
+      "sourceLine": null,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-TOOLS-001",
+      "sourceSection": "22.5.2",
+      "sourceLine": null,
+      "topic": "api",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-REFRESH-001",
+      "sourceSection": "21.9-21.20",
+      "sourceLine": null,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-COMPLETE-001",
+      "sourceSection": "24;28.12",
+      "sourceLine": null,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-THREAT-001",
+      "sourceSection": "28",
+      "sourceLine": null,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "API-CONTRACT-001",
+      "sourceSection": "1.3",
+      "sourceLine": null,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-TRUST-001",
+      "sourceSection": "Profile 1",
+      "sourceLine": null,
+      "topic": "trust",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-ISOLATION-001",
+      "sourceSection": "Profile 2",
+      "sourceLine": null,
+      "topic": "trust",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-MEDIATION-001",
+      "sourceSection": "Profile 3;4",
+      "sourceLine": null,
+      "topic": "ownership",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00009-01",
+      "sourceSection": "Prompt State Protocol (PSP) – Core Specification",
+      "sourceLine": 9,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00129-01",
+      "sourceSection": "2.1 Core PSP Definitions",
+      "sourceLine": 129,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00143-01",
+      "sourceSection": "2.1 Core PSP Definitions",
+      "sourceLine": 143,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00145-01",
+      "sourceSection": "2.1 Core PSP Definitions",
+      "sourceLine": 145,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00145-02",
+      "sourceSection": "2.1 Core PSP Definitions",
+      "sourceLine": 145,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00165-01",
+      "sourceSection": "2.2 Prompt Applications Definitions",
+      "sourceLine": 165,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00525-01",
+      "sourceSection": "5.4 Atomicity Guarantee",
+      "sourceLine": 525,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00597-01",
+      "sourceSection": "6.1.1 Self-Closing Tags",
+      "sourceLine": 597,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00608-01",
+      "sourceSection": "6.2 Attribute Syntax",
+      "sourceLine": 608,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00660-01",
+      "sourceSection": "7.1.1 SYSTEM Section",
+      "sourceLine": 660,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00661-01",
+      "sourceSection": "7.1.1 SYSTEM Section",
+      "sourceLine": 661,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00662-01",
+      "sourceSection": "7.1.1 SYSTEM Section",
+      "sourceLine": 662,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00675-01",
+      "sourceSection": "7.1.2 CONTEXT Section",
+      "sourceLine": 675,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00688-01",
+      "sourceSection": "7.1.3 USER Section",
+      "sourceLine": 688,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00690-01",
+      "sourceSection": "7.1.3 USER Section",
+      "sourceLine": 690,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00756-01",
+      "sourceSection": "7.1.5 MACHINE Section",
+      "sourceLine": 756,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00798-01",
+      "sourceSection": "7.1.5 MACHINE Section",
+      "sourceLine": 798,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00811-01",
+      "sourceSection": "7.1.6 LINK Section",
+      "sourceLine": 811,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00942-01",
+      "sourceSection": "8.2 Required Attributes",
+      "sourceLine": 942,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00948-01",
+      "sourceSection": "8.2 Required Attributes",
+      "sourceLine": 948,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00971-01",
+      "sourceSection": "8.3 Application Modes",
+      "sourceLine": 971,
+      "topic": "modes",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L00971-02",
+      "sourceSection": "8.3 Application Modes",
+      "sourceLine": 971,
+      "topic": "modes",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01000-01",
+      "sourceSection": "8.5 Post-Completion Policy",
+      "sourceLine": 1000,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01004-01",
+      "sourceSection": "8.5.1 The `post-completion` Attribute",
+      "sourceLine": 1004,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01009-01",
+      "sourceSection": "8.5.1 The `post-completion` Attribute",
+      "sourceLine": 1009,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01026-01",
+      "sourceSection": "8.5.2 Attribute Syntax",
+      "sourceLine": 1026,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01070-01",
+      "sourceSection": "8.5.2 Attribute Syntax",
+      "sourceLine": 1070,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01078-01",
+      "sourceSection": "8.5.3 Post-Completion Threat State",
+      "sourceLine": 1078,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01087-01",
+      "sourceSection": "8.5.4 Post-Completion and System Prompt Confidentiality",
+      "sourceLine": 1087,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01098-01",
+      "sourceSection": "8.5.5 Security Considerations",
+      "sourceLine": 1098,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01117-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1117,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01119-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1119,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01119-02",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1119,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01119-03",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1119,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01121-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1121,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01121-02",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1121,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01121-03",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1121,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01123-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1123,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01123-02",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1123,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01125-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1125,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01125-02",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1125,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01125-03",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1125,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01125-04",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1125,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01159-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1159,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01172-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1172,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01176-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1176,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01186-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1186,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01187-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1187,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01188-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1188,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01189-01",
+      "sourceSection": "8.5.6 Lockdown Enforcement Architecture",
+      "sourceLine": 1189,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01193-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1193,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01238-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1238,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01239-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1239,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01240-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1240,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01241-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1241,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01301-01",
+      "sourceSection": "8.6 Nested Applications",
+      "sourceLine": 1301,
+      "topic": "nested",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01340-01",
+      "sourceSection": "9.2 Node Identity",
+      "sourceLine": 1340,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01345-01",
+      "sourceSection": "9.2 Node Identity",
+      "sourceLine": 1345,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01348-01",
+      "sourceSection": "9.2 Node Identity",
+      "sourceLine": 1348,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01367-01",
+      "sourceSection": "9.4 Multi-Turn Node Execution",
+      "sourceLine": 1367,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01386-01",
+      "sourceSection": "9.4 Multi-Turn Node Execution",
+      "sourceLine": 1386,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01440-01",
+      "sourceSection": "10.1.1 Prompt Node",
+      "sourceLine": 1440,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01750-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1750,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01759-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1759,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01762-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1762,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01764-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1764,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01766-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1766,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01767-01",
+      "sourceSection": "11.2 PSP Agent URI Scheme",
+      "sourceLine": 1767,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01869-01",
+      "sourceSection": "11.5 LLM Behavioral Requirement",
+      "sourceLine": 1869,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01871-01",
+      "sourceSection": "11.5 LLM Behavioral Requirement",
+      "sourceLine": 1871,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01877-01",
+      "sourceSection": "11.6 Model Resolution",
+      "sourceLine": 1877,
+      "topic": "affinity",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01883-01",
+      "sourceSection": "11.6 Model Resolution",
+      "sourceLine": 1883,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01884-01",
+      "sourceSection": "11.6 Model Resolution",
+      "sourceLine": 1884,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L01981-01",
+      "sourceSection": "11.8 Security Considerations",
+      "sourceLine": 1981,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02061-01",
+      "sourceSection": "12.4 MCP Response Trust Tagging",
+      "sourceLine": 2061,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02089-01",
+      "sourceSection": "12.5 Transition-Source Constraint Attributes",
+      "sourceLine": 2089,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02178-01",
+      "sourceSection": "12.7 Data Qualification Process",
+      "sourceLine": 2178,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02189-01",
+      "sourceSection": "12.7 Data Qualification Process",
+      "sourceLine": 2189,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02196-01",
+      "sourceSection": "12.8 Output Schema Source Binding",
+      "sourceLine": 2196,
+      "topic": "transitions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02401-01",
+      "sourceSection": "13.1 SYSTEM Block Semantics",
+      "sourceLine": 2401,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02402-01",
+      "sourceSection": "13.1 SYSTEM Block Semantics",
+      "sourceLine": 2402,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02403-01",
+      "sourceSection": "13.1 SYSTEM Block Semantics",
+      "sourceLine": 2403,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02404-01",
+      "sourceSection": "13.1 SYSTEM Block Semantics",
+      "sourceLine": 2404,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02417-01",
+      "sourceSection": "13.2 CONTEXT Block Semantics",
+      "sourceLine": 2417,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02418-01",
+      "sourceSection": "13.2 CONTEXT Block Semantics",
+      "sourceLine": 2418,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02419-01",
+      "sourceSection": "13.2 CONTEXT Block Semantics",
+      "sourceLine": 2419,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02429-01",
+      "sourceSection": "13.3 Signature Verification",
+      "sourceLine": 2429,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02443-01",
+      "sourceSection": "14.1 Output Schema",
+      "sourceLine": 2443,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02463-01",
+      "sourceSection": "14.1 Output Schema",
+      "sourceLine": 2463,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02464-01",
+      "sourceSection": "14.1 Output Schema",
+      "sourceLine": 2464,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L02501-01",
+      "sourceSection": "14.3.2 Application Output Schema",
+      "sourceLine": 2501,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03006-01",
+      "sourceSection": "14.3.6 Variable Accumulation Rules",
+      "sourceLine": 3006,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03044-01",
+      "sourceSection": "14.3.8 Signature on Application Output",
+      "sourceLine": 3044,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03064-01",
+      "sourceSection": "14.3.9 Persistence and Recovery",
+      "sourceLine": 3064,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03181-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3181,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03182-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3182,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03183-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3183,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03184-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3184,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03185-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3185,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03186-01",
+      "sourceSection": "14.3.10 Cross-Model Workflow Portability",
+      "sourceLine": 3186,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03270-01",
+      "sourceSection": "16.2 Node Execution",
+      "sourceLine": 3270,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03334-01",
+      "sourceSection": "17.1 Signature Algorithms",
+      "sourceLine": 3334,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03336-01",
+      "sourceSection": "17.1.1 Ed25519 (RECOMMENDED)",
+      "sourceLine": 3336,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03433-01",
+      "sourceSection": "17.3.1 Canonicalization and Protected Content",
+      "sourceLine": 3433,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03448-01",
+      "sourceSection": "17.3.2 Signature Input",
+      "sourceLine": 3448,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03454-01",
+      "sourceSection": "17.3.3 Signature Encoding",
+      "sourceLine": 3454,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03471-01",
+      "sourceSection": "17.4.2 Timestamp Validation",
+      "sourceLine": 3471,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03484-01",
+      "sourceSection": "17.4.2 Timestamp Validation",
+      "sourceLine": 3484,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03486-01",
+      "sourceSection": "17.4.2 Timestamp Validation",
+      "sourceLine": 3486,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03486-02",
+      "sourceSection": "17.4.2 Timestamp Validation",
+      "sourceLine": 3486,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03502-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3502,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03505-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3505,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03506-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3506,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03507-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3507,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03508-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3508,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03509-01",
+      "sourceSection": "17.5.1 For Asymmetric Algorithms (Ed25519, RSA, ECDSA)",
+      "sourceLine": 3509,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03533-01",
+      "sourceSection": "17.6 Signature Attributes",
+      "sourceLine": 3533,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03539-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3539,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03542-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3542,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03543-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3543,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03543-02",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3543,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03544-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3544,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03545-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3545,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03548-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3548,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03554-01",
+      "sourceSection": "17.6.1 Key Identifier (kid)",
+      "sourceLine": 3554,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03687-01",
+      "sourceSection": "17.7.3 Signature Coverage",
+      "sourceLine": 3687,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03703-01",
+      "sourceSection": "17.7.5 Backward Compatibility",
+      "sourceLine": 3703,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E007"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03711-01",
+      "sourceSection": "17.8 JSON Payload Format for API and MCP Transport",
+      "sourceLine": 3711,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03722-01",
+      "sourceSection": "17.8.1 Standard JSON Payload Structure",
+      "sourceLine": 3722,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03774-01",
+      "sourceSection": "17.8.3 Extended Attribute Names (x-prefix)",
+      "sourceLine": 3774,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03935-01",
+      "sourceSection": "17.8.7 Nested PSP Envelopes",
+      "sourceLine": 3935,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03978-01",
+      "sourceSection": "17.8.7 Nested PSP Envelopes",
+      "sourceLine": 3978,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L03988-01",
+      "sourceSection": "17.8.9 Schema Definition",
+      "sourceLine": 3988,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04011-01",
+      "sourceSection": "17.8.10 Interoperability with PSP Delimiter Format",
+      "sourceLine": 4011,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04015-01",
+      "sourceSection": "17.9 Content Encryption",
+      "sourceLine": 4015,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04015-02",
+      "sourceSection": "17.9 Content Encryption",
+      "sourceLine": 4015,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04067-01",
+      "sourceSection": "17.9.2 Supported Encryption Algorithms",
+      "sourceLine": 4067,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04086-01",
+      "sourceSection": "17.9.3 Sign-Then-Encrypt vs Encrypt-Then-Sign",
+      "sourceLine": 4086,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04104-01",
+      "sourceSection": "17.9.4 Decryption Workflow",
+      "sourceLine": 4104,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04201-01",
+      "sourceSection": "17.9.6 Key Management for Encryption",
+      "sourceLine": 4201,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04202-01",
+      "sourceSection": "17.9.6 Key Management for Encryption",
+      "sourceLine": 4202,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04203-01",
+      "sourceSection": "17.9.6 Key Management for Encryption",
+      "sourceLine": 4203,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04204-01",
+      "sourceSection": "17.9.6 Key Management for Encryption",
+      "sourceLine": 4204,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04208-01",
+      "sourceSection": "17.9.7 JSON Envelope Format for Encrypted Content",
+      "sourceLine": 4208,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04336-01",
+      "sourceSection": "17.9.10 Decryption Zone Enforcement",
+      "sourceLine": 4336,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04336-02",
+      "sourceSection": "17.9.10 Decryption Zone Enforcement",
+      "sourceLine": 4336,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04408-01",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4408,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04414-01",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4414,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04422-01",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4422,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04424-01",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4424,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04448-01",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4448,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04448-02",
+      "sourceSection": "17.9.11 PSP Protocol Definition Encryption Prohibition",
+      "sourceLine": 4448,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04478-01",
+      "sourceSection": "17.9.13 Decryption Audit Trail",
+      "sourceLine": 4478,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04495-01",
+      "sourceSection": "17.9.13 Decryption Audit Trail",
+      "sourceLine": 4495,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04517-01",
+      "sourceSection": "18.1 Version Requirement",
+      "sourceLine": 4517,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04555-01",
+      "sourceSection": "18.3 Version in Signatures",
+      "sourceLine": 4555,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04567-01",
+      "sourceSection": "18.4 Version Consistency",
+      "sourceLine": 4567,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04568-01",
+      "sourceSection": "18.4 Version Consistency",
+      "sourceLine": 4568,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04569-01",
+      "sourceSection": "18.4 Version Consistency",
+      "sourceLine": 4569,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04573-01",
+      "sourceSection": "18.5 Node Retrieval by Version",
+      "sourceLine": 4573,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L04597-01",
+      "sourceSection": "18.6 Version History and Audit",
+      "sourceLine": 4597,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05154-01",
+      "sourceSection": "20.11 MCP Library Operations",
+      "sourceLine": 5154,
+      "topic": "libraries",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05333-01",
+      "sourceSection": "21.5 Key Rotation Strategy",
+      "sourceLine": 5333,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05378-01",
+      "sourceSection": "21.7 Refresh Lead Time and Expired Content",
+      "sourceLine": 5378,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05380-01",
+      "sourceSection": "21.7 Refresh Lead Time and Expired Content",
+      "sourceLine": 5380,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05447-01",
+      "sourceSection": "21.11 Refresh Directive Attributes",
+      "sourceLine": 5447,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05524-01",
+      "sourceSection": "21.13 Refresh Endpoint Contract",
+      "sourceLine": 5524,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05553-01",
+      "sourceSection": "21.13 Refresh Endpoint Contract",
+      "sourceLine": 5553,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05555-01",
+      "sourceSection": "21.13 Refresh Endpoint Contract",
+      "sourceLine": 5555,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05559-01",
+      "sourceSection": "21.14 Version Continuity on Refresh",
+      "sourceLine": 5559,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05568-01",
+      "sourceSection": "21.14 Version Continuity on Refresh",
+      "sourceLine": 5568,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05701-01",
+      "sourceSection": "21.19 Adaptive Refresh Indicators",
+      "sourceLine": 5701,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05745-01",
+      "sourceSection": "21.20 Token Cost Considerations",
+      "sourceLine": 5745,
+      "topic": "refresh",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05758-01",
+      "sourceSection": "22.1 Persistence Requirements",
+      "sourceLine": 5758,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05769-01",
+      "sourceSection": "22.2 Persistence Timing",
+      "sourceLine": 5769,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05780-01",
+      "sourceSection": "22.2 Persistence Timing",
+      "sourceLine": 5780,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05784-01",
+      "sourceSection": "22.3 Storage Format",
+      "sourceLine": 5784,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05805-01",
+      "sourceSection": "22.4 State Reconstruction",
+      "sourceLine": 5805,
+      "topic": "portability",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05809-01",
+      "sourceSection": "22.5 MCP Server Interface Requirements",
+      "sourceLine": 5809,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05815-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5815,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05840-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5840,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05841-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5841,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05842-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5842,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05843-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5843,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05844-01",
+      "sourceSection": "22.5.1 Session Management",
+      "sourceLine": 5844,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05853-01",
+      "sourceSection": "22.5.2 Required MCP Tools",
+      "sourceLine": 5853,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L05945-01",
+      "sourceSection": "21.5.5 Security Operations",
+      "sourceLine": 5945,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E006"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06235-01",
+      "sourceSection": "23.3 Escape Handling",
+      "sourceLine": 6235,
+      "topic": "errors",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06245-01",
+      "sourceSection": "23.4 Escape Transitions",
+      "sourceLine": 6245,
+      "topic": "errors",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06262-01",
+      "sourceSection": "Core Syntax",
+      "sourceLine": 6262,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06264-01",
+      "sourceSection": "Core Syntax",
+      "sourceLine": 6264,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06266-01",
+      "sourceSection": "Core Syntax",
+      "sourceLine": 6266,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06270-01",
+      "sourceSection": "Sections",
+      "sourceLine": 6270,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06272-01",
+      "sourceSection": "Sections",
+      "sourceLine": 6272,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06274-01",
+      "sourceSection": "Sections",
+      "sourceLine": 6274,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06278-01",
+      "sourceSection": "Signatures",
+      "sourceLine": 6278,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06280-01",
+      "sourceSection": "Signatures",
+      "sourceLine": 6280,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06282-01",
+      "sourceSection": "Signatures",
+      "sourceLine": 6282,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06284-01",
+      "sourceSection": "Signatures",
+      "sourceLine": 6284,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06286-01",
+      "sourceSection": "Signatures",
+      "sourceLine": 6286,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06290-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6290,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06292-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6292,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06294-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6294,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06296-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6296,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06298-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6298,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06300-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6300,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06302-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6302,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06304-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6304,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06308-01",
+      "sourceSection": "Encryption",
+      "sourceLine": 6308,
+      "topic": "encryption",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06312-01",
+      "sourceSection": "Versioning",
+      "sourceLine": 6312,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06314-01",
+      "sourceSection": "Versioning",
+      "sourceLine": 6314,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06316-01",
+      "sourceSection": "Versioning",
+      "sourceLine": 6316,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06320-01",
+      "sourceSection": "Expiration",
+      "sourceLine": 6320,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06322-01",
+      "sourceSection": "Expiration",
+      "sourceLine": 6322,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06326-01",
+      "sourceSection": "Re-fetch",
+      "sourceLine": 6326,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06328-01",
+      "sourceSection": "Re-fetch",
+      "sourceLine": 6328,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06332-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6332,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06334-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6334,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06336-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6336,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06338-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6338,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06340-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6340,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06342-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6342,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06344-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6344,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06346-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6346,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06348-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6348,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06350-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6350,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06352-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6352,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06354-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6354,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06356-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6356,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06358-01",
+      "sourceSection": "Prompt Refresh Directives",
+      "sourceLine": 6358,
+      "topic": "refresh",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06362-01",
+      "sourceSection": "Applications",
+      "sourceLine": 6362,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06364-01",
+      "sourceSection": "Applications",
+      "sourceLine": 6364,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06368-01",
+      "sourceSection": "Persistence",
+      "sourceLine": 6368,
+      "topic": "persistence",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06370-01",
+      "sourceSection": "Persistence",
+      "sourceLine": 6370,
+      "topic": "persistence",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06374-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6374,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06376-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6376,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06378-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6378,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06380-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6380,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06382-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6382,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06384-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6384,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06386-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6386,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06388-01",
+      "sourceSection": "MCP Server Requirements",
+      "sourceLine": 6388,
+      "topic": "api",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06392-01",
+      "sourceSection": "Multi-Turn Node Execution",
+      "sourceLine": 6392,
+      "topic": "turns",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06394-01",
+      "sourceSection": "Multi-Turn Node Execution",
+      "sourceLine": 6394,
+      "topic": "turns",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06396-01",
+      "sourceSection": "Multi-Turn Node Execution",
+      "sourceLine": 6396,
+      "topic": "turns",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06400-01",
+      "sourceSection": "Transitions",
+      "sourceLine": 6400,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06404-01",
+      "sourceSection": "SYSTEM Blocks",
+      "sourceLine": 6404,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06406-01",
+      "sourceSection": "SYSTEM Blocks",
+      "sourceLine": 6406,
+      "topic": "syntax",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06410-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6410,
+      "topic": "confidentiality",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06412-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6412,
+      "topic": "confidentiality",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06414-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6414,
+      "topic": "confidentiality",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06416-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6416,
+      "topic": "confidentiality",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06418-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6418,
+      "topic": "confidentiality",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06422-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6422,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06424-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6424,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06426-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6426,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06428-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6428,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06430-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6430,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06430-02",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6430,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06432-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6432,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06434-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6434,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06436-01",
+      "sourceSection": "Post-Completion Policy",
+      "sourceLine": 6436,
+      "topic": "completion",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06440-01",
+      "sourceSection": "Escape Semantics",
+      "sourceLine": 6440,
+      "topic": "errors",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06444-01",
+      "sourceSection": "Node-Agent Affinity",
+      "sourceLine": 6444,
+      "topic": "affinity",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06446-01",
+      "sourceSection": "Node-Agent Affinity",
+      "sourceLine": 6446,
+      "topic": "affinity",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06450-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6450,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06452-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6452,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06454-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6454,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06456-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6456,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06458-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6458,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06462-01",
+      "sourceSection": "Transition-Source Constraints",
+      "sourceLine": 6462,
+      "topic": "transitions",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06466-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6466,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06468-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6468,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06470-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6470,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06472-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6472,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06474-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6474,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06476-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6476,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06478-01",
+      "sourceSection": "Application Output",
+      "sourceLine": 6478,
+      "topic": "output",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06482-01",
+      "sourceSection": "JSON Payload Format",
+      "sourceLine": 6482,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06484-01",
+      "sourceSection": "JSON Payload Format",
+      "sourceLine": 6484,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06486-01",
+      "sourceSection": "JSON Payload Format",
+      "sourceLine": 6486,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06488-01",
+      "sourceSection": "JSON Payload Format",
+      "sourceLine": 6488,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06490-01",
+      "sourceSection": "JSON Payload Format",
+      "sourceLine": 6490,
+      "topic": "signatures",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06494-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6494,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06496-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6496,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06498-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6498,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06500-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6500,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06502-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6502,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06504-01",
+      "sourceSection": "Node Ownership",
+      "sourceLine": 6504,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06508-01",
+      "sourceSection": "Block Libraries",
+      "sourceLine": 6508,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06510-01",
+      "sourceSection": "Block Libraries",
+      "sourceLine": 6510,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06512-01",
+      "sourceSection": "Block Libraries",
+      "sourceLine": 6512,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06514-01",
+      "sourceSection": "Block Libraries",
+      "sourceLine": 6514,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06518-01",
+      "sourceSection": "Settings Schema",
+      "sourceLine": 6518,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06520-01",
+      "sourceSection": "Settings Schema",
+      "sourceLine": 6520,
+      "topic": "libraries",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06526-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6526,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06528-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6528,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06530-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6530,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06532-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6532,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06534-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6534,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06536-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6536,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06538-01",
+      "sourceSection": "Nested Applications",
+      "sourceLine": 6538,
+      "topic": "nested",
+      "registerStatus": "blocked",
+      "blockedBy": [
+        "PSP-E008",
+        "PSP-E009"
+      ],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06552-01",
+      "sourceSection": "Node",
+      "sourceLine": 6552,
+      "topic": "turns",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06586-01",
+      "sourceSection": "SYSTEM Block",
+      "sourceLine": 6586,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06590-01",
+      "sourceSection": "System Prompt Confidentiality",
+      "sourceLine": 6590,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06602-01",
+      "sourceSection": "MACHINE Section",
+      "sourceLine": 6602,
+      "topic": "trust",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06618-01",
+      "sourceSection": "Output",
+      "sourceLine": 6618,
+      "topic": "output",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06642-01",
+      "sourceSection": "Session ID",
+      "sourceLine": 6642,
+      "topic": "api",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06776-01",
+      "sourceSection": "27.1 Integrity of SYSTEM Blocks",
+      "sourceLine": 6776,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06800-01",
+      "sourceSection": "27.3 Confidentiality",
+      "sourceLine": 6800,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06817-01",
+      "sourceSection": "27.4 System Prompt Confidentiality",
+      "sourceLine": 6817,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06833-01",
+      "sourceSection": "27.4 System Prompt Confidentiality",
+      "sourceLine": 6833,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06834-01",
+      "sourceSection": "27.4 System Prompt Confidentiality",
+      "sourceLine": 6834,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06839-01",
+      "sourceSection": "27.4 System Prompt Confidentiality",
+      "sourceLine": 6839,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06839-02",
+      "sourceSection": "27.4 System Prompt Confidentiality",
+      "sourceLine": 6839,
+      "topic": "confidentiality",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06847-01",
+      "sourceSection": "27.5 Replay Protection and Signature Expiration",
+      "sourceLine": 6847,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06862-01",
+      "sourceSection": "27.6 State Integrity and Validation",
+      "sourceLine": 6862,
+      "topic": "persistence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06870-01",
+      "sourceSection": "27.7 Checkpoint and Resume Security",
+      "sourceLine": 6870,
+      "topic": "checkpoint",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06874-01",
+      "sourceSection": "27.7 Checkpoint and Resume Security",
+      "sourceLine": 6874,
+      "topic": "checkpoint",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06880-01",
+      "sourceSection": "27.8 Version Integrity",
+      "sourceLine": 6880,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06881-01",
+      "sourceSection": "27.8 Version Integrity",
+      "sourceLine": 6881,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06882-01",
+      "sourceSection": "27.8 Version Integrity",
+      "sourceLine": 6882,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06883-01",
+      "sourceSection": "27.8 Version Integrity",
+      "sourceLine": 6883,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06887-01",
+      "sourceSection": "27.9 Identity and Access Control",
+      "sourceLine": 6887,
+      "topic": "api",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L06975-01",
+      "sourceSection": "28.2 Threat Signal Sources",
+      "sourceLine": 6975,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07159-01",
+      "sourceSection": "28.6 Accumulation Semantics",
+      "sourceLine": 7159,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07202-01",
+      "sourceSection": "28.8 Cross-Session Considerations",
+      "sourceLine": 7202,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07216-01",
+      "sourceSection": "28.8 Cross-Session Considerations",
+      "sourceLine": 7216,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07382-01",
+      "sourceSection": "28.11.4 Context-Blind Assessment Requirements",
+      "sourceLine": 7382,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07394-01",
+      "sourceSection": "28.11.4 Context-Blind Assessment Requirements",
+      "sourceLine": 7394,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07530-01",
+      "sourceSection": "28.12.3 Infrastructure vs. Model Enforcement",
+      "sourceLine": 7530,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07542-01",
+      "sourceSection": "28.12.3 Infrastructure vs. Model Enforcement",
+      "sourceLine": 7542,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07549-01",
+      "sourceSection": "28.12.3 Infrastructure vs. Model Enforcement",
+      "sourceLine": 7549,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07724-01",
+      "sourceSection": "30.1 PSP Node Type Registry",
+      "sourceLine": 7724,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07740-01",
+      "sourceSection": "30.1.1 PSP Section Type Registry",
+      "sourceLine": 7740,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07764-01",
+      "sourceSection": "30.2 PSP Attribute Registry",
+      "sourceLine": 7764,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07877-01",
+      "sourceSection": "30.3 PSP Signature Algorithm Registry",
+      "sourceLine": 7877,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07880-01",
+      "sourceSection": "30.3 PSP Signature Algorithm Registry",
+      "sourceLine": 7880,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07886-01",
+      "sourceSection": "30.3 PSP Signature Algorithm Registry",
+      "sourceLine": 7886,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07896-01",
+      "sourceSection": "30.4 PSP Encryption Algorithm Registry",
+      "sourceLine": 7896,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07903-01",
+      "sourceSection": "30.4 PSP Encryption Algorithm Registry",
+      "sourceLine": 7903,
+      "topic": "encryption",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07931-01",
+      "sourceSection": "30.6 PSP Media Type",
+      "sourceLine": 7931,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07943-01",
+      "sourceSection": "30.7 PSP Trust Level Registry",
+      "sourceLine": 7943,
+      "topic": "trust",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07958-01",
+      "sourceSection": "30.8 PSP Agent URI Scheme Registry",
+      "sourceLine": 7958,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L07968-01",
+      "sourceSection": "30.8 PSP Agent URI Scheme Registry",
+      "sourceLine": 7968,
+      "topic": "affinity",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L08070-01",
+      "sourceSection": "30.13 PSP Decay Model Registry",
+      "sourceLine": 8070,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L08118-01",
+      "sourceSection": "30.15 PSP Pattern Signature Registry",
+      "sourceLine": 8118,
+      "topic": "threat",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "PSP-3.2.0-L08234-01",
+      "sourceSection": "30.24 PSP Post-Completion Override Attempt Signal",
+      "sourceLine": 8234,
+      "topic": "completion",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    }
+  ],
+  "deferredCdlRequirementIds": [
+    "CDL-PARSE-001",
+    "CDL-INHERIT-001",
+    "CDL-MATCH-001",
+    "CDL-TRUST-001",
+    "CDL-TOPO-001",
+    "CDL-TOKEN-002",
+    "CDL-LIMIT-001",
+    "CDL-NEGATE-001",
+    "CDL-ORIGIN-001",
+    "CDL-CAP-001",
+    "CDL-EVIDENCE-001",
+    "CDL-ROLE-001",
+    "CDL-JURISDICTION-001",
+    "CDL-BASIS-001",
+    "CDL-RESULT-001",
+    "CDL-1.5-L00015-01",
+    "CDL-1.5-L00015-02",
+    "CDL-1.5-L00113-01",
+    "CDL-1.5-L00113-02",
+    "CDL-1.5-L00153-01",
+    "CDL-1.5-L00153-02",
+    "CDL-1.5-L00201-01",
+    "CDL-1.5-L00223-01",
+    "CDL-1.5-L00255-01",
+    "CDL-1.5-L00272-01",
+    "CDL-1.5-L00485-01",
+    "CDL-1.5-L00638-01",
+    "CDL-1.5-L00658-01",
+    "CDL-1.5-L00662-01",
+    "CDL-1.5-L00671-01",
+    "CDL-1.5-L00871-01",
+    "CDL-1.5-L00875-01",
+    "CDL-1.5-L00887-01",
+    "CDL-1.5-L00897-01",
+    "CDL-1.5-L00913-01",
+    "CDL-1.5-L00913-02",
+    "CDL-1.5-L00919-01",
+    "CDL-1.5-L00919-02",
+    "CDL-1.5-L00940-01",
+    "CDL-1.5-L01004-01",
+    "CDL-1.5-L01005-01",
+    "CDL-1.5-L01005-02",
+    "CDL-1.5-L01029-01",
+    "CDL-1.5-L01029-02",
+    "CDL-1.5-L01033-01",
+    "CDL-1.5-L01039-01",
+    "CDL-1.5-L01121-01",
+    "CDL-1.5-L01393-01",
+    "CDL-1.5-L01496-01",
+    "CDL-1.5-L01502-01",
+    "CDL-1.5-L01513-01",
+    "CDL-1.5-L01524-01",
+    "CDL-1.5-L01535-01",
+    "CDL-1.5-L01546-01",
+    "CDL-1.5-L01713-01",
+    "CDL-1.5-L01746-01",
+    "CDL-1.5-L01756-01",
+    "CDL-1.5-L01879-01",
+    "CDL-1.5-L01902-01",
+    "CDL-1.5-L01904-01",
+    "CDL-1.5-L01926-01",
+    "CDL-1.5-L01940-01",
+    "CDL-1.5-L01940-02",
+    "CDL-1.5-L01942-01",
+    "CDL-1.5-L01956-01",
+    "CDL-1.5-L01958-01",
+    "CDL-1.5-L01958-02",
+    "CDL-1.5-L01977-01",
+    "CDL-1.5-L01977-02",
+    "CDL-1.5-L01977-03",
+    "CDL-1.5-L01995-01",
+    "CDL-1.5-L01995-02",
+    "CDL-1.5-L02028-01",
+    "CDL-1.5-L02062-01",
+    "CDL-1.5-L02063-01",
+    "CDL-1.5-L02064-01",
+    "CDL-1.5-L02065-01",
+    "CDL-1.5-L02069-01",
+    "CDL-1.5-L02070-01",
+    "CDL-1.5-L02071-01",
+    "CDL-1.5-L02076-01",
+    "CDL-1.5-L02077-01",
+    "CDL-1.5-L02084-01",
+    "CDL-1.5-L02096-01",
+    "CDL-1.5-L02098-01",
+    "CDL-1.5-L02104-01",
+    "CDL-1.5-L02104-02",
+    "CDL-1.5-L02569-01",
+    "CDL-1.5-L02569-02",
+    "CDL-1.5-L02927-01",
+    "CDL-1.5-L02933-01",
+    "CDL-1.5-L03003-01",
+    "CDL-1.5-L03034-01",
+    "CDL-1.5-L03052-01",
+    "CDL-1.5-L03056-01",
+    "CDL-1.5-L03062-01"
+  ]
+}
