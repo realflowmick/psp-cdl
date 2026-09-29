@@ -11,8 +11,10 @@ Open standards and reference implementations for protecting LLM workflows, spons
 including natural-language transitions. The external transition engine is removed
 and the proposed external graph executor is withdrawn. See the
 [architecture correction](docs/in-context-execution.md) and
-[implementation-first backlog](docs/protocol-implementation.md). Next: reconcile
-the in-context interpreter and connect model-produced state to supporting services.
+[implementation-first backlog](docs/protocol-implementation.md).
+The [PSP interpreter candidate](docs/psp-interpreter.md) now records Core 3.2.0
+instructions, requirement mappings and unexecuted review scenarios. CDL instruction
+reconciliation and live context/service integration remain pending.
 Effectiveness studies follow implementation.
 
 ## Standards
