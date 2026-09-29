@@ -1,0 +1,1101 @@
+{
+  "license": "CC0-1.0",
+  "profile": "PSP-CONTEXT-SERVICE-0.1",
+  "evidence": "scripted-provider transport; no model reasoning measured",
+  "cases": [
+    {
+      "id": "model-selects-help",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "OK",
+        "calls": 2,
+        "version": 2,
+        "node": "help",
+        "events": [
+          "service-result"
+        ],
+        "hasCandidates": true,
+        "privateLeak": false
+      }
+    },
+    {
+      "id": "model-selects-survey",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "survey",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "survey",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "OK",
+        "calls": 2,
+        "version": 2,
+        "node": "survey",
+        "events": [
+          "service-result"
+        ],
+        "hasCandidates": true,
+        "privateLeak": false
+      }
+    },
+    {
+      "id": "host-denies-then-model-chooses-alternative",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "survey",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "survey",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyHelp": true
+      },
+      "expected": {
+        "code": "OK",
+        "calls": 3,
+        "version": 2,
+        "node": "survey",
+        "events": [
+          "service-denied",
+          "service-result"
+        ]
+      }
+    },
+    {
+      "id": "persistence-denial-visible",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyPersistence": true
+      },
+      "expected": {
+        "code": "OK",
+        "calls": 2,
+        "version": 1,
+        "node": "entry",
+        "events": [
+          "service-denied"
+        ]
+      }
+    },
+    {
+      "id": "node-fetch-result",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "getNode",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1"
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "OK",
+        "calls": 2,
+        "version": 1,
+        "events": [
+          "service-result"
+        ]
+      }
+    },
+    {
+      "id": "missing-node-denial",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "getNode",
+          "arguments": {
+            "nodeId": "missing",
+            "nodeVersion": "1"
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "OK",
+        "calls": 2,
+        "events": [
+          "service-denied"
+        ]
+      }
+    },
+    {
+      "id": "checkpoint-stops-inference",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "OK",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting",
+        "privateLeak": false
+      }
+    },
+    {
+      "id": "checkpoint-resume-rehydrates",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        }
+      ],
+      "flags": {
+        "resume": true
+      },
+      "expected": {
+        "code": "OK",
+        "calls": 3,
+        "version": 4,
+        "status": "running",
+        "node": "help",
+        "rehydrated": true,
+        "privateLeak": false,
+        "events": [
+          "service-result"
+        ]
+      }
+    },
+    {
+      "id": "checkpoint-resume-denied",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        }
+      ],
+      "flags": {
+        "resume": true,
+        "resumeDenied": true
+      },
+      "expected": {
+        "code": "AUTHORIZATION_DENIED",
+        "calls": 2,
+        "version": 3,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "checkpoint-resume-session-mismatch",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        }
+      ],
+      "flags": {
+        "resume": true,
+        "resumeWrongSession": true
+      },
+      "expected": {
+        "code": "AUTHORIZATION_DENIED",
+        "calls": 2,
+        "version": 3,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "checkpoint-delivery-failure-not-rollback",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "deliverFail": true
+      },
+      "expected": {
+        "code": "CHECKPOINT_DELIVERY_FAILED",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "checkpoint-release-drift-not-rollback",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "driftPhase": "release"
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "checkpoint-delivery-authority-drift",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "driftDelivery": true
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "checkpoint-release-denial-not-rollback",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "createCheckpoint",
+          "arguments": {
+            "expiresAt": 1600
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "displayDenied": true
+      },
+      "expected": {
+        "code": "OUTPUT_DENIED",
+        "calls": 1,
+        "version": 2,
+        "status": "waiting"
+      }
+    },
+    {
+      "id": "projection-failure-after-commit-stops",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "projectionFail": true
+      },
+      "expected": {
+        "code": "INTERNAL_ERROR",
+        "calls": 1,
+        "version": 2
+      }
+    },
+    {
+      "id": "forged-authority-field",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            },
+            "sessionId": "other"
+          }
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "version": 1
+      }
+    },
+    {
+      "id": "unsupported-model-resume",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "resumeCheckpoint",
+          "arguments": {}
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "UNSUPPORTED_SERVICE",
+        "version": 1
+      }
+    },
+    {
+      "id": "unsupported-model-completion",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            },
+            "status": "completed"
+          }
+        }
+      ],
+      "flags": {},
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "version": 1
+      }
+    },
+    {
+      "id": "malformed-response",
+      "proposals": [
+        "not JSON"
+      ],
+      "flags": {},
+      "expected": {
+        "code": "INVALID_RESPONSE",
+        "version": 1
+      }
+    },
+    {
+      "id": "prompt-tamper",
+      "proposals": [
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "tamperedPrompt": true
+      },
+      "expected": {
+        "code": "PROMPT_REJECTED",
+        "calls": 0,
+        "version": 1
+      }
+    },
+    {
+      "id": "inference-policy-denial",
+      "proposals": [
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyPhase": "inference"
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "calls": 0
+      }
+    },
+    {
+      "id": "answer-release-denial",
+      "proposals": [
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "displayDenied": true
+      },
+      "expected": {
+        "code": "OUTPUT_DENIED",
+        "calls": 1
+      }
+    },
+    {
+      "id": "transcript-policy-before-service-write",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyService": true
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "version": 1,
+        "calls": 1
+      }
+    },
+    {
+      "id": "service-authority-denial",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyWrite": true
+      },
+      "expected": {
+        "code": "OK",
+        "version": 1,
+        "events": [
+          "service-denied"
+        ]
+      }
+    },
+    {
+      "id": "revocation-during-service-authorization",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "revokeService": true
+      },
+      "expected": {
+        "code": "UNAUTHENTICATED",
+        "version": 1
+      }
+    },
+    {
+      "id": "cancellation-during-service-authorization",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "cancelService": true
+      },
+      "expected": {
+        "code": "CANCELLED",
+        "version": 1
+      }
+    },
+    {
+      "id": "authority-drift-during-service-authorization",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "driftService": true
+      },
+      "expected": {
+        "code": "STALE_AUTHORITY",
+        "version": 1
+      }
+    },
+    {
+      "id": "competing-writer-before-commit",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "raceService": true
+      },
+      "expected": {
+        "code": "STALE_SESSION",
+        "version": 2,
+        "node": "entry",
+        "state": {
+          "stage": "concurrent"
+        }
+      }
+    },
+    {
+      "id": "denied-receipt-ingress",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "denyNextInference": true
+      },
+      "expected": {
+        "code": "POLICY_DENIED",
+        "calls": 1,
+        "version": 2
+      }
+    },
+    {
+      "id": "round-limit-before-write",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "help",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "help",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        }
+      ],
+      "flags": {
+        "maxRounds": 1
+      },
+      "expected": {
+        "code": "ROUND_LIMIT",
+        "version": 1,
+        "calls": 1
+      }
+    },
+    {
+      "id": "missing-model-scope",
+      "proposals": [
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "noModelScope": true
+      },
+      "expected": {
+        "code": "FORBIDDEN",
+        "calls": 0
+      }
+    },
+    {
+      "id": "read-tool-and-service-history",
+      "proposals": [
+        {
+          "type": "service",
+          "operation": "updateSession",
+          "arguments": {
+            "nodeId": "survey",
+            "nodeVersion": "1",
+            "state": {
+              "current_node": "survey",
+              "variables": {
+                "approved": false,
+                "amount": 20000
+              },
+              "history": [
+                {
+                  "node": "entry",
+                  "status": "completed"
+                }
+              ],
+              "governance": {
+                "x-cdl-covenants": "no-training"
+              }
+            }
+          }
+        },
+        {
+          "type": "answer",
+          "text": "Observed the actual service result."
+        }
+      ],
+      "flags": {
+        "readFirst": true
+      },
+      "expected": {
+        "code": "OK",
+        "calls": 3,
+        "toolCalls": 1,
+        "version": 2,
+        "hasToolHistory": true
+      }
+    }
+  ]
+}

@@ -15,7 +15,9 @@ and the proposed external graph executor is withdrawn. See the
 The [PSP interpreter candidate](docs/psp-interpreter.md) and
 [CDL interpreter candidate](docs/cdl-interpreter.md) now record instructions,
 requirement mappings and unexecuted review scenarios for Core 3.2.0 and CDL 1.5.
-Live context/service integration and model-behavior validation remain pending.
+The opt-in [context/service integration](docs/context-service.md) now connects these
+candidates to authorized state views, real writes and service feedback. Joint
+model-behavior validation remains pending.
 Effectiveness studies follow implementation.
 
 ## Standards

@@ -99,3 +99,7 @@ Run the normal repository checks and `python scripts/check-llm-parity.py` after
 building both workspaces. The 69 shared cases compare actual provider/tool calls,
 suppressed output, provider-visible transcripts and provenance; language tests
 also hold a provider callback while competing owner operations are rejected.
+
+The separate opt-in [context/service integration](context-service.md) composes
+this loop with authenticated workflow operations, both interpreter candidates
+and model-visible state/receipt data. Existing loop defaults are unchanged.
