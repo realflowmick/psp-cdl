@@ -4,7 +4,8 @@ Candidate: [Core 3.2.0 interpreter 0.1](../specs/systemprompts/PSP-Core-v3_2_0-I
 Tracking: [#72](https://github.com/realflowmick/psp-cdl/issues/72), under #7.
 This is the priority-2 instruction artifact. It is not installed in the provider
 loop, an adopted normative profile, or evidence of successful model execution.
-CDL reconciliation and context/service wiring remain the next priorities.
+The [CDL companion reconciliation](cdl-interpreter.md) now supplies priority 3;
+context/service wiring and joint behavior validation remain priority 4.
 
 The candidate is standalone: install it as authenticated SYSTEM text alongside
 the approved application, relevant context and explicit host capabilities. Do not
@@ -17,8 +18,9 @@ Trust 1.0 explicitly and provide actual verification/operation results.
 The [review index](reviews/psp-interpreter-0.1.json) pins the RFC, profiles,
 requirement register and candidate by SHA-256, records hashes of the seven local
 legacy files inspected, and indexes all **364 PSP requirements** from the
-460-entry register. The other **96 CDL requirements** are explicitly deferred to
-priority 3. The original register and its pending/blocked statuses are unchanged.
+460-entry register. The other **96 CDL requirements** were deferred to priority 3
+in this historical index and are now indexed by the [CDL companion](cdl-interpreter.md).
+The original register and its pending/blocked statuses are unchanged.
 Local legacy files are retained unchanged and are not added to Git by this slice.
 Their hashes identify the reviewed local inputs without requiring their presence
 in another checkout.
@@ -107,7 +109,7 @@ unambiguous contract or report blocked/unsupported behavior.
 | R09 | Legacy full-state emission, fixed marker order and extra status fields have no Core wire contract | Preserve semantic state requirements; defer actual channel/schema/lifecycle integration to priority 4. Do not advertise old conventions as normative. |
 | R10 | §5.4 atomic execution cannot be established by a model or an ordinary state write for remote effects | Distinguish receipt-confirmed state and unknown effects. Mutating recovery/idempotency remains #41/#42 work. |
 | R11 | RFC checkpoint output includes resume_token, but credentials must remain host-private | Use a permitted model-visible projection and host-private handoff. Full checkpoint wire/storage mapping awaits priority 4; no new token schema here. |
-| R12 | Adherence stances/form-node companion instructions add semantics beyond this Core slice | Do not silently import them as Core requirements. Separate extension reconciliation if selected. CDL prompt remains priority 3. |
+| R12 | Adherence stances/form-node companion instructions add semantics beyond this Core slice | Do not silently import them as Core requirements. Separate extension reconciliation if selected. CDL instructions now have a separate [priority-3 candidate](cdl-interpreter.md). |
 
 ## Review scenarios and validation
 
@@ -123,7 +125,7 @@ This static check deliberately leaves every model scenario `not-run` and every
 whole-clause status unchanged. It does not score prompt semantics or run a model.
 Existing library, Python and parity checks remain infrastructure regression checks.
 
-Before promoting the candidate: review R01–R12; reconcile CDL; define the actual
+Before promoting the candidate: review R01–R12 and the CDL companion; define the actual
 model-visible context/state and private host channels; exercise the scenarios
 with model outputs and real service outcomes; map evidence back to obligations.
 Effectiveness evaluation and publication retain their separate gates.

@@ -1,0 +1,1051 @@
+{
+  "schemaVersion": 1,
+  "status": "instruction-candidate; model-behavior-not-evaluated",
+  "date": "2026-09-29",
+  "scope": "All 96 CDL register IDs indexed by review topic; not clause-complete semantic coverage. PSP companion covers the other 364 IDs.",
+  "candidate": {
+    "path": "specs/systemprompts/CDL-v1_5-Interpreter-draft-0_1.md",
+    "sha256": "50bc7a44810b8213504a4bde08b89050c8f9cc4861a86de05831b79146f23384",
+    "hashEncoding": "utf8-lf"
+  },
+  "sources": [
+    {
+      "path": "conformance/requirements.json",
+      "sha256": "946d14709882c20b96b06db5ded8d0a963864710ae49c24b7db1ec49590dfd8c",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/cdl/RFC-CDL-v1_5.md",
+      "sha256": "e60871a4e8d427c2dd1ca770865fd1d27e223926bf58c052c9b8bb77e27e9dec",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/profiles/CDL-DETERMINISTIC-1.0.md",
+      "sha256": "3a341e23fdf3fe378baf4fc9b50e82f3f61201bd8a2b882c3f685a27d62a8bd2",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/profiles/PSP-TRUST-1.0.md",
+      "sha256": "385833de969ac2cc847c1a3e0c1474c3fef6d784335ca477968587ad7d771b91",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/profiles/PSP-SIGNATURE-2.0.md",
+      "sha256": "d3ce9ab4147bb07e91a922740df1c4ae87ae7db2849a2027a8e353e83ab9504c",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "conformance/policy/cdl-1.0.json",
+      "sha256": "e7313a626033997c85871c6f5464140e403b0e4e974f64b145cd7d7e0aebaf66",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "docs/reviews/psp-interpreter-0.1.json",
+      "sha256": "382a4af7672c21c2d74726fb703cb6f1aad743af797ff69f8e6997d10e33b23a",
+      "hashEncoding": "utf8-lf"
+    },
+    {
+      "path": "specs/systemprompts/PSP-Core-v3_2_0-Interpreter-draft-0_1.md",
+      "sha256": "a928234c9c4dc661bca37f37af25a537a03cff53142ae4e0e738eea41d6c2082",
+      "hashEncoding": "utf8-lf"
+    }
+  ],
+  "legacyInputs": [
+    {
+      "path": "specs/systemprompts/CDL_Governance_System_Prompt1_1.md",
+      "sha256": "5349ba3b599cef6cce300ad6a0b514ead1ac555cbae30a0f7bc8f4f4b68187f7",
+      "hashEncoding": "raw-bytes"
+    }
+  ],
+  "companionReview": "docs/reviews/psp-interpreter-0.1.json",
+  "topics": {
+    "semantics": {
+      "promptSections": [
+        "C01",
+        "C06"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Model semantic matching is untested; an interpretation does not grant effect authority."
+    },
+    "syntax": {
+      "promptSections": [
+        "C02"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Finite profile syntax differs from broader baseline bindings; no new parser behavior."
+    },
+    "inheritance": {
+      "promptSections": [
+        "C03"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Actual instance/schema attachment and unsupported applicators require integration."
+    },
+    "negation": {
+      "promptSections": [
+        "C04"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Origin/path/revision grants require authenticated host policy; no chat override."
+    },
+    "capabilities": {
+      "promptSections": [
+        "C05"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Complete discovery and capability honesty require external evidence and effect observations."
+    },
+    "matching": {
+      "promptSections": [
+        "C06"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Pinned host rules do not establish model semantic adherence or obligation execution."
+    },
+    "derived": {
+      "promptSections": [
+        "C07",
+        "C15"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Replacement policies and state projections require an authorized transformation/release contract."
+    },
+    "visibility": {
+      "promptSections": [
+        "C08"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "No model confidentiality evidence; pre-inference and output release paths need integration."
+    },
+    "roles": {
+      "promptSections": [
+        "C09"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Identity and exact role evidence remain external; arbitrary role/permission terms unsupported."
+    },
+    "jurisdictions": {
+      "promptSections": [
+        "C09"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Complete processing locations require host evidence; finite profile supports EU/US only."
+    },
+    "evidence": {
+      "promptSections": [
+        "C10"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Current evidence and enforceable ongoing controls cannot be supplied by model assertions."
+    },
+    "legal-basis": {
+      "promptSections": [
+        "C10"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Origin-local alternatives must retain provenance; no legal conclusion or expanded basis support."
+    },
+    "signatures": {
+      "promptSections": [
+        "C11"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Verify complete original signed content and authority externally before normalization."
+    },
+    "topology": {
+      "promptSections": [
+        "C12"
+      ],
+      "disposition": "host-required",
+      "remainingGap": "Complete mediation and minimum topology remain real deployment requirements, not prompt guarantees."
+    },
+    "vocabulary": {
+      "promptSections": [
+        "C13"
+      ],
+      "disposition": "review-required",
+      "remainingGap": "Broader vocabulary remains semantically visible but unsupported without selected adapters/profiles."
+    },
+    "reporting": {
+      "promptSections": [
+        "C14"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "Actual decision/audit receipts and permitted diagnostic projections require priority 4."
+    },
+    "composition": {
+      "promptSections": [
+        "C07",
+        "C15"
+      ],
+      "disposition": "instruction-and-host",
+      "remainingGap": "PSP/CDL context, state and service composition remains priority 4."
+    }
+  },
+  "requirements": [
+    {
+      "id": "CDL-PARSE-001",
+      "sourceSection": "4",
+      "sourceLine": null,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-INHERIT-001",
+      "sourceSection": "6",
+      "sourceLine": null,
+      "topic": "inheritance",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-MATCH-001",
+      "sourceSection": "7;Appendix B",
+      "sourceLine": null,
+      "topic": "matching",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-TRUST-001",
+      "sourceSection": "9;13.2",
+      "sourceLine": null,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-TOPO-001",
+      "sourceSection": "7.6",
+      "sourceLine": null,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-TOKEN-002",
+      "sourceSection": "Profile 2",
+      "sourceLine": null,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-LIMIT-001",
+      "sourceSection": "Profile 2;3",
+      "sourceLine": null,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-NEGATE-001",
+      "sourceSection": "Profile 3",
+      "sourceLine": null,
+      "topic": "negation",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-ORIGIN-001",
+      "sourceSection": "Profile 3;7;8",
+      "sourceLine": null,
+      "topic": "inheritance",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-CAP-001",
+      "sourceSection": "Profile 1;4",
+      "sourceLine": null,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-EVIDENCE-001",
+      "sourceSection": "Profile 1;5",
+      "sourceLine": null,
+      "topic": "evidence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-ROLE-001",
+      "sourceSection": "Profile 6",
+      "sourceLine": null,
+      "topic": "roles",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-JURISDICTION-001",
+      "sourceSection": "Profile 6",
+      "sourceLine": null,
+      "topic": "jurisdictions",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-BASIS-001",
+      "sourceSection": "Profile 7",
+      "sourceLine": null,
+      "topic": "legal-basis",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-RESULT-001",
+      "sourceSection": "Profile 8",
+      "sourceLine": null,
+      "topic": "reporting",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00015-01",
+      "sourceSection": "Document Abstract",
+      "sourceLine": 15,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00015-02",
+      "sourceSection": "Document Abstract",
+      "sourceLine": 15,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00113-01",
+      "sourceSection": "2.2 Key Terms",
+      "sourceLine": 113,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00113-02",
+      "sourceSection": "2.2 Key Terms",
+      "sourceLine": 113,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00153-01",
+      "sourceSection": "3.2 Covenants (`x-cdl-covenants`)",
+      "sourceLine": 153,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00153-02",
+      "sourceSection": "3.2 Covenants (`x-cdl-covenants`)",
+      "sourceLine": 153,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00201-01",
+      "sourceSection": "4.1 Dual Format Support",
+      "sourceLine": 201,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00223-01",
+      "sourceSection": "4.2 Parsing Rules",
+      "sourceLine": 223,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00255-01",
+      "sourceSection": "4.4 Case Sensitivity",
+      "sourceLine": 255,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00272-01",
+      "sourceSection": "5. Capability Discovery Patterns",
+      "sourceLine": 272,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00485-01",
+      "sourceSection": "5.8 Capability Inheritance and Aggregation Rules",
+      "sourceLine": 485,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00638-01",
+      "sourceSection": "6.6 Inheritance Algorithm",
+      "sourceLine": 638,
+      "topic": "inheritance",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00658-01",
+      "sourceSection": "7. Covenant-Capability Matching and Enforcement Topologies",
+      "sourceLine": 658,
+      "topic": "matching",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00662-01",
+      "sourceSection": "7.1 Semantic Matching Model",
+      "sourceLine": 662,
+      "topic": "matching",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00671-01",
+      "sourceSection": "7.1 Semantic Matching Model",
+      "sourceLine": 671,
+      "topic": "matching",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00871-01",
+      "sourceSection": "7.6.1 Topology A: Direct LLM (Unproxied)",
+      "sourceLine": 871,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00875-01",
+      "sourceSection": "7.6.1 Topology A: Direct LLM (Unproxied)",
+      "sourceLine": 875,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00887-01",
+      "sourceSection": "7.6.2 Topology B: Chat-Host Proxied",
+      "sourceLine": 887,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00897-01",
+      "sourceSection": "7.6.3 Topology C: Full Proxy Chain",
+      "sourceLine": 897,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00913-01",
+      "sourceSection": "7.6.4 Topology Selection Guidance",
+      "sourceLine": 913,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00913-02",
+      "sourceSection": "7.6.4 Topology Selection Guidance",
+      "sourceLine": 913,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00919-01",
+      "sourceSection": "7.6.5 Graceful Degradation",
+      "sourceLine": 919,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00919-02",
+      "sourceSection": "7.6.5 Graceful Degradation",
+      "sourceLine": 919,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L00940-01",
+      "sourceSection": "8.2 Data Classifications (`x-cdl-classes`)",
+      "sourceLine": 940,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01004-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1004,
+      "topic": "derived",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01005-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1005,
+      "topic": "derived",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01005-02",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1005,
+      "topic": "derived",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01029-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1029,
+      "topic": "evidence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01029-02",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1029,
+      "topic": "evidence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01033-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1033,
+      "topic": "evidence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01039-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1039,
+      "topic": "legal-basis",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01121-01",
+      "sourceSection": "8.3 Data Covenants (`x-cdl-covenants`)",
+      "sourceLine": 1121,
+      "topic": "evidence",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01393-01",
+      "sourceSection": "8.5 Vocabulary Extension",
+      "sourceLine": 1393,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01496-01",
+      "sourceSection": "9.6 Signature Requirements",
+      "sourceLine": 1496,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01502-01",
+      "sourceSection": "9.6 Signature Requirements",
+      "sourceLine": 1502,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01513-01",
+      "sourceSection": "10.1 Minimum Implementation",
+      "sourceLine": 1513,
+      "topic": "syntax",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01524-01",
+      "sourceSection": "10.2 Recommended Implementation",
+      "sourceLine": 1524,
+      "topic": "reporting",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01535-01",
+      "sourceSection": "10.3 LLM Integration",
+      "sourceLine": 1535,
+      "topic": "composition",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01546-01",
+      "sourceSection": "10.4 Tool/Agent Implementation",
+      "sourceLine": 1546,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01713-01",
+      "sourceSection": "12.7 PSP Identity Context",
+      "sourceLine": 1713,
+      "topic": "roles",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01746-01",
+      "sourceSection": "12.7 PSP Identity Context",
+      "sourceLine": 1746,
+      "topic": "roles",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01756-01",
+      "sourceSection": "12.7 PSP Identity Context",
+      "sourceLine": 1756,
+      "topic": "roles",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01879-01",
+      "sourceSection": "12.1 Purpose of This Section",
+      "sourceLine": 1879,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01902-01",
+      "sourceSection": "12.2 HL7 Healthcare Privacy and Security Classification System",
+      "sourceLine": 1902,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01904-01",
+      "sourceSection": "12.2 HL7 Healthcare Privacy and Security Classification System",
+      "sourceLine": 1904,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01926-01",
+      "sourceSection": "12.3 W3C Open Digital Rights Language (ODRL)",
+      "sourceLine": 1926,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01940-01",
+      "sourceSection": "12.4 OASIS XACML",
+      "sourceLine": 1940,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01940-02",
+      "sourceSection": "12.4 OASIS XACML",
+      "sourceLine": 1940,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01942-01",
+      "sourceSection": "12.4 OASIS XACML",
+      "sourceLine": 1942,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01956-01",
+      "sourceSection": "12.5 W3C Data Privacy Vocabulary (DPV)",
+      "sourceLine": 1956,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01958-01",
+      "sourceSection": "12.5 W3C Data Privacy Vocabulary (DPV)",
+      "sourceLine": 1958,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01958-02",
+      "sourceSection": "12.5 W3C Data Privacy Vocabulary (DPV)",
+      "sourceLine": 1958,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01977-01",
+      "sourceSection": "12.7 EU Artificial Intelligence Act",
+      "sourceLine": 1977,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01977-02",
+      "sourceSection": "12.7 EU Artificial Intelligence Act",
+      "sourceLine": 1977,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01977-03",
+      "sourceSection": "12.7 EU Artificial Intelligence Act",
+      "sourceLine": 1977,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01995-01",
+      "sourceSection": "12.8 NIST AI Risk Management Framework",
+      "sourceLine": 1995,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L01995-02",
+      "sourceSection": "12.8 NIST AI Risk Management Framework",
+      "sourceLine": 1995,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02028-01",
+      "sourceSection": "12.12 Industry Conventions for AI Training",
+      "sourceLine": 2028,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02062-01",
+      "sourceSection": "13.1 Signature Verification",
+      "sourceLine": 2062,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02063-01",
+      "sourceSection": "13.1 Signature Verification",
+      "sourceLine": 2063,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02064-01",
+      "sourceSection": "13.1 Signature Verification",
+      "sourceLine": 2064,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02065-01",
+      "sourceSection": "13.1 Signature Verification",
+      "sourceLine": 2065,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02069-01",
+      "sourceSection": "13.2 Capability Honesty",
+      "sourceLine": 2069,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02070-01",
+      "sourceSection": "13.2 Capability Honesty",
+      "sourceLine": 2070,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02071-01",
+      "sourceSection": "13.2 Capability Honesty",
+      "sourceLine": 2071,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02076-01",
+      "sourceSection": "13.3 Covenant Tampering",
+      "sourceLine": 2076,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02077-01",
+      "sourceSection": "13.3 Covenant Tampering",
+      "sourceLine": 2077,
+      "topic": "signatures",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02084-01",
+      "sourceSection": "13.4 LLM Jailbreaking",
+      "sourceLine": 2084,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02096-01",
+      "sourceSection": "13.6 Compliance Attestation",
+      "sourceLine": 2096,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02098-01",
+      "sourceSection": "13.6 Compliance Attestation",
+      "sourceLine": 2098,
+      "topic": "capabilities",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02104-01",
+      "sourceSection": "13.7 Topology Downgrade",
+      "sourceLine": 2104,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02104-02",
+      "sourceSection": "13.7 Topology Downgrade",
+      "sourceLine": 2104,
+      "topic": "topology",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02569-01",
+      "sourceSection": "A.5 API Gateway Injection (Azure APIM)",
+      "sourceLine": 2569,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02569-02",
+      "sourceSection": "A.5 API Gateway Injection (Azure APIM)",
+      "sourceLine": 2569,
+      "topic": "semantics",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02927-01",
+      "sourceSection": "17. Appendix C: HL7 Term Mapping",
+      "sourceLine": 2927,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L02933-01",
+      "sourceSection": "17. Appendix C: HL7 Term Mapping",
+      "sourceLine": 2933,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L03003-01",
+      "sourceSection": "C.4 Information Sensitivity Mapping",
+      "sourceLine": 3003,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L03034-01",
+      "sourceSection": "C.7 Recommended Practice for Healthcare Deployments",
+      "sourceLine": 3034,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L03052-01",
+      "sourceSection": "C.7 Recommended Practice for Healthcare Deployments",
+      "sourceLine": 3052,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L03056-01",
+      "sourceSection": "C.8 Round-Trip Interoperability",
+      "sourceLine": 3056,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    },
+    {
+      "id": "CDL-1.5-L03062-01",
+      "sourceSection": "C.8 Round-Trip Interoperability",
+      "sourceLine": 3062,
+      "topic": "vocabulary",
+      "registerStatus": "unimplemented",
+      "blockedBy": [],
+      "coverage": "topic-index-only; clause-review-pending"
+    }
+  ]
+}

@@ -17,9 +17,10 @@ def read(path):
     return json.loads((ROOT / path).read_text(encoding="utf-8"))
 
 
-def check():
-    review = read("docs/reviews/psp-interpreter-0.1.json")
-    scenarios = read("docs/reviews/psp-interpreter-scenarios-0.1.json")["scenarios"]
+def check(protocol="psp"):
+    require(protocol in {"psp", "cdl"}, "Unknown interpreter review")
+    review = read(f"docs/reviews/{protocol}-interpreter-0.1.json")
+    scenarios = read(f"docs/reviews/{protocol}-interpreter-scenarios-0.1.json")["scenarios"]
     register = read("conformance/requirements.json")["requirements"]
     require(review["status"] == "instruction-candidate; model-behavior-not-evaluated",
             "Review must not claim executed model evidence")
@@ -37,9 +38,10 @@ def check():
         require(hashlib.sha256(data).hexdigest() == pin["sha256"],
                 f"Source changed; review and update its pin: {pin['path']}")
     prompt = (ROOT / review["candidate"]["path"]).read_text(encoding="utf-8")
-    sections = re.findall(r"^## (P\d{2}) ", prompt, re.MULTILINE)
+    prefix, section_count = ("P", 17) if protocol == "psp" else ("C", 15)
+    sections = re.findall(rf"^## ({prefix}\d{{2}}) ", prompt, re.MULTILINE)
     require(len(sections) == len(set(sections)), "Duplicate prompt section")
-    require(set(sections) == {f"P{i:02d}" for i in range(1, 18)},
+    require(set(sections) == {f"{prefix}{i:02d}" for i in range(1, section_count + 1)},
             "Prompt section inventory changed; review mapping")
     topics = review["topics"]
     dispositions = {"instruction-candidate", "instruction-and-host",
@@ -49,10 +51,10 @@ def check():
         require(topic["remainingGap"].strip(), f"Missing remaining gap: {name}")
         require(topic["promptSections"] and set(topic["promptSections"]) <= set(sections),
                 f"Unknown prompt section: {name}")
-    expected = {r["id"]: r for r in register if r["spec"] == "psp"}
+    expected = {r["id"]: r for r in register if r["spec"] == protocol}
     rows = review["requirements"]
     require(len(rows) == len(expected) and {r["id"] for r in rows} == set(expected),
-            "PSP requirement missing, duplicated or unknown")
+            f"{protocol.upper()} requirement missing, duplicated or unknown")
     for row in rows:
         source = expected[row["id"]]
         require(row["topic"] in topics, f"Unknown topic: {row['id']}")
@@ -63,10 +65,23 @@ def check():
                 f"Register metadata changed: {row['id']}")
         require(row["coverage"] == "topic-index-only; clause-review-pending",
                 f"Topic mapping is not clause conformance: {row['id']}")
-    deferred = review["deferredCdlRequirementIds"]
-    cdl = {r["id"] for r in register if r["spec"] == "cdl"}
-    require(len(deferred) == len(cdl) and set(deferred) == cdl,
-            "CDL deferred inventory mismatch")
+    if protocol == "psp":
+        deferred = review["deferredCdlRequirementIds"]
+        cdl = {r["id"] for r in register if r["spec"] == "cdl"}
+        require(len(deferred) == len(cdl) and set(deferred) == cdl,
+                "CDL deferred inventory mismatch")
+    else:
+        require(review["companionReview"] == "docs/reviews/psp-interpreter-0.1.json",
+                "Unexpected PSP companion review")
+        require(review["companionReview"] in {p["path"] for p in review["sources"]},
+                "PSP companion must be source-pinned")
+        companion = read(review["companionReview"])
+        psp_ids = {r["id"] for r in companion["requirements"]}
+        require(set(companion["deferredCdlRequirementIds"]) == set(expected),
+                "CDL index does not cover PSP deferred inventory")
+        require(psp_ids.isdisjoint(expected)
+                and psp_ids | set(expected) == {r["id"] for r in register},
+                "Combined interpreter inventory does not cover the register exactly")
     ids = [s["id"] for s in scenarios]
     require(len(ids) == len(set(ids)), "Duplicate scenario")
     covered_topics = set()
@@ -82,9 +97,10 @@ def check():
                 f"Scenario prompt references drifted: {scenario['id']}")
         covered_topics.update(scenario["topics"])
     require(covered_topics == set(topics), "Review topic lacks a scenario")
-    print(f"Static review passed: {len(rows)} PSP IDs, {len(deferred)} deferred CDL IDs, "
+    print(f"Static review passed: {len(rows)} {protocol.upper()} IDs, "
           f"{len(scenarios)} NOT-RUN scenarios. No model behavior or conformance graded.")
 
 
 if __name__ == "__main__":
     check()
+    check("cdl")
