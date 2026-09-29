@@ -8,9 +8,17 @@ required at operation boundaries.
 
 ## Progress and next implementation stages
 
+Planning reconciliation: 2026-09-29. Milestone #7 tracks the next interpreter and
+context/service work; #8/#49 retain evaluation after that implementation.
+First produce a requirement-to-prompt gap matrix using the published RFCs and
+requirement register, then reconcile PSP instructions, CDL semantics and service
+integration in the order below. The matrix is a planning deliverable, not evidence
+of completed model behavior. Parser/API adoption reviews continue independently;
+this queue does not waive their gates.
+
 | Stage | Status | Concrete next work |
 | --- | --- | --- |
-| Restore execution ownership | Corrected: external expression selector removed; graph-executor proposal withdrawn; natural-language context transport covered in both languages | Keep all workflow conditions available to the model |
+| Restore execution ownership | Merged in [#70](https://github.com/realflowmick/psp-cdl/pull/70): external expression selector removed; graph-executor proposal withdrawn; natural-language context transport covered in both languages | Keep all workflow conditions available to the model |
 | In-context PSP interpreter | Incomplete; existing local system prompts are not yet a reconciled Core 3.2.0 implementation | Reconcile interpreter instructions against node, transition, state, checkpoint, refresh, exception, completion and portability requirements; preserve natural-language reasoning |
 | In-context CDL interpretation | Incomplete; external finite policy libraries are supporting controls | Reconcile CDL 1.5 semantic instructions, nested inheritance, authorized negation and governance of derived data with the model-visible context |
 | Context and service integration | Codecs, signed prompt transport, MCP/API services, persistence and boundary gates exist | Deliver complete relevant application/state context; validate and persist model-produced updates; return service denials and checkpoint results to the interpreting model |
