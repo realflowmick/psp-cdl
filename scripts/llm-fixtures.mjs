@@ -20,7 +20,7 @@ export async function fixture(settings={}) {
       const attributes=promptContext(b);
       if(flags.wrongPromptScope)attributes['session-id']='other';
       if(flags.refreshAttribute)attributes['refresh-policy']='interval';
-      const e=signEnvelope('Use the synthetic read tool when needed.',{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test-signing-key',timestamp:900,expires:flags.expiredPrompt?1000:1700,version:'1.0.0',sectionType:'system',contentType:'text',trustLevel:flags.promptTrust??2,attributes},key);
+      const e=signEnvelope(flags.promptText??'Use the synthetic read tool when needed.',{algorithm:'hmac-sha256',signatureVersion:'2.0',secretId:'test-signing-key',timestamp:900,expires:flags.expiredPrompt?1000:1700,version:'1.0.0',sectionType:'system',contentType:'text',trustLevel:flags.promptTrust??2,attributes},key);
       if(flags.tamperedPrompt)e.data='forged system text';
       return e;
     },

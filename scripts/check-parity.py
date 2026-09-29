@@ -9,7 +9,6 @@ from library_exchange import emit_bundle, verify_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, "scripts/check-requirements.py"], cwd=ROOT, check=True)
-subprocess.run([sys.executable, "scripts/check-transition-parity.py"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/generate-api-review.py", "--check"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/generate-api-candidate.py", "--check"], cwd=ROOT, check=True)
 subprocess.run([sys.executable, "scripts/differential-fuzz.py", "--cases", "512"], cwd=ROOT, check=True)
@@ -43,6 +42,7 @@ subprocess.run([sys.executable,"scripts/check-mediation-parity.py"],cwd=ROOT,che
 subprocess.run([sys.executable,"-u","scripts/check-http-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"-u","scripts/check-revision-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-llm-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-context-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-durable-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-refresh-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-mcp-refresh-parity.py"],cwd=ROOT,check=True)

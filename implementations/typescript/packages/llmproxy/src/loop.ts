@@ -24,6 +24,7 @@ export interface LoopHost {
   authenticate(token:string):Principal|null|Promise<Principal|null>;
   now():number;
   snapshot(principal:Principal,session:Record<string,unknown>):LoopAuthority|Promise<LoopAuthority>;
+  /** Signed interpreter/application context. Preserve conditions for the LLM; do not select nodes here. */
   prompt(principal:Principal,binding:Record<string,unknown>):Envelope|Promise<Envelope>;
   verification(principal:Principal,binding:Record<string,unknown>):
     Pick<VerificationPolicy,"keys"|"clockSkew">|Promise<Pick<VerificationPolicy,"keys"|"clockSkew">>;
@@ -45,7 +46,7 @@ export function promptContext(binding:Record<string,unknown>):Record<string,stri
   return Object.fromEntries(Object.entries(fields).map(([attribute,field])=>[attribute,String(binding[field])]));
 }
 
-/** Bounded, buffered, host-embedded loop. No listener, provider SDK or implicit credential lookup. */
+/** Provider/tool transport and boundary enforcement. PSP execution belongs to the LLM context. */
 export class BufferedLlmLoop {
   private readonly auth:SecurityService;
   protected readonly coordinator:OwnerCoordinator;

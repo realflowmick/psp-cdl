@@ -1,0 +1,21 @@
+${psp type=node node-type=application name="support" session-id="synthetic-context" version="v1.0.0"}
+  ${psp type=node node-type=prompt id="review" version="v1.0.0" transition-trust="verified"}
+    ${psp type=system version="v1.0.0"}Assess the customer's needs. Resolve ambiguity with the customer before completing review.${/psp}
+    ${psp type=output-schema content-type=json}{"type":"object","properties":{"approved":{"type":"boolean"},"amount":{"type":"number"}},"x-cdl-covenants":["no-training"]}${/psp}
+  ${/psp}
+  ${psp type=node node-type=composite id="help" version="v1.0.0"}
+    ${psp type=node node-type=prompt id="clarify" version="v1.0.0"}
+      ${psp type=system version="v1.0.0"}Ask what remains unresolved.${/psp}
+    ${/psp}
+  ${/psp}
+  ${psp type=node node-type=prompt id="survey" version="v1.0.0"}
+    ${psp type=system version="v1.0.0"}Ask for feedback.${/psp}
+  ${/psp}
+  ${psp type=transitions content-type=json}
+  [
+    {"source_node":"review","target_node":"help","condition":"if the customer seems uncertain or their explanation conflicts with the available evidence, offer clarification","priority":10},
+    {"source_node":"review","target_node":"survey","condition":"approved == true AND amount < 10000"},
+    {"source_node":"review","target_node":"survey","condition":"if the customer seems satisfied, route to survey"}
+  ]
+  ${/psp}
+${/psp}

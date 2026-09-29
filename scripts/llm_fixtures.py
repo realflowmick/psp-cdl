@@ -36,7 +36,7 @@ class Fixture:
         attrs = prompt_context(binding)
         if f.get("wrongPromptScope"): attrs["session-id"] = "other"
         if f.get("refreshAttribute"): attrs["refresh-policy"] = "interval"
-        e = sign_envelope("Use the synthetic read tool when needed.", {"algorithm":"hmac-sha256", "signatureVersion":"2.0", "secretId":"test-signing-key", "timestamp":900, "expires":1000 if f.get("expiredPrompt") else 1700, "version":"1.0.0", "sectionType":"system", "contentType":"text", "trustLevel":f.get("promptTrust", 2), "attributes":attrs}, self.key)
+        e = sign_envelope(f.get("promptText", "Use the synthetic read tool when needed."), {"algorithm":"hmac-sha256", "signatureVersion":"2.0", "secretId":"test-signing-key", "timestamp":900, "expires":1000 if f.get("expiredPrompt") else 1700, "version":"1.0.0", "sectionType":"system", "contentType":"text", "trustLevel":f.get("promptTrust", 2), "attributes":attrs}, self.key)
         if f.get("tamperedPrompt"): e["data"] = "forged system text"
         return e
     def verification(self, *_):
