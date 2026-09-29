@@ -2,6 +2,7 @@
 """Experimental buffered model/tool loop; full workflow execution remains pending."""
 from copy import deepcopy
 from .loop import BufferedLlmLoop, LoopError, LLM_LOOP_PROFILE, prompt_context
+from .context import ContextLlmLoop, CONTEXT_SERVICE_PROFILE, context_instruction_text
 from .openai_chat import (create_openai_chat_provider, ProviderError, OPENAI_CHAT_PROFILE,
                           OPENAI_CHAT_MODEL, OPENAI_CHAT_REVISION, OPENAI_CHAT_INPUT_RESERVATION)
 from .durable import DurableLlmLoop, LockdownError, DURABLE_LOOP_PROFILE

@@ -91,6 +91,7 @@ export class BufferedLlmLoop {
   }
   protected verificationContext(binding:Record<string,unknown>):Record<string,string> {return promptContext(binding);}
   protected promptAttributes():string[] {return [];}
+  protected async contextMessages():Promise<Record<string,unknown>[]> {return [];}
   protected async loadPrompt(p:Principal,binding:Record<string,unknown>,_options:LoopOptions,_reservation:OwnerReservation):Promise<Envelope> {
     const prompt=copy(await callback(()=>this.host.prompt(copy(p),copy(binding))),"PROMPT_REJECTED") as Envelope;
     await this.verify(p,binding,prompt);return prompt;
@@ -139,7 +140,7 @@ export class BufferedLlmLoop {
         this.check(options,expires);
       };
       const tools=await this.gate.listTools(token,sessionId,options,p);
-      const messages:Record<string,unknown>[]=[{role:"system",content:prompt.data},{role:"user",content:input.message}];
+      const messages:Record<string,unknown>[]=[{role:"system",content:prompt.data},...copy(await this.contextMessages()),{role:"user",content:input.message}];
       for(let step=1;step<=options.maxSteps;step++) {
         let stepBinding:Record<string,unknown>;
         const result=await this.coordinator.runReserved(actor,async reservation=>{

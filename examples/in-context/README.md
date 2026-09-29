@@ -9,7 +9,9 @@ vectors are CC0-1.0.
 The [PSP Core 3.2.0](../../docs/psp-interpreter.md) and
 [CDL 1.5](../../docs/cdl-interpreter.md) instruction candidates are separate
 reconciliation artifacts. This scripted transport example does not install or
-validate them; context/service integration and model behavior remain pending.
+validate them. The separate [service round-trip examples](service/README.md) now
+install both candidates through the opt-in integration and exercise actual state
+writes and service feedback. Model behavior remains untested.
 
 A host composes its approved interpreter instructions, the preamble, the application
 and relevant workflow context into the text it signs for `LoopHost.prompt`:

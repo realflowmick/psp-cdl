@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflow.cloud/schemas/context-service-0.1.json",
+  "title": "PSP Context Service 0.1 model proposal",
+  "$comment": "CC0-1.0. Draft model proposal; not host authorization.",
+  "oneOf": [
+    {"type":"object","required":["type","text"],"additionalProperties":false,"properties":{"type":{"const":"answer"},"text":{"type":"string"}}},
+    {"type":"object","required":["type","operation","arguments"],"additionalProperties":false,"properties":{"type":{"const":"service"},"operation":{"const":"updateSession"},"arguments":{"type":"object","required":["nodeId","nodeVersion","state"],"additionalProperties":false,"properties":{"nodeId":{"$ref":"#/$defs/identifier"},"nodeVersion":{"$ref":"#/$defs/identifier"},"state":{"type":"object"}}}}},
+    {"type":"object","required":["type","operation","arguments"],"additionalProperties":false,"properties":{"type":{"const":"service"},"operation":{"const":"getNode"},"arguments":{"type":"object","required":["nodeId","nodeVersion"],"additionalProperties":false,"properties":{"nodeId":{"$ref":"#/$defs/identifier"},"nodeVersion":{"$ref":"#/$defs/identifier"}}}}},
+    {"type":"object","required":["type","operation","arguments"],"additionalProperties":false,"properties":{"type":{"const":"service"},"operation":{"const":"createCheckpoint"},"arguments":{"type":"object","required":["expiresAt"],"additionalProperties":false,"properties":{"expiresAt":{"type":"integer","minimum":1,"maximum":9007199254740991}}}}}
+  ],
+  "$defs":{"identifier":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$","not":{"pattern":"[^A-Za-z0-9._:-]"}}}
+}

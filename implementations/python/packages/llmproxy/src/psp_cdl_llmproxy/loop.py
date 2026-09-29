@@ -107,6 +107,8 @@ class BufferedLlmLoop:
 
     def _prompt_attributes(self): return []
 
+    def _context_messages(self): return []
+
     def _load_prompt(self,p,binding,options,reservation):
         prompt=copy(callback(lambda:self._host.prompt(copy(p),copy(binding))),"PROMPT_REJECTED")
         self._verify(p,binding,prompt)
@@ -144,7 +146,7 @@ class BufferedLlmLoop:
                 if check_prompt:self._verify(p, binding, prompt)
                 self._check(options, expires)
             tools = self._gate.list_tools(token, session_id, options, p)
-            messages = [{"role":"system", "content":prompt["data"]}, {"role":"user", "content":value["message"]}]
+            messages = [{"role":"system", "content":prompt["data"]}, *copy(self._context_messages()), {"role":"user", "content":value["message"]}]
             for step in range(1, options["maxSteps"] + 1):
                 step_binding = None
                 def infer(reservation):

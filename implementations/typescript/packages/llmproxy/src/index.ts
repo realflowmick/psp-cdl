@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 export * from "./loop.js";
+export * from "./context.js";
 export * from "./openai-chat.js";
 export * from "./durable.js";
 export * from "./redirect.js";

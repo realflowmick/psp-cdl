@@ -84,3 +84,8 @@ Handles are bounded process-local state, default capacity 1024, with no automati
 Run the full repository checks and `uv run --locked python scripts/check-workflow-parity.py`. Contract/vector generators support `--check`. Transport limits and deployment responsibilities remain in the [service guide](service-api.md). The libraries remain experimental; full M3 coverage, graph execution, proxy enforcement, PostgreSQL, outbox dispatch and independent security review remain pending.
 
 The opt-in [session lifecycle draft](lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.
+
+The opt-in [context/service integration](context-service.md) uses an additional
+host-only invocation guard to bind transcript policy and fresh loop authority
+to workflow operations. This additive callback cannot replace service or storage
+authorization and is never accepted in HTTP/MCP request fields.

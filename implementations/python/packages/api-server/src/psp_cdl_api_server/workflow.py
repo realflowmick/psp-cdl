@@ -63,7 +63,9 @@ class WorkflowService(SecurityService):
             raise ServiceError("INVALID_CONFIGURATION", 500)
         self.store = store
 
-    def invoke(self, operation, value, token, expected_identity=None):
+    def uses_store(self, store): return self.store is store
+
+    def invoke(self, operation, value, token, expected_identity=None, authorize_operation=None):
         if operation in ("verify", "evaluate"):
             return super().invoke(operation, value, token, expected_identity)
         try:
@@ -97,6 +99,9 @@ class WorkflowService(SecurityService):
                 if "policyVersion" in command and self.host.policy_version(validate_json(live)) != command["policyVersion"]:
                     return False
                 if self.host.authorize(validate_json(live), context) is not True:
+                    return False
+                # Additive host-only guard; never accepted from wire arguments.
+                if authorize_operation and authorize_operation(validate_json(context)) is not True:
                     return False
                 final = recheck()
                 required_policy = command.get("policyVersion")

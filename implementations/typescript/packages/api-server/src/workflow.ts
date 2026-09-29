@@ -49,12 +49,13 @@ function request(operation:WorkflowOperation,value:unknown):Record<string,unknow
 }
 /** Opt-in authenticated workflow service. Node publication remains a host-only operation. */
 export class WorkflowService extends SecurityService {
+  usesStore(store:WorkflowStore):boolean {return this.store===store;}
   override readonly operations:readonly Operation[] = ["verify","evaluate",...Object.keys(workflowFields) as WorkflowOperation[]];
   constructor(private readonly store:WorkflowStore, private readonly workflowHost:WorkflowHost) {
     super(workflowHost);
     if([workflowHost.authenticate,workflowHost.resolve,workflowHost.now,workflowHost.policyVersion,workflowHost.authorize,workflowHost.present,workflowHost.deliverCheckpoint,workflowHost.resumeToken].some(f=>typeof f!=="function")) throw new ServiceError("INVALID_CONFIGURATION",500);
   }
-  override async invoke(operation:Operation,value:unknown,token:unknown,expectedIdentity?:Principal):Promise<Record<string,unknown>> {
+  override async invoke(operation:Operation,value:unknown,token:unknown,expectedIdentity?:Principal,guard?:(context:AccessContext)=>boolean|Promise<boolean>):Promise<Record<string,unknown>> {
     if(operation==="verify"||operation==="evaluate") return super.invoke(operation,value,token,expectedIdentity);
     try {
       const principal=await this.authenticate(token);
@@ -80,6 +81,8 @@ export class WorkflowService extends SecurityService {
         const live=await recheck();
         if(command.policyVersion!==undefined&&await this.workflowHost.policyVersion(validateJson(live) as unknown as Principal)!==command.policyVersion) return false;
         if(await this.workflowHost.authorize(validateJson(live) as unknown as Principal,context)!==true) return false;
+        // Additive host-only guard; never accepted from HTTP/MCP arguments.
+        if(guard&&await guard(validateJson(context) as unknown as AccessContext)!==true) return false;
         const final=await recheck();
         const requiredPolicy=command.policyVersion??(!context.replay&&["createCheckpoint","resumeCheckpoint"].includes(operation)?context.current?.policyVersion:undefined);
         return requiredPolicy===undefined||await this.workflowHost.policyVersion(validateJson(final) as unknown as Principal)===requiredPolicy;
