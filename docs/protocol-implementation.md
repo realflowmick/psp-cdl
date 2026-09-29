@@ -19,16 +19,18 @@ this queue does not waive their gates.
 | Stage | Status | Concrete next work |
 | --- | --- | --- |
 | Restore execution ownership | Merged in [#70](https://github.com/realflowmick/psp-cdl/pull/70): external expression selector removed; graph-executor proposal withdrawn; natural-language context transport covered in both languages | Keep all workflow conditions available to the model |
-| In-context PSP interpreter | Incomplete; existing local system prompts are not yet a reconciled Core 3.2.0 implementation | Reconcile interpreter instructions against node, transition, state, checkpoint, refresh, exception, completion and portability requirements; preserve natural-language reasoning |
+| In-context PSP interpreter | [Core 3.2.0 instruction candidate 0.1](psp-interpreter.md) reconciled in #72; model behavior untested and live integration pending | Review the candidate and open interpretation decisions; exercise its 31 review scenarios after context/service integration |
 | In-context CDL interpretation | Incomplete; external finite policy libraries are supporting controls | Reconcile CDL 1.5 semantic instructions, nested inheritance, authorized negation and governance of derived data with the model-visible context |
 | Context and service integration | Codecs, signed prompt transport, MCP/API services, persistence and boundary gates exist | Deliver complete relevant application/state context; validate and persist model-produced updates; return service denials and checkpoint results to the interpreting model |
 | Remaining external controls | Partial | Finish affinity/capability enforcement, required service forms, revocation, coordination and effect recovery without interpreting PSP business logic |
 | Coverage, evaluations and release | Pending | Map both in-context behavior and infrastructure obligations to the 460-requirement register; effectiveness studies and publication follow implementation |
 
-The next stage is the in-context interpreter and its context/service integration,
-not a TypeScript or Python workflow execution engine. Existing system prompts
-under the local `specs/systemprompts/` directory remain untouched by this correction;
-their older version labels must not be presented as complete current-RFC coverage.
+The PSP instruction candidate now has a [reconciliation record](psp-interpreter.md),
+topic-level mappings for all 364 PSP requirements and 31 unexecuted review scenarios.
+The next stages are CDL instruction reconciliation and context/service integration,
+with review and behavioral validation of the PSP candidate. This is not a TypeScript
+or Python workflow execution engine. Older local system prompts remain unchanged;
+neither their version labels nor the new draft establish complete RFC coverage.
 The [example execution preamble](../examples/in-context/execution-boundary.txt)
 only establishes ownership and supplements approved interpreter instructions.
 
