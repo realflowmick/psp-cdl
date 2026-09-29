@@ -12,9 +12,10 @@ including natural-language transitions. The external transition engine is remove
 and the proposed external graph executor is withdrawn. See the
 [architecture correction](docs/in-context-execution.md) and
 [implementation-first backlog](docs/protocol-implementation.md).
-The [PSP interpreter candidate](docs/psp-interpreter.md) now records Core 3.2.0
-instructions, requirement mappings and unexecuted review scenarios. CDL instruction
-reconciliation and live context/service integration remain pending.
+The [PSP interpreter candidate](docs/psp-interpreter.md) and
+[CDL interpreter candidate](docs/cdl-interpreter.md) now record instructions,
+requirement mappings and unexecuted review scenarios for Core 3.2.0 and CDL 1.5.
+Live context/service integration and model-behavior validation remain pending.
 Effectiveness studies follow implementation.
 
 ## Standards
