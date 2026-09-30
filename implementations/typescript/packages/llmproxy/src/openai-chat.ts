@@ -9,6 +9,8 @@ import type { ProviderRegistration } from "./loop.js";
 export const OPENAI_CHAT_PROFILE = "PSP-OPENAI-CHAT-0.1";
 export const OPENAI_CHAT_MODEL = "gpt-4.1-mini-2025-04-14";
 export const OPENAI_CHAT_REVISION = "chat-v1-gpt-4.1-mini-2025-04-14-psp-0.1";
+export const OPENAI_CONTEXT_PROFILE = "PSP-OPENAI-CONTEXT-0.1";
+export const OPENAI_CONTEXT_REVISION = "chat-v1-gpt-4.1-mini-2025-04-14-context-0.1";
 export const OPENAI_CHAT_INPUT_RESERVATION = 1_047_576;
 const MAX_BYTES = 1_048_576;
 const ERROR_CODES = new Set(["INVALID_CONFIGURATION", "INVALID_REQUEST", "INVALID_RESPONSE", "REQUEST_TOO_LARGE", "RESPONSE_TOO_LARGE",
@@ -25,6 +27,8 @@ interface CommonConfig {
   sources: CapabilitySource[]; complete: true; now: () => number; limits: OpenAIChatLimits;
   /** Synchronous host-only observer of fully validated replies; never budget authority. */
   onUsage?: (usage: OpenAIChatUsage) => void;
+  /** Explicitly allow context/service user data and prior assistant text. */
+  transcriptProfile?: typeof OPENAI_CONTEXT_PROFILE;
 }
 export type OpenAIChatConfig = CommonConfig & (
   { mode: "live"; allowLive: true; apiKey: string } |
@@ -39,7 +43,7 @@ const exact = (v: unknown, keys: string[]): v is Record<string, any> => record(v
 const allowed = (v: Record<string, unknown>, keys: string[]): boolean => Object.keys(v).every(k => keys.includes(k));
 function copy(v: unknown, code: string): any { try { return bounded(v); } catch { return fail(code); } }
 
-function encodeRequest(input: unknown, limits: OpenAIChatLimits): { body: Uint8Array; names: string[] } {
+function encodeRequest(input: unknown, limits: OpenAIChatLimits, context: boolean): { body: Uint8Array; names: string[] } {
   const value = copy(input, "INVALID_REQUEST");
   if (!exact(value, ["messages", "tools"]) || !Array.isArray(value.messages) || !Array.isArray(value.tools) ||
       value.messages.length < 2 || value.tools.length > 128) fail("INVALID_REQUEST");
@@ -57,6 +61,8 @@ function encodeRequest(input: unknown, limits: OpenAIChatLimits): { body: Uint8A
     if (!record(m)) fail("INVALID_REQUEST");
     if (i < 2) {
       if (!exact(m, ["role", "content"]) || m.role !== (i === 0 ? "system" : "user") || typeof m.content !== "string") fail("INVALID_REQUEST");
+      messages.push(m);
+    } else if (context && !pending && exact(m, ["role", "content"]) && ["user", "assistant"].includes(m.role) && typeof m.content === "string") {
       messages.push(m);
     } else if (!pending && exact(m, ["role", "call"]) && m.role === "assistant") {
       if (!exact(m.call, ["name", "arguments"]) || !names.includes(m.call.name) || !record(m.call.arguments)) fail("INVALID_REQUEST");
@@ -152,7 +158,9 @@ export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegi
   if (!record(config) || !["live", "offline"].includes(config.mode) || typeof config.now !== "function") fail("INVALID_CONFIGURATION");
   const live = config.mode === "live";
   if (!exact(config, ["mode", "sources", "complete", "now", "limits", ...(live ? ["allowLive", "apiKey"] : ["transport"]),
-      ...("onUsage" in config ? ["onUsage"] : [])]) || "onUsage" in config && typeof config.onUsage !== "function") fail("INVALID_CONFIGURATION");
+      ...("onUsage" in config ? ["onUsage"] : []), ...("transcriptProfile" in config ? ["transcriptProfile"] : [])]) || "onUsage" in config && typeof config.onUsage !== "function") fail("INVALID_CONFIGURATION");
+  if ("transcriptProfile" in config && config.transcriptProfile !== OPENAI_CONTEXT_PROFILE) fail("INVALID_CONFIGURATION");
+  const context = config.transcriptProfile === OPENAI_CONTEXT_PROFILE;
   if (live && (config.allowLive !== true || typeof config.apiKey !== "string" || !/^[\x21-\x7e]{1,4096}$/.test(config.apiKey)) ||
       !live && typeof config.transport !== "function") fail("INVALID_CONFIGURATION");
   const limits: OpenAIChatLimits = copy(config.limits, "INVALID_CONFIGURATION"), sources = copy(config.sources, "INVALID_CONFIGURATION");
@@ -163,7 +171,8 @@ export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegi
   if (config.complete !== true) fail("INVALID_CONFIGURATION");
   const now = config.now, key = live ? config.apiKey : "", transport = live ? undefined : config.transport, onUsage = config.onUsage;
   let calls = 0, reserved = 0, busy = false;
-  return { id: live ? "openai-chat" : "openai-chat-offline", revision: OPENAI_CHAT_REVISION, sources, complete: true,
+  return { id: context ? (live ? "openai-chat-context" : "openai-chat-context-offline") : (live ? "openai-chat" : "openai-chat-offline"),
+    revision: context ? OPENAI_CONTEXT_REVISION : OPENAI_CHAT_REVISION, sources, complete: true,
     invoke: async (input, options) => {
       if (busy) fail("PROVIDER_BUSY");
       busy = true;
@@ -181,7 +190,7 @@ export function createOpenAIChatProvider(config: OpenAIChatConfig): ProviderRegi
           if (time >= controls.deadline || performance.now() - start >= limits.timeoutMs) fail("DEADLINE_EXCEEDED");
         };
         check();
-        const { body, names } = encodeRequest(input, limits);
+        const { body, names } = encodeRequest(input, limits, context);
         check();
         const reservation = OPENAI_CHAT_INPUT_RESERVATION + limits.maxOutputTokens;
         if (calls >= limits.maxCalls || reservation > limits.budgetTokens - reserved) fail("BUDGET_EXHAUSTED");

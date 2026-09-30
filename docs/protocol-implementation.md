@@ -8,20 +8,20 @@ required at operation boundaries.
 
 ## Progress and next implementation stages
 
-Planning reconciliation: 2026-09-29. Milestone #7 tracks the next interpreter and
-context/service work; #8/#49 retain evaluation after that implementation.
-First produce a requirement-to-prompt gap matrix using the published RFCs and
-requirement register, then reconcile PSP instructions, CDL semantics and service
-integration in the order below. The matrix is a planning deliverable, not evidence
-of completed model behavior. Parser/API adoption reviews continue independently;
+Planning reconciliation: 2026-09-30. Milestone #7 tracks joint model-behavior
+validation and remaining context/service work; #8/#49 retain evaluation after
+that implementation. Requirement-to-prompt topic indexes, both instruction
+candidates and initial service integration are delivered. The indexes are planning
+deliverables, not evidence of completed model behavior. Parser/API adoption reviews continue independently;
 this queue does not waive their gates.
 
 | Stage | Status | Concrete next work |
 | --- | --- | --- |
 | Restore execution ownership | Merged in [#70](https://github.com/realflowmick/psp-cdl/pull/70): external expression selector removed; graph-executor proposal withdrawn; natural-language context transport covered in both languages | Keep all workflow conditions available to the model |
-| In-context PSP interpreter | [Core 3.2.0 instruction candidate 0.1](psp-interpreter.md) reconciled in #72; model behavior untested and live integration pending | Review the candidate and open interpretation decisions; exercise its 31 review scenarios after context/service integration |
-| In-context CDL interpretation | [CDL 1.5 instruction candidate 0.1](cdl-interpreter.md) reconciled in #77; model behavior untested | Review semantic instructions, profile boundaries and 37 not-run scenarios; connect model-visible governance to actual host decisions during priority 4 |
-| Context and service integration | Opt-in [ContextLlmLoop](context-service.md) installs host-approved candidate/application text, authorized state views, running-state writes and service receipts/denials; checkpoint/resume covered by scripted cases | Review host completeness and failure recovery; validate joint model behavior; integrate remaining service forms and completion modes |
+| In-context PSP interpreter | [Core 3.2.0 instruction candidate 0.1](psp-interpreter.md) delivered in merged #73; #72 closed; model behavior untested | Review the candidate and open interpretation decisions; exercise its 31 original review scenarios |
+| In-context CDL interpretation | [CDL 1.5 instruction candidate 0.1](cdl-interpreter.md) delivered in merged #78; #77 closed; model behavior untested | Review semantic instructions, profile boundaries and 37 original review scenarios |
+| Context and service integration | [ContextLlmLoop](context-service.md) merged in #80; #79 closed; candidate/application text, authorized state, writes, receipts/denials and checkpoint/resume supported | Review host completeness and failure recovery; integrate remaining service forms and completion modes |
+| Joint development validation | [#81 harness](joint-interpreter-validation.md) provides six paired rehearsals, source-pinned bundles, observations and semantic-review recording | Review a bounded provider configuration; execute and grade actual model observations; extend exact fixtures across all 68 original scenarios |
 | Remaining external controls | Partial | Finish affinity/capability enforcement, required service forms, revocation, coordination and effect recovery without interpreting PSP business logic |
 | Coverage, evaluations and release | Pending | Map both in-context behavior and infrastructure obligations to the 460-requirement register; effectiveness studies and publication follow implementation |
 

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Public synthetic host. No live model calls or production credentials."""
 import json
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 from llm_fixtures import Fixture
@@ -16,15 +17,35 @@ CONFIGURATION={'profile':CONTEXT_SERVICE_PROFILE,
     'application':(ROOT/'examples/in-context/application.psp').read_text(encoding='utf-8'),
     'serviceSources':[{'id':'workflow','capabilities':[]}],'serviceComplete':True}
 
-def run_case(case):
-    flags=case.get('flags',{})
+def run_case(case, *, provider=None, configuration=None, capture=False):
+    flags=dict(case.get('flags',{}))
     responses=[{'type':'final','text':p if type(p) is str else json.dumps(p,separators=(',',':'))} for p in case['proposals']]
     if flags.get('readFirst'):responses.insert(0,{'type':'tool','name':'echo.read','arguments':{'message':'synthetic read'}})
     if flags.get('resume'):responses.append({'type':'final','text':json.dumps({'type':'answer','text':'Resumed from the persisted state.'})})
-    f=Fixture({**flags,'responses':responses})
+    f=Fixture({**flags,'responses':responses,'base':{'initialState':case['initialState']} if 'initialState' in case else {}})
     base=f.base
     tokens={}
     code='OK'
+    config=configuration or CONFIGURATION
+    trace,services,outputs=[],[],[]
+    recovery_code=None
+    external=provider is not None
+    inner=provider or f.provider
+    def invoke_provider(request,controls):
+        if external:f.requests.append(deepcopy(request))
+        entry={'request':deepcopy(request)}
+        trace.append(entry)
+        try:
+            response=inner['invoke'](request,controls)
+            entry['response']=deepcopy(response)
+            return response
+        except Exception as exc:
+            entry['code']=getattr(exc,'code','PROVIDER_FAILED')
+            raise
+    wrapped={**inner,'invoke':invoke_provider}
+    snapshot=f.snapshot
+    f.snapshot=lambda *args:{**snapshot(*args),'providerId':wrapped['id'],'providerRevision':wrapped['revision']}
+    service=make=None
     try:
         for node in ('help','survey'):base.store.execute(base.actor,{'action':'putNode','nodeId':node,'nodeVersion':'1','definition':{'agents':'mcp://echo/read','instructions':'Keep full application context.'}})
         base.flags['denyPersistence']=bool(flags.get('denyPersistence'))
@@ -59,12 +80,34 @@ def run_case(case):
             tokens[data['checkpointId']]=data['resumeToken']
             if flags.get('driftDelivery'):base.flags['drift']=True
         service=WorkflowService(base.store,SimpleNamespace(**vars(host),resolve=lambda *_:None,policy_version=lambda *_:'policy-1',authorize=authorize,present=present,deliver_checkpoint=deliver,resume_token=lambda p,k:tokens.get(k)))
-        def make():return ContextLlmLoop(base.store,base.gate,host,f.provider,service,CONFIGURATION)
-        result=make().run('test-owner',base.session['sessionId'],{'message':'Please review my situation.'},{**f.options,'requestId':'context-turn','maxRounds':flags.get('maxRounds',4)})
+        invoke=service.invoke
+        def invoke_service(operation,*args,**kwargs):
+            event={'operation':operation}
+            services.append(event)
+            try:
+                result=invoke(operation,*args,**kwargs)
+                event['result']=deepcopy(result)
+                return result
+            except Exception as exc:
+                event['code']=getattr(exc,'code','HOST_ERROR')
+                raise
+        service.invoke=invoke_service
+        def make():return ContextLlmLoop(base.store,base.gate,host,wrapped,service,config)
+        result=make().run('test-owner',base.session['sessionId'],{'message':case.get('message','Please review my situation.')},{**f.options,'requestId':'context-turn','maxRounds':flags.get('maxRounds',4)})
+        outputs.append(result)
         if flags.get('resume'):
             state=base.store.execute(base.actor,{'action':'getSession','sessionId':base.session['sessionId']})
             result=make().resume_and_run('test-owner','wrong-session' if flags.get('resumeWrongSession') else base.session['sessionId'],{'requestId':'host-resume','checkpointId':result['receipt']['result']['result']['checkpointId'],'state':state['state']},{'message':'Continue after the approved resume.'},{**f.options,'requestId':'resumed-turn','maxRounds':4})
+            outputs.append(result)
     except Exception as exc:code=getattr(exc,'code','UNEXPECTED_ERROR')
+    if flags.get('reconcileAfterFailure') and code!='OK' and service and make:
+        flags['projectionFail']=False
+        try:
+            service.invoke('getSession',{'sessionId':base.session['sessionId']},'test-owner')
+            result=make().run('test-owner',base.session['sessionId'],{'message':'The prior response failed after a possible commit. The host has re-read durable state. Reconcile the current view; do not replay the write. Report the confirmed state and any unknown effects.'},{**f.options,'requestId':'reconciled-turn','maxRounds':4})
+            outputs.append(result)
+            recovery_code='OK'
+        except Exception as exc:recovery_code=getattr(exc,'code','UNEXPECTED_ERROR')
     try:
         state=base.backend.read(base.actor['tenantId'],{'kind':'session','id':base.session['sessionId']})['body']
         last=f.requests[-1] if f.requests else {'messages':[]}
@@ -79,7 +122,8 @@ def run_case(case):
                 except (ValueError,TypeError):pass
         wire=json.dumps(f.requests)
         return {'code':code,'calls':len(f.requests),'toolCalls':base.calls,'version':state['version'],'node':state['nodeId'],'status':state['status'],'state':state['state'],'events':events,'rehydrated':rehydrated,
-                'hasCandidates':all(CONFIGURATION['pspInstructions'] in r['messages'][0]['content'] and CONFIGURATION['cdlInstructions'] in r['messages'][0]['content'] and r['messages'][0]['content'].endswith(CONFIGURATION['application']) for r in f.requests),
+                **({'trace':trace,'services':services,'outputs':outputs,'recoveryCode':recovery_code} if capture else {}),
+                'hasCandidates':all(config['pspInstructions'] in r['messages'][0]['content'] and config['cdlInstructions'] in r['messages'][0]['content'] and r['messages'][0]['content'].endswith(config['application']) for r in f.requests),
                 'hasToolHistory':any(m['role']=='tool' for m in last['messages']),
                 'privateLeak':any(s in wire for s in ('test-owner','test-signing-key','tenant-a','subject-a','PRIVATE_SERVICE_DETAIL',*tokens.values()))}
     finally:f.close()

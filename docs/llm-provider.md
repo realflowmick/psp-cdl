@@ -125,5 +125,14 @@ Streaming, parallel calls, built-in tools, multimodal input/output, custom URLs,
 automatic retries, and completed-session scoped transcripts remain unsupported.
 The adapter supports the initial buffered transcript used by buffered, durable,
 refresh and redirect loops; this slice tests the buffered loop integration.
+For `ContextLlmLoop`, explicitly select `transcriptProfile: OPENAI_CONTEXT_PROFILE`
+(`PSP-OPENAI-CONTEXT-0.1`) when constructing the provider. The separate
+[context transcript draft](../specs/profiles/PSP-OPENAI-CONTEXT-0.1.md) preserves
+state/service data and prior assistant text without promoting roles or relaxing
+tool-pair checks. It uses distinct `openai-chat-context[-offline]` IDs and
+`OPENAI_CONTEXT_REVISION`; bind the returned registration in the host snapshot.
+The default adapter still rejects this extended transcript. The
+[joint harness](joint-interpreter-validation.md) exercises the opt-in mapping
+offline; live validation remains pending.
 Full workflow conformance, streaming release (#44), mode composition (#45),
 effectiveness and independent review remain separate gates.

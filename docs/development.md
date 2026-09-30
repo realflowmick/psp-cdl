@@ -63,6 +63,14 @@ Installed consumer checks exercise both public libraries. The [pilot guide](../e
 defines ordering, missing-data handling and exploratory interval semantics.
 These commands do not execute a held-out study or contact a provider.
 
+Joint interpreter checks run in both language suites and `check-parity.py`.
+Use `python scripts/check-interpreter-parity.py` for the six paired development
+rehearsals and exchanged positive/negative grading observations. Verify the shared
+contract with `python scripts/generate-interpreter-validation.py --check`.
+The [joint harness guide](joint-interpreter-validation.md) explains pinned bundles,
+local evidence, explicit live admission and semantic review. CI never runs live
+model validation or promotes scripted results to behavioral passes.
+
 The [held-out executor](../evaluation/HELDOUT-EXECUTOR.md) is verified separately
 with `python scripts/check-heldout-parity.py`: 96 actual public rehearsal trials,
 all four host/server language pairs, 25 shared grading cases and complete

@@ -2,9 +2,11 @@
 
 Candidate: [CDL 1.5 interpreter 0.1](../specs/systemprompts/CDL-v1_5-Interpreter-draft-0_1.md).
 Tracking: [#77](https://github.com/realflowmick/psp-cdl/issues/77), under #7.
-This is the priority-3 instruction artifact, a companion to the
-[PSP interpreter candidate](psp-interpreter.md). Neither is installed by the
-existing provider loop. Model interpretation, enforcement effectiveness and full
+This is the priority-3 instruction artifact, delivered in #78 with #77 closed,
+and a companion to the [PSP interpreter candidate](psp-interpreter.md). The opt-in
+[context/service integration](context-service.md) can install both with host approval.
+The [joint harness](joint-interpreter-validation.md) supports behavioral review.
+Model interpretation, enforcement effectiveness and full
 conformance remain untested by these instruction artifacts.
 
 Install through authenticated SYSTEM configuration with the approved application,
@@ -33,8 +35,8 @@ and the requirement register are unchanged.
 The PSP 0.1 review's deferred-CDL list remains a historical record of priority 2,
 not a current claim that CDL reconciliation has no artifact. Its candidate's
 pending-CDL note describes that original standalone scope; this explicitly
-selected companion supplies the missing instruction slice. Joint installation,
-receipt channels and behavior validation still require priority 4.
+selected companion supplies the missing instruction slice. Initial joint installation
+and receipt channels are merged in #80; behavior validation remains pending.
 
 ## Requirement-to-instruction topics
 
@@ -56,7 +58,7 @@ receipt channels and behavior validation still require priority 4.
 | topology | §7.6, 13.4/7; Trust 1.0 | C12 | Complete mediation and minimum topology; no automatic downgrade or independent-layer guarantee. |
 | vocabulary | §§8.2/5, 12, Appendix C; profile §2 | C13 | Broad semantic comprehension remains; finite support is explicit. HL7/ODRL/DPV/FHIR adapters are not supplied. |
 | reporting | §10.2/3, 13.5; profile §8 | C14 | Actual reason codes, private diagnostics and audit receipts; safe alternatives need fresh evaluation. |
-| composition | PSP §§11–16, 22; CDL §10.3 | C07, C15 | Combine affinity, qualified transitions, CDL and state persistence without confusing model state with host authority. Wiring pending. |
+| composition | PSP §§11–16, 22; CDL §10.3 | C07, C15 | Initial joint wiring merged in #80. Remaining forms and actual model validation are pending; model state remains distinct from host authority. |
 
 ## Changes from the local 1.1-compatible prompt
 
@@ -119,7 +121,7 @@ not change the underlying requirement status or manufacture model observations.
 The same command runs in both Python CI jobs. Existing library and parity tests
 remain infrastructure evidence only.
 
-Next: review the two candidates together, define actual model-visible context and
-host-private receipt/policy channels, connect state/service outcomes, and run the
-scenarios against model transcripts and real effects. Evaluation and release
+Next: review the two candidates together with the implemented model-visible context,
+host-private receipt/policy channels and state/service outcomes. Extend the joint
+harness and run scenarios against actual model transcripts and real effects. Evaluation and release
 retain the roadmap's separate gates.

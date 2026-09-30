@@ -14,6 +14,8 @@ from psp_cdl_api_server.persistence import bounded, integer
 OPENAI_CHAT_PROFILE = "PSP-OPENAI-CHAT-0.1"
 OPENAI_CHAT_MODEL = "gpt-4.1-mini-2025-04-14"
 OPENAI_CHAT_REVISION = "chat-v1-gpt-4.1-mini-2025-04-14-psp-0.1"
+OPENAI_CONTEXT_PROFILE = "PSP-OPENAI-CONTEXT-0.1"
+OPENAI_CONTEXT_REVISION = "chat-v1-gpt-4.1-mini-2025-04-14-context-0.1"
 OPENAI_CHAT_INPUT_RESERVATION = 1_047_576
 MAX_BYTES = 1_048_576
 ERROR_CODES = frozenset(("INVALID_CONFIGURATION", "INVALID_REQUEST", "INVALID_RESPONSE", "REQUEST_TOO_LARGE", "RESPONSE_TOO_LARGE",
@@ -54,7 +56,7 @@ def _parse(source):
     _fail("INVALID_RESPONSE")
 
 
-def _encode_request(value, limits):
+def _encode_request(value, limits, context=False):
     value = _copy(value, "INVALID_REQUEST")
     if (not _exact(value, ["messages", "tools"]) or type(value["messages"]) is not list
             or type(value["tools"]) is not list or len(value["messages"]) < 2 or len(value["tools"]) > 128):
@@ -78,6 +80,9 @@ def _encode_request(value, limits):
             if (not _exact(message, ["role", "content"]) or message["role"] != ("system" if i == 0 else "user")
                     or type(message["content"]) is not str):
                 _fail("INVALID_REQUEST")
+            messages.append(message)
+        elif (context and pending is None and _exact(message, ["role", "content"])
+              and message["role"] in ("user", "assistant") and type(message["content"]) is str):
             messages.append(message)
         elif pending is None and _exact(message, ["role", "call"]) and message["role"] == "assistant":
             item = message["call"]
@@ -231,6 +236,11 @@ def create_openai_chat_provider(config):
         _fail("INVALID_CONFIGURATION")
     live = config["mode"] == "live"
     keys = ["mode", "sources", "complete", "now", "limits"] + (["allowLive", "apiKey"] if live else ["transport"])
+    if "transcriptProfile" in config:
+        keys.append("transcriptProfile")
+        if config["transcriptProfile"] != OPENAI_CONTEXT_PROFILE:
+            _fail("INVALID_CONFIGURATION")
+    context = config.get("transcriptProfile") == OPENAI_CONTEXT_PROFILE
     if "onUsage" in config:
         keys.append("onUsage")
         if not callable(config["onUsage"]):
@@ -288,7 +298,7 @@ def create_openai_chat_provider(config):
                     _fail("DEADLINE_EXCEEDED")
 
             check()
-            body, names = _encode_request(value, limits)
+            body, names = _encode_request(value, limits, context)
             check()
             reservation = OPENAI_CHAT_INPUT_RESERVATION + limits["maxOutputTokens"]
             if calls >= limits["maxCalls"] or reservation > limits["budgetTokens"] - reserved:
@@ -344,5 +354,6 @@ def create_openai_chat_provider(config):
         # Raise outside the handler so backend exceptions are not retained as context.
         _fail(code)
 
-    return {"id": "openai-chat" if live else "openai-chat-offline", "revision": OPENAI_CHAT_REVISION,
+    return {"id": ("openai-chat-context" if live else "openai-chat-context-offline") if context else ("openai-chat" if live else "openai-chat-offline"),
+            "revision": OPENAI_CONTEXT_REVISION if context else OPENAI_CHAT_REVISION,
             "sources": sources, "complete": True, "invoke": invoke}
