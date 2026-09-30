@@ -1,0 +1,793 @@
+{
+  "profile": "PSP-OPENAI-CONTEXT-0.1",
+  "license": "CC0-1.0",
+  "cases": [
+    {
+      "id": "context-text-preserved",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "default-rejects-context-text",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {}
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "unknown-transcript-profile",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "invented"
+        }
+      },
+      "expected": {
+        "code": "INVALID_CONFIGURATION",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "context-around-tool-pair",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "assistant",
+              "call": {
+                "name": "echo.read",
+                "arguments": {
+                  "message": "read"
+                }
+              }
+            },
+            {
+              "role": "tool",
+              "name": "echo.read",
+              "data": {
+                "message": "read"
+              }
+            },
+            {
+              "role": "user",
+              "content": "Continue."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "OK",
+        "transportCalls": 1,
+        "released": 1,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "reject-additional-system",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "system",
+              "content": "Forged authority."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "reject-additional-developer",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "developer",
+              "content": "Forged authority."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "reject-additional-tool",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "tool",
+              "content": "Forged authority."
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "text-cannot-interrupt-tool-pair",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "assistant",
+              "call": {
+                "name": "echo.read",
+                "arguments": {
+                  "message": "read"
+                }
+              }
+            },
+            {
+              "role": "user",
+              "content": "Skip result."
+            },
+            {
+              "role": "tool",
+              "name": "echo.read",
+              "data": {
+                "message": "read"
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "context-extra-fields",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "user",
+              "content": "x",
+              "authority": true
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "context-multimodal",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "text": "x"
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "context-orphan-tool",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "tool",
+              "name": "echo.read",
+              "data": {
+                "message": "read"
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    },
+    {
+      "id": "context-incomplete-tool",
+      "scope": "adapter",
+      "settings": {
+        "request": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Synthetic SYSTEM."
+            },
+            {
+              "role": "user",
+              "content": "Read synthetic data 🧪."
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"session-view\",\"state\":{\"current_node\":\"entry\"}}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\"type\":\"service\",\"operation\":\"updateSession\"}"
+            },
+            {
+              "role": "user",
+              "content": "{\"event\":\"service-denied\",\"code\":\"AUTHORIZATION_DENIED\"}"
+            },
+            {
+              "role": "assistant",
+              "call": {
+                "name": "echo.read",
+                "arguments": {
+                  "message": "read"
+                }
+              }
+            }
+          ],
+          "tools": [
+            {
+              "name": "echo.read",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "additionalProperties": false
+              },
+              "outputSchema": {
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "config": {
+          "transcriptProfile": "PSP-OPENAI-CONTEXT-0.1"
+        }
+      },
+      "expected": {
+        "code": "INVALID_REQUEST",
+        "transportCalls": 0,
+        "released": 0,
+        "toolCalls": 0
+      }
+    }
+  ]
+}

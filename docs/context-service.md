@@ -105,7 +105,10 @@ branches, host/storage denials, transcript policy at commit, revocation,
 cancellation, authority drift, forbidden selector fields, candidate tampering,
 tool-history retention, checkpoint failures and authorized resume reconstruction.
 The normal TypeScript/Python suites and full parity runner include these checks.
-They are runtime integration evidence; all 31 PSP and 37 CDL semantic review
+The [joint validation harness](joint-interpreter-validation.md) now captures model-visible
+requests/responses and service evidence with separate live admission and review.
+Its six scripted development cases add no semantic model results.
+These are runtime integration evidence; all 31 PSP and 37 CDL semantic review
 scenarios remain not-run. Requirement-register statuses and published baselines
 are unchanged.
 

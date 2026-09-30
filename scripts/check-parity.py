@@ -44,6 +44,7 @@ subprocess.run([sys.executable,"-u","scripts/check-revision-parity.py"],cwd=ROOT
 subprocess.run([sys.executable,"scripts/check-llm-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-context-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-context-service-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-interpreter-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-durable-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-refresh-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-mcp-refresh-parity.py"],cwd=ROOT,check=True)

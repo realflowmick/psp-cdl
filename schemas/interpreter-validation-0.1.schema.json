@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/interpreter-validation-0.1.schema.json",
+  "title": "Joint interpreter development harness; experimental CC0-1.0 contract",
+  "$defs": {
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-JOINT-VALIDATION-0.1"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "natural-language",
+              "expression-first",
+              "denied-write",
+              "cdl-persistence-conflict",
+              "checkpoint-resume",
+              "post-commit-reconciliation"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "path",
+              "sha256"
+            ]
+          },
+          "maxItems": 10000
+        },
+        "provider": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "const": "gpt-4.1-mini-2025-04-14"
+            },
+            "transcriptProfile": {
+              "const": "PSP-OPENAI-CONTEXT-0.1"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 256
+                  }
+                },
+                "required": [
+                  "id",
+                  "capabilities"
+                ]
+              },
+              "maxItems": 32
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "maxCalls": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 12
+                },
+                "budgetTokens": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 12600000
+                },
+                "maxOutputTokens": {
+                  "type": "integer",
+                  "minimum": 64,
+                  "maximum": 2048
+                },
+                "maxRequestBytes": {
+                  "type": "integer",
+                  "minimum": 65536,
+                  "maximum": 1048576
+                },
+                "maxResponseBytes": {
+                  "type": "integer",
+                  "minimum": 4096,
+                  "maximum": 65536
+                },
+                "timeoutMs": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "maximum": 30000
+                }
+              },
+              "required": [
+                "maxCalls",
+                "budgetTokens",
+                "maxOutputTokens",
+                "maxRequestBytes",
+                "maxResponseBytes",
+                "timeoutMs"
+              ]
+            }
+          },
+          "required": [
+            "model",
+            "transcriptProfile",
+            "complete",
+            "sources",
+            "limits"
+          ]
+        },
+        "workerTimeoutSeconds": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 360
+        }
+      },
+      "required": [
+        "profile",
+        "cases",
+        "sources",
+        "provider",
+        "workerTimeoutSeconds"
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-JOINT-VALIDATION-0.1"
+        },
+        "caseId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "mode": {
+          "enum": [
+            "rehearsal",
+            "live"
+          ]
+        },
+        "language": {
+          "enum": [
+            "typescript",
+            "python"
+          ]
+        },
+        "usage": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "maxItems": 128
+        },
+        "actual": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "recoveryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "calls": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "toolCalls": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "state": {
+              "type": "object"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "maxItems": 10000
+            },
+            "rehydrated": {
+              "type": "boolean"
+            },
+            "hasCandidates": {
+              "type": "boolean"
+            },
+            "hasToolHistory": {
+              "type": "boolean"
+            },
+            "privateLeak": {
+              "type": "boolean"
+            },
+            "trace": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "request": {
+                    "type": "object"
+                  },
+                  "response": {
+                    "type": "object"
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "request"
+                ]
+              },
+              "maxItems": 128
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "result": {
+                    "type": "object"
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              "maxItems": 256
+            },
+            "outputs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "maxItems": 8
+            }
+          },
+          "required": [
+            "code",
+            "node",
+            "status",
+            "recoveryCode",
+            "calls",
+            "toolCalls",
+            "version",
+            "state",
+            "events",
+            "rehydrated",
+            "hasCandidates",
+            "hasToolHistory",
+            "privateLeak",
+            "trace",
+            "services",
+            "outputs"
+          ]
+        }
+      },
+      "required": [
+        "profile",
+        "caseId",
+        "mode",
+        "language",
+        "usage",
+        "actual"
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reportSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "caseId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "verdict": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "blocked",
+                  "uncertain"
+                ]
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 32,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "collection": {
+                      "enum": [
+                        "trace",
+                        "services",
+                        "outputs"
+                      ]
+                    },
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10000
+                    }
+                  },
+                  "required": [
+                    "collection",
+                    "index"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "caseId",
+              "verdict",
+              "rationale",
+              "evidence"
+            ]
+          },
+          "maxItems": 6
+        }
+      },
+      "required": [
+        "reportSha256",
+        "reviewer",
+        "decisions"
+      ]
+    }
+  }
+}

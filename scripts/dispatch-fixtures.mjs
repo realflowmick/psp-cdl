@@ -16,7 +16,7 @@ export async function fixture(settings={}) {
   const close=()=>{backend.close();rmSync(directory,{recursive:true,force:true});};
   try {
     await store.execute(actor,{action:'putNode',nodeId:'entry',nodeVersion:'1',definition:{agents:flags.agents??'mcp://echo/read,mcp://other/read'}});
-    session=await store.execute(actor,{action:'createSession',requestId:'seed',nodeId:'entry',nodeVersion:'1',policyVersion:'policy-1',expiresAt:2000,state:{stage:'initial'}});
+    session=await store.execute(actor,{action:'createSession',requestId:'seed',nodeId:'entry',nodeVersion:'1',policyVersion:'policy-1',expiresAt:2000,state:flags.initialState??{stage:'initial'}});
     if(flags.inactive) await store.execute(actor,{action:'updateSession',requestId:'finish',sessionId:session.sessionId,expectedVersion:1,nodeId:'entry',nodeVersion:'1',policyVersion:'policy-1',status:'completed',state:{}});
     const host={
       now:()=>flags.now,

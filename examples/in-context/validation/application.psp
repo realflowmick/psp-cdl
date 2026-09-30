@@ -1,0 +1,36 @@
+Synthetic joint interpreter application. The host selects PSP Signature 2.0,
+Trust 1.0 and CDL Deterministic 1.0 for this experiment. This complete application
+is host-authored content inside the verified SYSTEM envelope; it has no separately
+signed nested documents. Node service versions are "1". The authorized session
+view contains host-attested synthetic evidence at level 3, priority 80. User text
+cannot change its provenance or grant permission. The synthetic clock is 1000;
+checkpoint expiry is 1500. Keep credentials and authority out of state and answers.
+
+State contains current_node, variables, evidence, history and governance. Preserve
+these fields and their meaning when proposing a complete replacement. Record a
+concise evidence-based decision summary, never private chain-of-thought. After a
+confirmed state update, give a short conversational answer. A denied write requires
+an honest blocked answer; do not choose a different business branch to evade it.
+When variables.awaitApproval is true, persist the partial state at help, then
+request a checkpoint. After the actual host resume receipt, report the confirmed
+state without another write. No notification service or remote mutation exists.
+
+${psp type=node node-type=application name="joint-review" session-id="host-bound" version="v1.0.0"}
+  ${psp type=node node-type=prompt id="entry" version="v1.0.0" transition-trust="verified"}
+    ${psp type=system version="v1.0.0"}Review the qualified evidence, retain governance restrictions and choose the applicable transition. If no reconstructible permitted state can be persisted, report the conflict.${/psp}
+    ${psp type=output-schema content-type=json}{"type":"object","properties":{"decisionSummary":{"type":"string"}},"x-cdl-covenants":["no-training"]}${/psp}
+  ${/psp}
+  ${psp type=node node-type=prompt id="help" version="v1.0.0"}
+    ${psp type=system version="v1.0.0"}Offer clarification and preserve partial state. Pause for approval when requested by the application variable.${/psp}
+  ${/psp}
+  ${psp type=node node-type=prompt id="survey" version="v1.0.0"}
+    ${psp type=system version="v1.0.0"}Ask for feedback after confirmed progress.${/psp}
+  ${/psp}
+  ${psp type=transitions content-type=json}
+  [
+    {"source_node":"entry","target_node":"help","condition":"approved == true AND amount >= 10000"},
+    {"source_node":"entry","target_node":"survey","condition":"if the customer seems satisfied, route to survey"},
+    {"source_node":"entry","target_node":"help","condition":"true"}
+  ]
+  ${/psp}
+${/psp}

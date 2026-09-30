@@ -2,10 +2,12 @@
 
 Candidate: [Core 3.2.0 interpreter 0.1](../specs/systemprompts/PSP-Core-v3_2_0-Interpreter-draft-0_1.md).
 Tracking: [#72](https://github.com/realflowmick/psp-cdl/issues/72), under #7.
-This is the priority-2 instruction artifact. It is not installed in the provider
-loop, an adopted normative profile, or evidence of successful model execution.
+This is the priority-2 instruction artifact, delivered in #73 with #72 closed.
+The opt-in [context/service integration](context-service.md) can install it with
+host approval. It is not an adopted normative profile or evidence of successful model execution.
 The [CDL companion reconciliation](cdl-interpreter.md) now supplies priority 3;
-context/service wiring and joint behavior validation remain priority 4.
+initial context/service wiring is merged in #80. The [joint validation harness](joint-interpreter-validation.md)
+supports the next behavioral review; actual model validation remains pending.
 
 The candidate is standalone: install it as authenticated SYSTEM text alongside
 the approved application, relevant context and explicit host capabilities. Do not
@@ -36,7 +38,7 @@ them explicitly. Rows preserve existing blockedBy and status values.
 
 | Topic | RFC basis | Candidate | Reconciliation and remaining gap |
 | --- | --- | --- | --- |
-| ownership | §§4–5, 16 | P01, P04 | LLM owns branching and state interpretation. Host validation/persistence does not choose conditions. Live integration pending. |
+| ownership | §§4–5, 16 | P01, P04 | LLM owns branching and state interpretation. Host validation/persistence does not choose conditions. Initial wiring merged in #80; actual model validation pending. |
 | syntax | §§6–7, 9.2, 13 | P02 | Preserve structure, scope and text; malformed input cannot grant trust. Parser errata PSP-E007 remain under review. |
 | trust | §§12.2–4, 17.7; Trust 1.0 | P03 | Six levels; provenance cannot be self-asserted. Engine isolation unsupported by a prompt. |
 | signatures | §§13.3, 17.1–8, 18 | P03, P11 | Replace visual/legacy verification with host Signature 2.0 results, nested checks and strict expiry. Algorithm and key support is external. |
@@ -45,7 +47,7 @@ them explicitly. Rows preserve existing blockedBy and status values.
 | transitions | §§12.5–10, 15 | P07 | Preserve natural-language reasoning, qualification defaults/presets and computed-field provenance. Priority ambiguity requires disposition; no external selector. |
 | nested | §8.6 | P08 | Independent sessions/output and stricter parent security; do not inline child state. Nested application service composition pending. |
 | output | §14 | P09 | Hierarchical records, variable promotion/merge, partial state and channel separation. Fixed legacy emission order is a local convention. |
-| persistence | §§5.4, 14.3.9, 22 | P01, P04, P09, P13 | Confirmed versus proposed state; persist completion atomically. No exactly-once remote-effect claim; integration pending. |
+| persistence | §§5.4, 14.3.9, 22 | P01, P04, P09, P13 | #80 adds running-state persistence and receipts. Completion composition and atomic remote effects remain pending. |
 | checkpoint | §§10.1.5, 21.18, 22 checkpoint operations, 27.7 | P10, P11 | Actual receipts, private token handoff and authenticated resume. A chat approval cannot substitute for host authorization. |
 | refresh | §21 | P11 | All declared trigger meanings, counter rules, reconciliation and failure handling. Additional trigger/degraded modes unsupported in existing adapters; PSP-E009 pending. |
 | threat | §28 | P12 | Raw context-blind assessment separated from host enforcement; turn-based decay. No measured threat classification or suppression effectiveness. |
@@ -108,7 +110,7 @@ unambiguous contract or report blocked/unsupported behavior.
 | R08 | §24 confidentiality parenthetical uses zone/trust numbering inconsistently | Distinguish section/decryption zones from six provenance levels. Apply disclosure rule to USER-zone recipients and host release policy; never equate session level 2 with user provenance. |
 | R09 | Legacy full-state emission, fixed marker order and extra status fields have no Core wire contract | Preserve semantic state requirements; defer actual channel/schema/lifecycle integration to priority 4. Do not advertise old conventions as normative. |
 | R10 | §5.4 atomic execution cannot be established by a model or an ordinary state write for remote effects | Distinguish receipt-confirmed state and unknown effects. Mutating recovery/idempotency remains #41/#42 work. |
-| R11 | RFC checkpoint output includes resume_token, but credentials must remain host-private | Use a permitted model-visible projection and host-private handoff. Full checkpoint wire/storage mapping awaits priority 4; no new token schema here. |
+| R11 | RFC checkpoint output includes resume_token, but credentials must remain host-private | #80 supplies a model-visible projection and host-private token handoff with authenticated resume; original wire/schema adoption remains separate. |
 | R12 | Adherence stances/form-node companion instructions add semantics beyond this Core slice | Do not silently import them as Core requirements. Separate extension reconciliation if selected. CDL instructions now have a separate [priority-3 candidate](cdl-interpreter.md). |
 
 ## Review scenarios and validation
