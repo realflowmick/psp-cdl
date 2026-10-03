@@ -17,8 +17,11 @@ The [PSP interpreter candidate](docs/psp-interpreter.md) and
 requirement mappings and unexecuted review scenarios for Core 3.2.0 and CDL 1.5.
 The opt-in [context/service integration](docs/context-service.md) now connects these
 candidates to authorized state views, real writes and service feedback. The
-[joint validation harness](docs/joint-interpreter-validation.md) adds six paired
-development cases, pinned bundles and separate semantic review. Live model-behavior
+[joint validation harness](docs/joint-interpreter-validation.md), merged in #82
+(#81 closed), adds six paired development cases, pinned bundles, context provider
+transcripts and separate semantic review. The next step under #7 is the
+[first bounded Python observation](docs/joint-interpreter-validation.md#first-bounded-observation),
+pending actual provider inventory and a host credential. Live model-behavior
 validation and exact execution of the 68 original review scenarios remain pending.
 Effectiveness studies follow implementation.
 

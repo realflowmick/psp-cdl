@@ -1,7 +1,11 @@
 # Joint PSP/CDL development validation
 
-Issue [#81](https://github.com/realflowmick/psp-cdl/issues/81), under milestone #7,
-adds a bounded harness around the merged [context/service integration](context-service.md).
+The harness and opt-in context provider transcripts were delivered in
+[PR #82](https://github.com/realflowmick/psp-cdl/pull/82), merged 2026-09-30;
+[#81](https://github.com/realflowmick/psp-cdl/issues/81) is closed. Model observations,
+semantic review and remaining integration work continue under
+[#7](https://github.com/realflowmick/psp-cdl/issues/7). The bounded harness wraps the
+merged [context/service integration](context-service.md).
 It runs six synthetic cases through actual TypeScript or Python `ContextLlmLoop`
 instances, SQLite state and authorized services. The model chooses the branch.
 Expected outcomes are checked after execution and never select runtime nodes.
@@ -97,6 +101,50 @@ reference bounds and automatic grades. It rejects promotion of scripted evidence
 and cannot override a failed boundary check with a pass. It records the supplied
 reviewer attestation without authenticating identity or asserting independence.
 It never edits the original scenario register or claims clause conformance.
+
+## First bounded observation
+
+Selected next work under #7, reconciled 2026-10-03: run only `natural-language`
+through Python, inspect its actual model decisions and service effects, and record
+semantic review before expanding live cases. The configuration has passed offline
+rehearsal; no live observation or semantic pass is recorded. Actual API project
+and capability inventory and a host-supplied credential remain pending.
+
+| Setting | Selected bound |
+| --- | --- |
+| Case / implementation | `natural-language` / Python |
+| Model / transcript profile | `gpt-4.1-mini-2025-04-14` / `PSP-OPENAI-CONTEXT-0.1` |
+| Provider calls / output | At most 2 calls; 1,024 output tokens per call |
+| Token reservation | 2,097,200 total; a conservative reservation, not expected usage |
+| Request / response | 131,072 / 16,384 bytes per call |
+| Time limits | 15 seconds per provider attempt; 60 seconds per worker |
+| Data / effects | Public synthetic fixture and temporary local SQLite state |
+
+Prepare with `--case natural-language`, then make a new bundle copy with
+`provider.limits.maxCalls: 2`, `budgetTokens: 2097200`, `maxOutputTokens: 1024`,
+`maxRequestBytes: 131072`, `maxResponseBytes: 16384`, `timeoutMs: 15000`, and
+`workerTimeoutSeconds: 60`. Keep each bundle and run under ignored `.artifacts`;
+retain earlier evidence. Run `inspect` and an offline rehearsal with that exact
+configuration. These are selected first-run bounds, not changes to CLI defaults.
+
+Before live execution, identify the actual project and its account/transitive
+capabilities, including training, logging, retention and downstream processing.
+The fixture carries `no-training`; synthetic data does not waive that covenant.
+Review the applicable [PSP interpretation decisions](psp-interpreter.md#open-interpretation-and-integration-decisions)
+and [CDL profile boundaries](cdl-interpreter.md#profile-selections-and-remaining-decisions)
+against the selected application. Keep `provider.complete: false` until the real
+inventory is established. Supply the API credential only through the host
+environment. Inspect the completed bundle and use its resulting digest for the
+explicit live invocation below; an earlier incomplete bundle is not admitted.
+
+Assess the visible transcript and case rubric alongside actual receipts and
+durable state: the model must interpret the applicable condition, preserve
+variables/evidence/governance, and claim only receipt-confirmed effects. A passing
+boundary grade still needs semantic review. Preserve failures and unknown effects;
+do not automatically repeat a paid attempt or replay a mutation. Correct observed
+defects before adding the other development cases and paired model observations.
+This case remains a partial variant of `psp:context-ownership`; it cannot discharge
+that original scenario or the 460-requirement register.
 
 ## Separately admitted live execution
 
