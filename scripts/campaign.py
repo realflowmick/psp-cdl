@@ -112,11 +112,20 @@ def load_records(path):
     with Path(path).open(encoding='utf-8') as stream:
         for line in stream:
             require(len(line.encode('utf-8')) <= 4*1024*1024, 'JOURNAL_TOO_LARGE')
-            try: records.append(parse_json(line))
+            try:
+                value = parse_json(line)
+                # Raw evidence stays in the journal; aggregate analysis need not retain
+                # repeated prompts, conversations, tool payloads or complete state.
+                records.append({k: v for k, v in value.items() if k not in (
+                    'system', 'messages', 'text', 'released', 'state', 'receipts', 'input', 'attackPayload')})
             except Exception:
                 # Only an interrupted final write may be incomplete.
                 require(not line.endswith('\n') and not stream.read(), 'CORRUPT_JOURNAL')
     return records
+
+
+def journal_digest(path):
+    with Path(path).open('rb') as stream: return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
 def export_summary(directory, bundle, records, mode):
@@ -161,7 +170,7 @@ def collect(args):
         report = export_summary(directory, bundle, records, 'live' if live else 'offline-scripted')
         manifest = read(directory/'manifest.json')
         manifest.update(status='collection-closed', completeEpisodes=sum(e['complete'] for e in report['episodes']),
-                        cancelled=(directory/'CANCEL').exists(), journalSha256=hashlib.sha256((directory/'journal.jsonl').read_bytes()).hexdigest())
+                        cancelled=(directory/'CANCEL').exists(), journalSha256=journal_digest(directory/'journal.jsonl'))
         (directory/'manifest.json').write_bytes(encoded(manifest))
     complete = sum(e['complete'] for e in report['episodes'])
     return {'output': str(directory), 'status': 'complete' if complete == len(bundle['plan']) else 'incomplete',
@@ -184,7 +193,7 @@ def main():
             d = artifact(args.input); bundle = read(d/'bundle.json'); require(read(d/'manifest.json')['bundleDigest'] == digest(bundle), 'BUNDLE_DRIFT')
             manifest = read(d/'manifest.json')
             if 'journalSha256' in manifest:
-                require(manifest['journalSha256'] == hashlib.sha256((d/'journal.jsonl').read_bytes()).hexdigest(), 'JOURNAL_DRIFT')
+                require(manifest['journalSha256'] == journal_digest(d/'journal.jsonl'), 'JOURNAL_DRIFT')
             export_summary(d, bundle, load_records(d/'journal.jsonl'), read(d/'manifest.json')['mode']); result = {'summary': str(d/'summary.json')}
         print(json.dumps(result, indent=2))
         if args.command == 'run' and result['status'] != 'complete': return 2
