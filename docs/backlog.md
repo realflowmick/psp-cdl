@@ -12,6 +12,15 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 
 ## What is unfinished
 
+**Multi-turn collection (#84, development branch):** the
+[new collector](../evaluation/MULTITURN.md) supplies paired Python/TypeScript
+provider and host boundaries, Opus 4.8 attacker/referee roles, retained conversation
+and SQLite state, four experimental arms, journals and per-turn/paired analysis.
+Run its offline rehearsal, complete actual provider inventories and rates, select
+the first live budget/defender, then admit a pinned bundle. External provider
+behavior, referee calibration, independent corpus review and the #49 effectiveness
+study remain pending. This does not change the 68 original scenario statuses.
+
 Substantial experimental libraries and scoped workflows are built. The full planned system is unfinished. Open work has three distinct meanings:
 
 - **Needs implementation and behavioral validation:** extend the delivered joint PSP/CDL harness under #7, validate the candidates with real model/service observations, and finish unsupported context/service forms. Remaining grammar coverage, PostgreSQL, distributed coordination, mutating tools, OAuth, streaming and additional workflow modes retain their gates (#36, #40-#47).

@@ -25,6 +25,11 @@ pending actual provider inventory and a host credential. Live model-behavior
 validation and exact execution of the 68 original review scenarios remain pending.
 Effectiveness studies follow implementation.
 
+The opt-in [multi-turn collection engine](evaluation/MULTITURN.md) adds adaptive
+Opus 4.8 attacker/referee roles, persistent defender sessions and a four-arm
+PSP/plain-prompt × host-gates comparison. It exports development observations and
+per-turn statistics; scripted rehearsals are not live effectiveness evidence.
+
 ## Standards
 
 | Document | Version | Status |

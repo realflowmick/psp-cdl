@@ -1,5 +1,10 @@
 # Implementation roadmap
 
+Development data collection now has an opt-in [multi-turn engine](evaluation/MULTITURN.md)
+under [#84](https://github.com/realflowmick/psp-cdl/issues/84): Opus attacker/referee,
+persistent defender conversations and four-arm comparisons. Its scoped synthetic
+observations do not complete the conformance, effectiveness or release milestones.
+
 The repository setup is milestone M0. The following milestones define implementation work and acceptance gates, not completed security features. The [current progress and actionable backlog](docs/backlog.md) records merged slices, remaining issues and dependencies. GitHub issues #2-#9 remain open milestone trackers; `.github/bootstrap-issues.json` is the original provisioning seed, not the current progress register.
 
 **Current work (2026-10-03, harness merged in #82; #81 closed):** implement and validate PSP/CDL inside the LLM context before effectiveness studies. Natural-language and expression-like conditions are evaluated by the LLM. The external transition selector is removed and graph executor work is withdrawn. The [PSP](docs/psp-interpreter.md) and [CDL](docs/cdl-interpreter.md) candidates and initial [context/service integration](docs/context-service.md) are delivered. The [joint development harness](docs/joint-interpreter-validation.md) adds six paired cases, context provider transcripts and separate model-observation review. The [first bounded Python observation](docs/joint-interpreter-validation.md#first-bounded-observation) awaits actual provider inventory and a host credential; actual model behavior and the 68 original scenarios remain untested. Remaining service/completion forms retain their own gates. Existing proxy, policy, persistence and provider components are supporting infrastructure, not the PSP execution engine; see the [responsibility audit](docs/in-context-execution.md). Parser/API adoption requirements and release gates remain in force; package publication is disabled.

@@ -1,0 +1,132 @@
+{
+  "profile": "PSP-CAMPAIGN-0.1",
+  "license": "CC0-1.0",
+  "cases": [
+    {
+      "id": "anthropic-valid",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "OK"
+    },
+    {
+      "id": "anthropic-wrong-model",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"unreviewed-model\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "MODEL_MISMATCH"
+    },
+    {
+      "id": "anthropic-truncated",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"max_tokens\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "INCOMPLETE_RESPONSE"
+    },
+    {
+      "id": "anthropic-unsupported-block",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"thinking\", \"thinking\": \"never collect\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "UNSUPPORTED_RESPONSE"
+    },
+    {
+      "id": "anthropic-usage-overrun",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 100000}}",
+      "code": "INVALID_USAGE"
+    },
+    {
+      "id": "anthropic-duplicate-key",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\":\"a\",\"model\":\"b\"}",
+      "code": "INVALID_RESPONSE"
+    },
+    {
+      "id": "anthropic-redirect",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 302,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "PROVIDER_HTTP_ERROR"
+    },
+    {
+      "id": "openai-valid",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "OK"
+    },
+    {
+      "id": "openai-wrong-model",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"unreviewed-model\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "MODEL_MISMATCH"
+    },
+    {
+      "id": "openai-truncated",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"length\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "INCOMPLETE_RESPONSE"
+    },
+    {
+      "id": "openai-unsupported-block",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\", \"tool_calls\": [{\"type\": \"function\"}]}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "UNSUPPORTED_RESPONSE"
+    },
+    {
+      "id": "openai-usage-overrun",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 100000}}",
+      "code": "INVALID_USAGE"
+    },
+    {
+      "id": "openai-duplicate-key",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\":\"a\",\"model\":\"b\"}",
+      "code": "INVALID_RESPONSE"
+    },
+    {
+      "id": "openai-redirect",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 302,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "PROVIDER_HTTP_ERROR"
+    }
+  ]
+}
