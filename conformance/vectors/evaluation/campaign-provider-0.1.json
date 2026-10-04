@@ -12,6 +12,15 @@
       "code": "OK"
     },
     {
+      "id": "anthropic-integral-usage",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": {\"input_tokens\": 30.0, \"output_tokens\": 20.0}}",
+      "code": "OK"
+    },
+    {
       "id": "anthropic-wrong-model",
       "provider": "anthropic",
       "model": "claude-opus-4-8",
@@ -48,6 +57,24 @@
       "code": "INVALID_USAGE"
     },
     {
+      "id": "anthropic-empty-block",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [], \"usage\": {\"input_tokens\": 30, \"output_tokens\": 20}}",
+      "code": "UNSUPPORTED_RESPONSE"
+    },
+    {
+      "id": "anthropic-invalid-usage",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"claude-opus-4-8\", \"type\": \"message\", \"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}], \"usage\": []}",
+      "code": "INVALID_USAGE"
+    },
+    {
       "id": "anthropic-duplicate-key",
       "provider": "anthropic",
       "model": "claude-opus-4-8",
@@ -72,6 +99,15 @@
       "status": 200,
       "contentType": "application/json",
       "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "OK"
+    },
+    {
+      "id": "openai-integral-usage",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30.0, \"completion_tokens\": 20.0}}",
       "code": "OK"
     },
     {
@@ -108,6 +144,24 @@
       "status": 200,
       "contentType": "application/json",
       "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 100000}}",
+      "code": "INVALID_USAGE"
+    },
+    {
+      "id": "openai-empty-block",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\", \"tool_calls\": []}}], \"usage\": {\"prompt_tokens\": 30, \"completion_tokens\": 20}}",
+      "code": "UNSUPPORTED_RESPONSE"
+    },
+    {
+      "id": "openai-invalid-usage",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"model\": \"gpt-4.1-mini-2025-04-14\", \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"message\\\":\\\"synthetic\\\"}\"}}], \"usage\": []}",
       "code": "INVALID_USAGE"
     },
     {

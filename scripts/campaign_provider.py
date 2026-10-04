@@ -64,15 +64,18 @@ def decode(config, limits, reply):
         require(type(content) is list and len(content) > 0 and all(type(b) is dict and b.get('type') == 'text' and type(b.get('text')) is str for b in content), 'UNSUPPORTED_RESPONSE')
         text = ''.join(b['text'] for b in content)
         usage = value.get('usage', {})
+        require(type(usage) is dict, 'INVALID_USAGE')
         tokens = [usage.get('input_tokens'), usage.get('output_tokens'), usage.get('cache_creation_input_tokens', 0), usage.get('cache_read_input_tokens', 0)]
     else:
         choices = value.get('choices')
-        require(type(choices) is list and len(choices) == 1 and choices[0].get('finish_reason') == 'stop', 'INCOMPLETE_RESPONSE')
+        require(type(choices) is list and len(choices) == 1 and type(choices[0]) is dict and choices[0].get('finish_reason') == 'stop', 'INCOMPLETE_RESPONSE')
         message = choices[0].get('message', {})
-        require(message.get('role') == 'assistant' and type(message.get('content')) is str and not message.get('tool_calls') and not message.get('refusal'), 'UNSUPPORTED_RESPONSE')
+        require(type(message) is dict and message.get('role') == 'assistant' and type(message.get('content')) is str and message.get('tool_calls') is None and message.get('refusal') is None, 'UNSUPPORTED_RESPONSE')
         text = message['content']; usage = value.get('usage', {})
+        require(type(usage) is dict, 'INVALID_USAGE')
         tokens = [usage.get('prompt_tokens'), usage.get('completion_tokens'), 0, 0]
-    require(all(type(n) is int and 0 <= n <= INPUT_RESERVATION for n in tokens), 'INVALID_USAGE')
+    require(all(type(n) in (int, float) and 0 <= n <= INPUT_RESERVATION and int(n) == n for n in tokens), 'INVALID_USAGE')
+    tokens = list(map(int, tokens))
     require(tokens[1] <= limits['maxOutputTokens'] and tokens[0]+tokens[2]+tokens[3] <= INPUT_RESERVATION, 'INVALID_USAGE')
     return {'text': text, 'model': value['model'], 'usage': {'inputTokens': tokens[0]+tokens[2]+tokens[3], 'outputTokens': tokens[1],
                                                            'cacheWriteTokens': tokens[2], 'cacheReadTokens': tokens[3]}}

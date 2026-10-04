@@ -109,8 +109,9 @@ def provider_vectors():
                   'content': [{'type': 'text', 'text': '{"message":"synthetic"}'}], 'usage': {'input_tokens': 30, 'output_tokens': 20}}
                  if provider == 'anthropic' else {'model': model, 'choices': [{'finish_reason': 'stop', 'message': {'role': 'assistant', 'content': '{"message":"synthetic"}'}}],
                                                 'usage': {'prompt_tokens': 30, 'completion_tokens': 20}})
-        for variant, code in [('valid', 'OK'), ('wrong-model', 'MODEL_MISMATCH'), ('truncated', 'INCOMPLETE_RESPONSE'),
+        for variant, code in [('valid', 'OK'), ('integral-usage', 'OK'), ('wrong-model', 'MODEL_MISMATCH'), ('truncated', 'INCOMPLETE_RESPONSE'),
                               ('unsupported-block', 'UNSUPPORTED_RESPONSE'), ('usage-overrun', 'INVALID_USAGE'),
+                              ('empty-block', 'UNSUPPORTED_RESPONSE'), ('invalid-usage', 'INVALID_USAGE'),
                               ('duplicate-key', 'INVALID_RESPONSE'), ('redirect', 'PROVIDER_HTTP_ERROR')]:
             value = deepcopy(reply)
             if variant == 'wrong-model': value['model'] = 'unreviewed-model'
@@ -121,6 +122,11 @@ def provider_vectors():
                 if provider == 'anthropic': value['content'] = [{'type': 'thinking', 'thinking': 'never collect'}]
                 else: value['choices'][0]['message']['tool_calls'] = [{'type': 'function'}]
             if variant == 'usage-overrun': value['usage']['output_tokens' if provider == 'anthropic' else 'completion_tokens'] = 100000
+            if variant == 'integral-usage': value['usage'] = {k: float(v) for k, v in value['usage'].items()}
+            if variant == 'invalid-usage': value['usage'] = []
+            if variant == 'empty-block':
+                if provider == 'anthropic': value['content'] = []
+                else: value['choices'][0]['message']['tool_calls'] = []
             body = json.dumps(value) if variant != 'duplicate-key' else '{"model":"a","model":"b"}'
             cases.append({'id': provider+'-'+variant, 'provider': provider, 'model': model, 'status': 302 if variant == 'redirect' else 200,
                           'contentType': 'application/json', 'body': body, 'code': code})

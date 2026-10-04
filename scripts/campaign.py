@@ -10,7 +10,7 @@ import secrets
 import subprocess
 import sys
 from pathlib import Path
-from psp_cdl_core import parse_json
+from psp_cdl_core import parse_json, canonical_json
 from campaign_provider import INPUT_RESERVATION, MODELS, ready, require, CampaignError
 from campaign_engine import episode
 from campaign_analysis import summarize
@@ -87,7 +87,7 @@ def runtime():
 
 
 def prepare(args):
-    config = read(args.config); corpus = read(args.corpus); validate('config', config); validate('corpus', corpus)
+    config = parse_json(canonical_json(read(args.config))); corpus = read(args.corpus); validate('config', config); validate('corpus', corpus)
     npm = 'npm.cmd' if os.name == 'nt' else 'npm'
     r = subprocess.run([npm, 'run', 'build'], cwd=ROOT, capture_output=True, timeout=180)
     require(r.returncode == 0, 'BUILD_FAILED')

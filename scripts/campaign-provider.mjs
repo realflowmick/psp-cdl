@@ -30,10 +30,10 @@ export function decode(config,limits,reply){
   if(config.provider==='anthropic'){
     requireThat(v.type==='message'&&v.role==='assistant'&&v.stop_reason==='end_turn','INCOMPLETE_RESPONSE');
     requireThat(Array.isArray(v.content)&&v.content.length>0&&v.content.every(b=>obj(b)&&b.type==='text'&&typeof b.text==='string'),'UNSUPPORTED_RESPONSE');
-    text=v.content.map(b=>b.text).join('');const u=v.usage??{};tokens=[u.input_tokens,u.output_tokens,u.cache_creation_input_tokens??0,u.cache_read_input_tokens??0];
+    text=v.content.map(b=>b.text).join('');const u=v.usage??{};requireThat(obj(u),'INVALID_USAGE');tokens=[u.input_tokens,u.output_tokens,u.cache_creation_input_tokens===undefined?0:u.cache_creation_input_tokens,u.cache_read_input_tokens===undefined?0:u.cache_read_input_tokens];
   }else{
-    requireThat(Array.isArray(v.choices)&&v.choices.length===1&&v.choices[0].finish_reason==='stop','INCOMPLETE_RESPONSE');const m=v.choices[0].message??{};
-    requireThat(m.role==='assistant'&&typeof m.content==='string'&&!m.tool_calls&&!m.refusal,'UNSUPPORTED_RESPONSE');text=m.content;const u=v.usage??{};tokens=[u.prompt_tokens,u.completion_tokens,0,0];
+    requireThat(Array.isArray(v.choices)&&v.choices.length===1&&obj(v.choices[0])&&v.choices[0].finish_reason==='stop','INCOMPLETE_RESPONSE');const m=v.choices[0].message??{};
+    requireThat(obj(m)&&m.role==='assistant'&&typeof m.content==='string'&&m.tool_calls==null&&m.refusal==null,'UNSUPPORTED_RESPONSE');text=m.content;const u=v.usage??{};requireThat(obj(u),'INVALID_USAGE');tokens=[u.prompt_tokens,u.completion_tokens,0,0];
   }
   requireThat(tokens.every(n=>Number.isSafeInteger(n)&&n>=0&&n<=INPUT_RESERVATION),'INVALID_USAGE');
   requireThat(tokens[1]<=limits.maxOutputTokens&&tokens[0]+tokens[2]+tokens[3]<=INPUT_RESERVATION,'INVALID_USAGE');
