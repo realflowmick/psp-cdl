@@ -6,7 +6,7 @@ is removed and the external graph executor direction is withdrawn. The
 [implementation queue](protocol-implementation.md) supersedes evaluation-first
 sequencing throughout this backlog. Existing merged infrastructure is not a complete PSP interpreter.
 
-Planning snapshot: 2026-09-30, following merged main commit `cdff1fb` and [PR #80](https://github.com/realflowmick/psp-cdl/pull/80). Execution ownership (#70), both instruction candidates (#73/#78) and initial context/service integration (#80) are merged; delivery issues #72, #77 and #79 are closed. Graph-executor proposal #69 is closed without merge. PRs #53-#67 retain their scoped evidence; #33, #37, #39 and #48 are closed. Joint behavioral validation and remaining integrations continue under #7, with the first harness tracked in #81. Study freeze preparation and collection under #49 follow implementation. Live issue state takes precedence over this snapshot. The [roadmap](../ROADMAP.md) retains milestone gates.
+Planning snapshot: 2026-10-03, following merged main commit `3302059` and [PR #82](https://github.com/realflowmick/psp-cdl/pull/82). Execution ownership (#70), both instruction candidates (#73/#78), initial context/service integration (#80) and the joint validation harness/context provider mapping (#82) are merged; delivery issues #72, #77, #79 and #81 are closed. Graph-executor proposal #69 is closed without merge. PRs #53-#67 retain their scoped evidence; #33, #37, #39 and #48 are closed. Joint behavioral validation and remaining integrations continue under #7. Study freeze preparation and collection under #49 follow implementation. Live issue state takes precedence over this snapshot. The [roadmap](../ROADMAP.md) retains milestone gates.
 
 The original eight open issues (#2-#9) are milestone trackers, not eight unstarted tasks. Of the 19 focused issues (#33-#51), 15 remain open; several already have merged implementation evidence and need normative disposition. Issue counts are not a completion percentage. M1-M5 remain incomplete; full workflow conformance, measured effectiveness and independent security review remain pending. Package publication stays disabled.
 
@@ -14,11 +14,22 @@ The original eight open issues (#2-#9) are milestone trackers, not eight unstart
 
 Substantial experimental libraries and scoped workflows are built. The full planned system is unfinished. Open work has three distinct meanings:
 
-- **Needs implementation and behavioral validation:** extend the joint PSP/CDL harness (#81/#7), validate the candidates with real model/service observations, and finish unsupported context/service forms. Remaining grammar coverage, PostgreSQL, distributed coordination, mutating tools, OAuth, streaming and additional workflow modes retain their gates (#36, #40-#47).
+- **Needs implementation and behavioral validation:** extend the delivered joint PSP/CDL harness under #7, validate the candidates with real model/service observations, and finish unsupported context/service forms. Remaining grammar coverage, PostgreSQL, distributed coordination, mutating tools, OAuth, streaming and additional workflow modes retain their gates (#36, #40-#47).
 - **Needs review or adoption:** parser corrections, API standard and remaining security-tool dispositions (#34, #35, #38). Much of their implementation already exists.
 - **Needs evaluation or release work:** an actual effectiveness study, repeatable release artifacts and independent review (#49-#51). An offline test pass does not finish these tasks.
 
-**Current delivery: joint validation infrastructure, under #81/#7.** The merged opt-in [paired integration](context-service.md) supplies candidate/application text, authorized persisted state, real writes and service receipts/denials, plus checkpoint/resume. The [joint harness](joint-interpreter-validation.md) adds six paired development cases, pinned bundles, captured observations and separate semantic review. Scripted rehearsal is runtime evidence only. Its inventory accounts for all 68 original scenarios with five partial mappings and 63 unwired scenarios; all original statuses remain not-run. The candidate indexes still account for all 460 requirements. Live model validation, completion composition and remaining service forms remain pending. The LLM chooses workflow transitions; credentials and host authentication/policy authority stay outside model input.
+**Current work: first bounded model observation and semantic review, under #7.** The merged opt-in [paired integration](context-service.md) supplies candidate/application text, authorized persisted state, real writes and service receipts/denials, plus checkpoint/resume. The [joint harness](joint-interpreter-validation.md), delivered in #82 with #81 closed, adds six paired development cases, pinned bundles, captured observations, context provider transcripts and separate semantic review. Scripted rehearsal is runtime evidence only. Its inventory accounts for all 68 original scenarios with five partial mappings and 63 unwired scenarios; all original statuses remain not-run. The candidate indexes still account for all 460 requirements. Live model validation, completion composition and remaining service forms remain pending. The LLM chooses workflow transitions; credentials and host authentication/policy authority stay outside model input.
+
+The [selected first observation](joint-interpreter-validation.md#first-bounded-observation)
+is Python `natural-language`, limited to two provider calls and 1,024 output tokens
+per call. Its configuration has passed offline rehearsal; actual project/capability
+inventory and a host-supplied API credential remain pending. Review the applicable
+PSP interpretation decisions and CDL profile boundaries, finish the provider
+inventory and inspect the resulting pinned bundle before live execution. Assess
+the model's decision, actual receipt and preserved state before expanding cases.
+Correct observed defects, extend exact fixtures across the 68 original scenarios,
+and complete remaining context/service forms. Normative reviews and independent
+implementation work continue while provider prerequisites are unresolved.
 
 **Later: #49 study freeze review and collection.** The merged [signed-result contract](../evaluation/SIGNED-RESULTS.md) and [offline reproduction audit](../evaluation/RESULT-AUDIT.md) remain available infrastructure. After interpreter and context/service implementation, use the [freeze review brief](../evaluation/FREEZE-REVIEW.md) to assemble validation evidence, obtain independent corpus/rubric/method review and record the study freeze. Prepare the reviewed bundle before obtaining operator admission bound to its exact digest. All collection gates remain pending. No held-out corpus, paid run or completed study is claimed; #49 remains open.
 
@@ -45,7 +56,8 @@ offline workflow matrix (#60), development study runner (#61) and usage/readines
 proposal (#62), offline pilot planning/analysis (#63), and external-corpus execution
 with paired grading (#64), signed result manifests (#65), and offline reproduction
 audits (#66), freeze review preparation (#67), and execution-ownership correction
-(#70), instruction candidates (#73/#78) and context/service integration (#80).
+(#70), instruction candidates (#73/#78), context/service integration (#80),
+and joint validation/context provider transcripts (#82; #81 closed).
 None of these PRs is awaiting merge. Next are joint model-behavior validation
 and the remaining context/service forms, as detailed in
 the [implementation queue](protocol-implementation.md). The
@@ -91,7 +103,7 @@ semantic effectiveness testing and the M6 gates remain separate work.
 | --- | --- | --- | --- |
 | Review under #7 | M5 / cross-cutting | PSP candidate delivered in closed [#72](https://github.com/realflowmick/psp-cdl/issues/72) | [Instruction reconciliation and topic matrix](psp-interpreter.md); open interpretation decisions and 31 not-run scenarios; no model-behavior claim |
 | Review under #7 | M5 / cross-cutting | CDL candidate delivered in closed [#77](https://github.com/realflowmick/psp-cdl/issues/77) | [Semantic reconciliation and 96-entry topic index](cdl-interpreter.md); 37 not-run scenarios, profile limits and integration decisions |
-| Next | M5 / cross-cutting | [#81 Joint validation harness](https://github.com/realflowmick/psp-cdl/issues/81), under [#7](https://github.com/realflowmick/psp-cdl/issues/7) | Six development cases and all-scenario inventory; actual model observations, semantic review and remaining exact fixtures pending; [guide](joint-interpreter-validation.md) |
+| Next | M5 / cross-cutting | [#7 Joint model observations and semantic review](https://github.com/realflowmick/psp-cdl/issues/7) | #82 delivered the harness; #81 closed. First bounded Python observation awaits actual provider inventory and a host credential; semantic review and exact fixtures for all 68 originals remain pending; [guide](joint-interpreter-validation.md#first-bounded-observation) |
 | Next | M5 / cross-cutting | [#7 Remaining context/service integration](https://github.com/realflowmick/psp-cdl/issues/7) | #80/#79 delivered initial integration; host completeness, remaining service forms and completion/refresh composition remain |
 | Review | M1 | [#34 Normative inventory and parser-contract review](https://github.com/realflowmick/psp-cdl/issues/34) | First three acceptance criteria evidenced; [Parser 0.2 review](../specs/reviews/parser-review-0.2.json) and recorded normative decision remain |
 | Review | M1 | [#35 Missing API reference and editorial errata](https://github.com/realflowmick/psp-cdl/issues/35) | First three acceptance criteria evidenced; API comment window and recorded adoption decision remain pending |
@@ -119,7 +131,7 @@ Each issue supplies acceptance criteria, source references and validation requir
 | M2 | [#3 TypeScript](https://github.com/realflowmick/psp-cdl/issues/3), [#4 Python](https://github.com/realflowmick/psp-cdl/issues/4) | #36; independent review also tracked by #51 |
 | M3 | [#5](https://github.com/realflowmick/psp-cdl/issues/5) | #38, #40; #37 and #39 closed |
 | M4 | [#6](https://github.com/realflowmick/psp-cdl/issues/6) | #41, #42, #43 |
-| M5 | [#7](https://github.com/realflowmick/psp-cdl/issues/7) | #81 joint validation and remaining integrations next; candidate delivery #72/#77 and initial integration #79 closed; #44-#47 retain their gates |
+| M5 | [#7](https://github.com/realflowmick/psp-cdl/issues/7) | Model observations, semantic review and remaining integrations next; candidate delivery #72/#77, initial integration #79 and harness #81 closed; #44-#47 retain their gates |
 | M6 | [#8](https://github.com/realflowmick/psp-cdl/issues/8) | #49; #48 closed for its scoped offline harness |
 | M7 | [#9](https://github.com/realflowmick/psp-cdl/issues/9) | #50, #51 |
 
