@@ -24,7 +24,7 @@
     "test:campaign": "node --test scripts/tests/campaign.test.mjs"
   },
   "devDependencies": {
-    "@types/node": "26.6.3",
+    "@types/node": "26.6.4",
     "ajv": "8.20.0",
     "canonicalize": "5.1.0",
     "typescript": "7.0.2"
