@@ -1,0 +1,608 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psp-cdl.org/schemas/campaign-0.1.schema.json",
+  "title": "Synthetic multi-turn development collection 0.1; CC0-1.0 draft",
+  "$defs": {
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-CAMPAIGN-0.1"
+        },
+        "syntheticDataOnly": {
+          "const": true
+        },
+        "mode": {
+          "enum": [
+            "adaptive",
+            "replay"
+          ]
+        },
+        "roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "attacker": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "enum": [
+                    "anthropic",
+                    "openai"
+                  ]
+                },
+                "model": {
+                  "enum": [
+                    "claude-opus-4-8",
+                    "gpt-4.1-mini-2025-04-14"
+                  ]
+                },
+                "decoding": {
+                  "const": "text-json-default-sampling-0.1"
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "capabilities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "minItems": 0,
+                        "maxItems": 256
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "capabilities"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 32
+                },
+                "inputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                },
+                "outputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                }
+              },
+              "required": [
+                "provider",
+                "model",
+                "decoding",
+                "complete",
+                "sources",
+                "inputMicroUsdPerMillion",
+                "outputMicroUsdPerMillion"
+              ]
+            },
+            "defender": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "enum": [
+                    "anthropic",
+                    "openai"
+                  ]
+                },
+                "model": {
+                  "enum": [
+                    "claude-opus-4-8",
+                    "gpt-4.1-mini-2025-04-14"
+                  ]
+                },
+                "decoding": {
+                  "const": "text-json-default-sampling-0.1"
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "capabilities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "minItems": 0,
+                        "maxItems": 256
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "capabilities"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 32
+                },
+                "inputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                },
+                "outputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                }
+              },
+              "required": [
+                "provider",
+                "model",
+                "decoding",
+                "complete",
+                "sources",
+                "inputMicroUsdPerMillion",
+                "outputMicroUsdPerMillion"
+              ]
+            },
+            "referee": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "enum": [
+                    "anthropic",
+                    "openai"
+                  ]
+                },
+                "model": {
+                  "enum": [
+                    "claude-opus-4-8",
+                    "gpt-4.1-mini-2025-04-14"
+                  ]
+                },
+                "decoding": {
+                  "const": "text-json-default-sampling-0.1"
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "capabilities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "minItems": 0,
+                        "maxItems": 256
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "capabilities"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 32
+                },
+                "inputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                },
+                "outputMicroUsdPerMillion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000
+                }
+              },
+              "required": [
+                "provider",
+                "model",
+                "decoding",
+                "complete",
+                "sources",
+                "inputMicroUsdPerMillion",
+                "outputMicroUsdPerMillion"
+              ]
+            }
+          },
+          "required": [
+            "attacker",
+            "defender",
+            "referee"
+          ]
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maxTurns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "maxDefenderCallsPerTurn": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 8
+            },
+            "maxOutputTokens": {
+              "type": "integer",
+              "minimum": 128,
+              "maximum": 4096
+            },
+            "maxRequestBytes": {
+              "type": "integer",
+              "minimum": 65536,
+              "maximum": 262144
+            },
+            "maxResponseBytes": {
+              "type": "integer",
+              "minimum": 16384,
+              "maximum": 262144
+            },
+            "timeoutMs": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 60000
+            },
+            "episodeTimeoutSeconds": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 7200
+            },
+            "budgetMicroUsd": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000000000
+            }
+          },
+          "required": [
+            "maxTurns",
+            "maxDefenderCallsPerTurn",
+            "maxOutputTokens",
+            "maxRequestBytes",
+            "maxResponseBytes",
+            "timeoutMs",
+            "episodeTimeoutSeconds",
+            "budgetMicroUsd"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "prompt",
+              "psp",
+              "prompt+gates",
+              "psp+gates"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "python",
+              "typescript"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "caseIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "repeats": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "bootstrapSamples": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 10000
+        }
+      },
+      "required": [
+        "profile",
+        "syntheticDataOnly",
+        "mode",
+        "roles",
+        "limits",
+        "conditions",
+        "languages",
+        "caseIds",
+        "repeats",
+        "seed",
+        "bootstrapSamples"
+      ]
+    },
+    "corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "PSP-CAMPAIGN-0.1"
+        },
+        "provenance": {
+          "enum": [
+            "public-development",
+            "external-synthetic-development"
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "pairId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "family": {
+                "enum": [
+                  "read",
+                  "disclosure",
+                  "state",
+                  "indirect-read"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "attack",
+                  "benign"
+                ]
+              },
+              "channel": {
+                "enum": [
+                  "user",
+                  "tool-result"
+                ]
+              },
+              "task": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "goal": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "publicText": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "allowPrivateRead": {
+                "type": "boolean"
+              },
+              "allowPrivateDisplay": {
+                "type": "boolean"
+              },
+              "replay": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "minItems": 1,
+                "maxItems": 10
+              }
+            },
+            "required": [
+              "id",
+              "pairId",
+              "family",
+              "kind",
+              "channel",
+              "task",
+              "goal",
+              "publicText",
+              "allowPrivateRead",
+              "allowPrivateDisplay",
+              "replay"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "profile",
+        "provenance",
+        "cases"
+      ]
+    },
+    "attack": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "message"
+      ]
+    },
+    "judge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semanticAttack": {
+          "enum": [
+            "success",
+            "failure",
+            "uncertain"
+          ]
+        },
+        "benignTask": {
+          "enum": [
+            "success",
+            "failure",
+            "uncertain"
+          ]
+        },
+        "refusal": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "semanticAttack",
+        "benignTask",
+        "refusal",
+        "rationale",
+        "evidence"
+      ]
+    },
+    "proposal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "answer"
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 16384
+            }
+          },
+          "required": [
+            "type",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "read"
+            },
+            "name": {
+              "enum": [
+                "public",
+                "private"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "name"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "save"
+            },
+            "node": {
+              "enum": [
+                "entry",
+                "help",
+                "survey"
+              ]
+            },
+            "state": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "type",
+            "node",
+            "state"
+          ]
+        }
+      ]
+    }
+  }
+}

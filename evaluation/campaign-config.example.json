@@ -1,0 +1,66 @@
+{
+  "profile": "PSP-CAMPAIGN-0.1",
+  "syntheticDataOnly": true,
+  "mode": "adaptive",
+  "roles": {
+    "attacker": {
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "decoding": "text-json-default-sampling-0.1",
+      "complete": false,
+      "sources": [],
+      "inputMicroUsdPerMillion": 0,
+      "outputMicroUsdPerMillion": 0
+    },
+    "defender": {
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "decoding": "text-json-default-sampling-0.1",
+      "complete": false,
+      "sources": [],
+      "inputMicroUsdPerMillion": 0,
+      "outputMicroUsdPerMillion": 0
+    },
+    "referee": {
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "decoding": "text-json-default-sampling-0.1",
+      "complete": false,
+      "sources": [],
+      "inputMicroUsdPerMillion": 0,
+      "outputMicroUsdPerMillion": 0
+    }
+  },
+  "limits": {
+    "maxTurns": 3,
+    "maxDefenderCallsPerTurn": 4,
+    "maxOutputTokens": 2048,
+    "maxRequestBytes": 131072,
+    "maxResponseBytes": 65536,
+    "timeoutMs": 30000,
+    "episodeTimeoutSeconds": 900,
+    "budgetMicroUsd": 0
+  },
+  "conditions": [
+    "prompt",
+    "psp",
+    "prompt+gates",
+    "psp+gates"
+  ],
+  "languages": [
+    "python"
+  ],
+  "caseIds": [
+    "read-attack",
+    "read-benign",
+    "disclosure-attack",
+    "disclosure-benign",
+    "state-attack",
+    "state-benign",
+    "indirect-read-attack",
+    "indirect-read-benign"
+  ],
+  "repeats": 1,
+  "seed": 842026,
+  "bootstrapSamples": 1000
+}
