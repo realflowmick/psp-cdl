@@ -21,6 +21,6 @@ psp-cdl-test-harness = { workspace = true }
 
 [dependency-groups]
 dev = [
-    "cryptography==50.0.1",
+    "cryptography==50.0.2",
     "rfc8785==0.1.4",
 ]
