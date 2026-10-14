@@ -61,7 +61,7 @@ jobs:
       - run: uv run --locked python scripts/check-parity.py
       - name: Retain offline workflow matrix
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: workflow-matrix
           path: .artifacts/workflow-matrix.json
@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: ignore
       - name: Retain synthetic minimized regression
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: parity-fuzz-reproducer
           path: .artifacts/fuzz-failure.json
@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: ignore
       - name: Retain offline study pipeline observations
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: study-development
           path: .artifacts/study-parity-*/
@@ -115,7 +115,7 @@ jobs:
       - run: uv run --locked python scripts/generate-result-audit.py --check
       - name: Retain public result reproduction audits
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: result-reproduction-audits
           path: .artifacts/result-parity-*/audit.json
@@ -124,7 +124,7 @@ jobs:
           if-no-files-found: ignore
       - name: Retain public executor rehearsal evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: heldout-executor-rehearsal
           path: |
@@ -135,7 +135,7 @@ jobs:
           if-no-files-found: ignore
       - name: Retain synthetic pilot validation
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pilot-validation
           path: .artifacts/pilot-parity-*/
