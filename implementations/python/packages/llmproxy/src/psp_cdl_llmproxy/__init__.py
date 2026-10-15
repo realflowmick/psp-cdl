@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Experimental buffered model/tool loop; full workflow execution remains pending."""
 from copy import deepcopy
-from .loop import BufferedLlmLoop, LoopError, LLM_LOOP_PROFILE, prompt_context
+from .loop import BufferedLlmLoop, LoopError, LLM_LOOP_PROFILE, prompt_context, describe_prompt, loop_code
+from psp_cdl_mcpproxy.observe import OBSERVE_PROFILE
 from .context import ContextLlmLoop, CONTEXT_SERVICE_PROFILE, context_instruction_text
 from .openai_chat import (create_openai_chat_provider, ProviderError, OPENAI_CHAT_PROFILE,
                           OPENAI_CHAT_MODEL, OPENAI_CHAT_REVISION, OPENAI_CHAT_INPUT_RESERVATION,
@@ -19,7 +20,7 @@ _MANIFEST = {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1", "mcp-prompt-refresh-discovery-0.1", "atomic-completion-redirect-0.1", "scoped-post-completion-0.1", "buffered-openai-chat-0.1"]
+    "implementedFeatures": ["buffered-model-loop-0.1", "signed-prompt-binding", "inference-tool-release-policy", "durable-turns-lockdown-0.1", "automatic-prompt-refresh-0.1", "mcp-prompt-refresh-discovery-0.1", "atomic-completion-redirect-0.1", "scoped-post-completion-0.1", "buffered-openai-chat-0.1", "loop-observer-0.1"]
 }
 
 

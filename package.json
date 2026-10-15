@@ -8,11 +8,12 @@
     "node": ">=22"
   },
   "workspaces": [
-    "implementations/typescript/packages/*"
+    "implementations/typescript/packages/*",
+    "apps/*"
   ],
   "scripts": {
     "check:repo": "node scripts/check-repository.mjs",
-    "build": "npm run build --workspace @psp-cdl/core --workspace @psp-cdl/cdl --workspace @psp-cdl/api-server --workspace @psp-cdl/mcp-server --workspace @psp-cdl/mcpproxy --workspace @psp-cdl/llmproxy --workspace @psp-cdl/test-harness",
+    "build": "npm run build --workspace @psp-cdl/core --workspace @psp-cdl/cdl --workspace @psp-cdl/api-server --workspace @psp-cdl/mcp-server --workspace @psp-cdl/mcpproxy --workspace @psp-cdl/llmproxy --workspace @psp-cdl/test-harness --workspace @psp-cdl/studio-core --workspace @psp-cdl/studio-server --workspace @psp-cdl/studio-web",
     "test": "npm run test --workspaces",
     "check": "npm run check:repo && npm run build && npm test && npm run test:signatures && npm run test:policy && npm run test:study && npm run test:campaign",
     "conformance:inventory": "node implementations/typescript/packages/test-harness/dist/cli.js --inventory",
@@ -27,6 +28,7 @@
     "@types/node": "26.6.4",
     "ajv": "8.20.0",
     "canonicalize": "5.1.0",
+    "sqlite-vec": "0.1.9",
     "typescript": "7.0.2"
   }
 }

@@ -8,6 +8,7 @@ from psp_cdl_api_server.service import ServiceError, SecurityService, identifier
 from psp_cdl_api_server.workflow import WorkflowService
 from psp_cdl_api_server.persistence import integer
 from psp_cdl_mcpproxy import binding_digest
+from psp_cdl_mcpproxy.observe import byte_length, scope_of
 from .loop import BufferedLlmLoop, LoopError, copy
 
 CONTEXT_SERVICE_PROFILE = "PSP-CONTEXT-SERVICE-0.1"
@@ -45,8 +46,8 @@ def proposal(text):
 
 
 class ContextRound(BufferedLlmLoop):
-    def __init__(self, store, gate, host, provider, history, service_caps, text):
-        super().__init__(store, gate, host, provider)
+    def __init__(self, store, gate, host, provider, history, service_caps, text, observe=None):
+        super().__init__(store, gate, host, provider, observe=observe)
         self.history, self.service_caps = history, service_caps
         self.text = text
 
@@ -63,14 +64,14 @@ class ContextRound(BufferedLlmLoop):
 
 
 class ContextLlmLoop(BufferedLlmLoop):
-    def __init__(self, store, gate, host, provider, service, configuration):
+    def __init__(self, store, gate, host, provider, service, configuration, observe=None):
         text = context_instruction_text(configuration)
         self.text = text
         def prompt(p, binding):
             envelope = host.sign_context(p, binding, text)
             return envelope
         wrapped = SimpleNamespace(**{k:getattr(host, k) for k in ("authenticate", "now", "snapshot", "verification", "policy", "authorize_final")}, prompt=prompt)
-        super().__init__(store, gate, wrapped, provider)
+        super().__init__(store, gate, wrapped, provider, observe=observe)
         if not isinstance(service, WorkflowService) or not service.uses_store(store): raise LoopError("INVALID_CONFIGURATION")
         self.service = service
         try:
@@ -111,6 +112,13 @@ class ContextLlmLoop(BufferedLlmLoop):
         return self._run_context(token, session_id, request, options, history)
 
     def _run_context(self, token, session_id, request, options, initial_history):
+        try: return self._rounds(token, session_id, request, options, initial_history)
+        except Exception as exc:
+            code = getattr(exc, "code", None)
+            self._emit("context.failed", scope_of({"sessionId":session_id}), {"code":code if type(code) is str else "UNKNOWN"})
+            raise
+
+    def _rounds(self, token, session_id, request, options, initial_history):
         self._validate_run(session_id, request, options)
         request = copy(request)
         controls = {k:options[k] for k in ("deadline", "cancelled", "maxSteps")}
@@ -128,6 +136,8 @@ class ContextLlmLoop(BufferedLlmLoop):
         for round_index in range(max_rounds):
             identity()
             view = self.service.invoke("getSession", {"sessionId":session_id}, token, principal)
+            at = scope_of({"sessionId":session_id, "round":round_index})
+            self._emit("round.start", at, {"round":round_index, "historyMessages":len(history), "historyBytes":byte_length(history), "viewBytes":byte_length(view)})
             captured = prompt_value = session = authority = None
             def snapshot(p, s):
                 nonlocal session, authority
@@ -147,17 +157,19 @@ class ContextLlmLoop(BufferedLlmLoop):
                 return True
             host = SimpleNamespace(**{**vars(self._host), "snapshot":snapshot, "prompt":prompt, "authorize_final":authorize_final})
             context = [*history, {"role":"user", "content":canonical_json({"profile":CONTEXT_SERVICE_PROFILE, "event":"session-view", "data":view})}]
-            loop = ContextRound(self._store, self._gate, host, self._provider, context, self.service_caps, self.text)
+            loop = ContextRound(self._store, self._gate, host, self._provider, context, self.service_caps, self.text, observe=self._observe)
             output = loop.run(token, session_id, {"message":message}, controls)
             if captured is None or prompt_value is None or session is None: raise LoopError("INVALID_RESPONSE")
             binding, data, parsed = (captured[k] for k in ("binding", "data", "parsed"))
             if parsed["type"] == "answer":
+                self._emit("round.answer", at, {"rounds":round_index+1, "outputDigest":binding_digest({"text":parsed["text"]})})
                 return {"text":parsed["text"], "provenance":{**output["provenance"], "profile":CONTEXT_SERVICE_PROFILE, "outputDigest":binding_digest({"text":parsed["text"]}), "rounds":round_index+1}}
             if round_index == max_rounds-1: raise LoopError("ROUND_LIMIT")
             operation, args = parsed["operation"], copy(parsed["arguments"])
             if operation != "getNode": args.update(sessionId=session_id, requestId=f"{request_id}.{round_index}", expectedVersion=session["version"])
             if operation == "updateSession": args["status"] = "running"
             service_data = {**data, "service":{"operation":operation, "arguments":args}}
+            self._emit("service.proposed", at, {"round":round_index, "operation":operation, "argumentBytes":byte_length(args)}, lambda:{"arguments":args})
             guard_error = []
             def guard(_context):
                 try:
@@ -182,6 +194,7 @@ class ContextLlmLoop(BufferedLlmLoop):
                 if guard_error: raise guard_error[0]
                 if not isinstance(exc, ServiceError) or exc.code not in ("AUTHORIZATION_DENIED", "PERSISTENCE_DENIED", "INVALID_STATE", "INVALID_TRANSITION", "NOT_FOUND", "STATE_CONFLICT"): raise
                 event = {"profile":CONTEXT_SERVICE_PROFILE, "event":"service-denied", "operation":operation, "code":exc.code}
+            self._emit("service.result", at, {"round":round_index, "operation":operation, "event":event["event"], "code":event.get("code"), "resultBytes":byte_length(event["result"]) if "result" in event else None}, lambda:{"event":event})
             identity()
             if operation == "createCheckpoint" and event["event"] == "service-result":
                 latest = self._store.execute(owner, {"action":"getSession", "sessionId":session_id})
@@ -194,6 +207,7 @@ class ContextLlmLoop(BufferedLlmLoop):
                 if canonical_json(self._snapshot(live, latest)) != canonical_json(authority_now): raise LoopError("STALE_AUTHORITY")
                 self._verify(live, binding, prompt_value)
                 self._check(controls, min(latest["expiresAt"], authority_now["expires"]))
+                self._emit("checkpoint.waiting", at, {"round":round_index})
                 return {"status":"waiting", "receipt":event}
             history = [*data["request"]["messages"][1:], {"role":"assistant", "content":data["candidate"]["text"]}, {"role":"user", "content":canonical_json(event)}]
             message = "Continue interpreting the application using the actual service event and current session view."

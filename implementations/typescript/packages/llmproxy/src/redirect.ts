@@ -3,7 +3,7 @@ import {record} from "@psp-cdl/core";
 import {evaluateBatch,type PolicyInput} from "@psp-cdl/cdl";
 import {type Principal} from "@psp-cdl/api-server";
 import {WorkflowStore,bounded,validRedirect,validRedirectTarget,REDIRECT_PROFILE,type AccessContext} from "@psp-cdl/api-server/persistence";
-import {McpDispatchGate,bindingDigest} from "@psp-cdl/mcpproxy";
+import {McpDispatchGate,bindingDigest,type ObserveOptions} from "@psp-cdl/mcpproxy";
 import {DurableLlmLoop,type DurableHost,type DurableOptions} from "./durable.js";
 import {LoopError,type ProviderRegistration} from "./loop.js";
 
@@ -22,8 +22,8 @@ async function call<T>(fn:()=>T|Promise<T>):Promise<T> {try{return await fn();}c
 export class RedirectingLlmLoop extends DurableLlmLoop {
   private readonly target:string;
   protected override get completionPolicy():string {return "redirect";}
-  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly redirectHost:RedirectHost,provider:ProviderRegistration,configuration:{postCompletion:"redirect";target:string}) {
-    super(store,gate,redirectHost,provider,{postCompletion:"lockdown"});
+  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly redirectHost:RedirectHost,provider:ProviderRegistration,configuration:{postCompletion:"redirect";target:string},observe?:ObserveOptions) {
+    super(store,gate,redirectHost,provider,{postCompletion:"lockdown"},observe);
     if(!store.redirectTurns||[redirectHost.resolveRedirect,redirectHost.redirectPolicy].some(f=>typeof f!=="function"))fail("INVALID_CONFIGURATION");
     if(!record(configuration)||Object.keys(configuration).sort().join(",")!=="postCompletion,target"||configuration.postCompletion!=="redirect"||!validRedirectTarget(configuration.target))fail("UNSUPPORTED_POST_COMPLETION");
     this.target=configuration.target;

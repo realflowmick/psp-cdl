@@ -39,7 +39,7 @@
     "maxResponseBytes": 65536,
     "timeoutMs": 30000,
     "episodeTimeoutSeconds": 900,
-    "budgetMicroUsd": 0
+    "budgetMicroUsd": 100000000
   },
   "conditions": [
     "prompt",

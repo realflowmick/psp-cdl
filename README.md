@@ -122,4 +122,6 @@ The opt-in [MCP prompt refresh adapter](docs/llm-mcp-refresh.md) now discovers a
 
 The opt-in [session lifecycle draft](docs/lifecycle.md) adds owner-scoped listing, cancellation and bounded policy-approved payload cleanup in both languages. Checkpoint/operation invalidation, replay tombstones and retained metadata have explicit contracts. This #37 working slice requires review; it does not complete M3 or claim physical erasure.
 
+The opt-in [exfiltration fingerprints draft](docs/exfiltration.md) keeps keyed shingle digests and optional local embeddings of protected SYSTEM/CONTEXT text in SQLite, with an optional sqlite-vec index, and scores outbound text as §28 threat signals for host policy. Both languages share one store format, vectors and a loop integration through `authorizeFinal`. No detection rate has been measured; translation, encodings and cross-turn reassembly are not detected.
+
 The opt-in [security tools draft](docs/security-tools.md) adds authenticated scan/decrypt/process in both languages, host-owned AES-GCM key/zone grants and buffered CDL plaintext release. Its 62 shared cases and real two-way HTTP/stdio checks cover all eleven required tool names as draft counterparts. #35 normative API adoption and unsupported encryption forms remain open; this does not complete M3.

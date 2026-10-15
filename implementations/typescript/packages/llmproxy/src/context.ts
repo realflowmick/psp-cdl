@@ -3,7 +3,7 @@ import {canonicalJson,record,type Envelope} from "@psp-cdl/core";
 import {ServiceError,SecurityService,identifier,type Principal} from "@psp-cdl/api-server";
 import {WorkflowService} from "@psp-cdl/api-server/workflow";
 import {WorkflowStore,integer,bounded,type AccessContext} from "@psp-cdl/api-server/persistence";
-import {McpDispatchGate,bindingDigest,type CapabilitySource} from "@psp-cdl/mcpproxy";
+import {McpDispatchGate,bindingDigest,byteLength,scopeOf,type CapabilitySource,type ObserveOptions} from "@psp-cdl/mcpproxy";
 import {aggregateCapabilities} from "@psp-cdl/cdl";
 import {BufferedLlmLoop,LoopError,type LoopHost,type LoopOptions,type LoopPhase,type ProviderRegistration} from "./loop.js";
 
@@ -51,7 +51,7 @@ function validateRun(sessionId:string,request:unknown,options:ContextOptions):vo
   if(!record(request)||Object.keys(request).join(",")!=="message"||typeof request.message!=="string"||!identifier(sessionId)||!options||!identifier(options.requestId)||options.requestId.length>64||!integer(options.maxRounds)||options.maxRounds<1||options.maxRounds>16||!integer(options.maxSteps)||options.maxSteps<1||options.maxSteps>32||!integer(options.deadline)||typeof options.cancelled!=="function")fail("INVALID_REQUEST");
 }
 class ContextRound extends BufferedLlmLoop {
-  constructor(store:WorkflowStore,gate:McpDispatchGate,host:LoopHost,provider:ProviderRegistration,private readonly history:Record<string,unknown>[],private readonly serviceCaps:string[],private readonly text:string) {super(store,gate,host,provider);}
+  constructor(store:WorkflowStore,gate:McpDispatchGate,host:LoopHost,provider:ProviderRegistration,private readonly history:Record<string,unknown>[],private readonly serviceCaps:string[],private readonly text:string,observe?:ObserveOptions) {super(store,gate,host,provider,observe);}
   protected override async verify(p:Principal,b:Record<string,unknown>,prompt:Envelope) {
     await super.verify(p,b,prompt);if(prompt.data!==this.text)fail("PROMPT_REJECTED");
   }
@@ -65,8 +65,8 @@ class ContextRound extends BufferedLlmLoop {
 export class ContextLlmLoop extends BufferedLlmLoop {
   private readonly serviceCaps!:string[];
   private readonly text:string;
-  constructor(store:WorkflowStore,gate:McpDispatchGate,host:ContextHost,provider:ProviderRegistration,private readonly service:WorkflowService,config:ContextConfiguration) {
-    super(store,gate,wrappedHost(host,contextInstructionText(config)),provider);
+  constructor(store:WorkflowStore,gate:McpDispatchGate,host:ContextHost,provider:ProviderRegistration,private readonly service:WorkflowService,config:ContextConfiguration,observe?:ObserveOptions) {
+    super(store,gate,wrappedHost(host,contextInstructionText(config)),provider,observe);
     this.text=contextInstructionText(config);
     if(!(service instanceof WorkflowService)||!service.usesStore(store))fail("INVALID_CONFIGURATION");
     try {this.serviceCaps=aggregateCapabilities([...config.serviceSources,{id:"context-persistence",capabilities:["can-write-storage"]}],config.serviceComplete);}catch{return fail("INVALID_CONFIGURATION");}
@@ -93,6 +93,10 @@ export class ContextLlmLoop extends BufferedLlmLoop {
     return this.runContext(token,sessionId,request,options,[{role:"user",content:canonicalJson({profile:CONTEXT_SERVICE_PROFILE,event:"service-result",operation:"resumeCheckpoint",result})}]);
   }
   private async runContext(token:unknown,sessionId:string,request:unknown,options:ContextOptions,initialHistory:Record<string,unknown>[]):Promise<Record<string,unknown>> {
+    try {return await this.rounds(token,sessionId,request,options,initialHistory);}
+    catch(e){const code=(e as {code?:unknown}|null)?.code;this.emit("context.failed",scopeOf({sessionId}),{code:typeof code==="string"?code:"UNKNOWN"});throw e;}
+  }
+  private async rounds(token:unknown,sessionId:string,request:unknown,options:ContextOptions,initialHistory:Record<string,unknown>[]):Promise<Record<string,unknown>> {
     validateRun(sessionId,request,options);
     const input=bounded(request) as {message:string};
     const controls={deadline:options.deadline,cancelled:options.cancelled,maxSteps:options.maxSteps},requestId=options.requestId,maxRounds=options.maxRounds;
@@ -103,7 +107,8 @@ export class ContextLlmLoop extends BufferedLlmLoop {
     let history:Record<string,unknown>[]=initialHistory,message=input.message;
     for(let round=0;round<maxRounds;round++) {
       await identity();
-      const view=await this.service.invoke("getSession",{sessionId},token,principal);
+      const view=await this.service.invoke("getSession",{sessionId},token,principal),at=scopeOf({sessionId,round});
+      this.emit("round.start",at,{round,historyMessages:history.length,historyBytes:byteLength(history),viewBytes:byteLength(view)});
       let captured:Record<string,any>|undefined,prompt:Envelope|undefined,session:Record<string,unknown>|undefined,authority:unknown;
       const host:LoopHost={...this.host,
         snapshot:async(p,s)=>{if(s.version!==(view.result as Record<string,unknown>).version)fail("STALE_SESSION");session=structuredClone(s);authority=await this.host.snapshot(p,s);return authority as any;},
@@ -114,16 +119,20 @@ export class ContextLlmLoop extends BufferedLlmLoop {
           captured=structuredClone({binding:b,data:d,parsed});return true;
         }};
       const context=[...history,{role:"user",content:canonicalJson({profile:CONTEXT_SERVICE_PROFILE,event:"session-view",data:view})}];
-      const loop=new ContextRound(this.store,this.gate,host,this.provider,context,this.serviceCaps,this.text);
+      const loop=new ContextRound(this.store,this.gate,host,this.provider,context,this.serviceCaps,this.text,this.observe);
       const output=await loop.run(token,sessionId,{message},controls);
       if(!captured||!prompt||!session)fail("INVALID_RESPONSE");
       const {binding,data,parsed}=captured!;
-      if(parsed.type==="answer")return {text:parsed.text,provenance:{...(output.provenance as object),profile:CONTEXT_SERVICE_PROFILE,outputDigest:bindingDigest({text:parsed.text}),rounds:round+1}};
+      if(parsed.type==="answer") {
+        this.emit("round.answer",at,{rounds:round+1,outputDigest:bindingDigest({text:parsed.text})});
+        return {text:parsed.text,provenance:{...(output.provenance as object),profile:CONTEXT_SERVICE_PROFILE,outputDigest:bindingDigest({text:parsed.text}),rounds:round+1}};
+      }
       if(round===maxRounds-1)fail("ROUND_LIMIT");
       const operation=parsed.operation,args={...parsed.arguments};
       if(operation!=="getNode")Object.assign(args,{sessionId,requestId:`${requestId}.${round}`,expectedVersion:session!.version});
       if(operation==="updateSession")args.status="running";
       const serviceData={...data,service:{operation,arguments:args}};
+      this.emit("service.proposed",at,{round,operation,argumentBytes:byteLength(args)},()=>({arguments:args}));
       let guardError:unknown;
       const guard=async(_context:AccessContext)=>{
         try {
@@ -147,6 +156,7 @@ export class ContextLlmLoop extends BufferedLlmLoop {
         if(!(e instanceof ServiceError)||!["AUTHORIZATION_DENIED","PERSISTENCE_DENIED","INVALID_STATE","INVALID_TRANSITION","NOT_FOUND","STATE_CONFLICT"].includes(e.code))throw e;
         event={profile:CONTEXT_SERVICE_PROFILE,event:"service-denied",operation,code:e.code};
       }
+      this.emit("service.result",at,{round,operation,event:event.event,code:event.code??null,resultBytes:event.result===undefined?null:byteLength(event.result)},()=>({event}));
       await identity();
       if(operation==="createCheckpoint"&&event.event==="service-result") {
         const latest=await this.store.execute(owner,{action:"getSession",sessionId}),a=await this.snapshot(principal,latest);
@@ -158,6 +168,7 @@ export class ContextLlmLoop extends BufferedLlmLoop {
         if(!same(await this.snapshot(live,latest),a))fail("STALE_AUTHORITY");
         await this.verify(live,binding,prompt!);
         this.check(controls,Math.min(latest.expiresAt as number,a.expires));
+        this.emit("checkpoint.waiting",at,{round});
         return {status:"waiting",receipt:event};
       }
       history=[...data.request.messages.slice(1),{role:"assistant",content:data.candidate.text},{role:"user",content:canonicalJson(event)}];

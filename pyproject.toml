@@ -23,4 +23,5 @@ psp-cdl-test-harness = { workspace = true }
 dev = [
     "cryptography==50.0.1",
     "rfc8785==0.1.4",
+    "sqlite-vec==0.1.9",
 ]

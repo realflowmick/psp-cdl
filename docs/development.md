@@ -32,6 +32,10 @@ Workflow checks are also part of both language suites and the parity script. `py
 
 Buffered loop checks run in both language suites and `scripts/check-parity.py`. Run `python scripts/check-llm-parity.py` for the 69 shared mock-provider cases, and `python scripts/generate-llm-vectors.py --check` to verify draft expectations. Isolated package checks now execute a model/tool loop from installed tarballs and wheels.
 
+Exfiltration fingerprint checks run in both suites and the parity command. `python scripts/check-exfiltration-parity.py` compares assessments, stored rows and cross-language store reads for the [exfiltration fingerprints](exfiltration.md); verify the vectors with `python scripts/generate-exfiltration-vectors.py --check`. sqlite-vec 0.1.9 is a pinned development dependency in both lockfiles; the optional MiniLM checks need `PSP_EXFIL_ONNX_DIR` and host-installed ONNX runtimes.
+
+Observer checks run in both suites and the parity command. `python scripts/check-observer-parity.py` compares the shared event sequences from the [development observer](observer.md); verify its artifacts with `python scripts/generate-observer-vectors.py --check` and `python scripts/generate-observer-schema.py --check`.
+
 Prompt refresh checks run in the same suites and parity command. See
 [the refresh guide](llm-refresh.md) for the host API and limits. Isolate its 64
 shared cases, eight version comparisons, process-restart chains and five write

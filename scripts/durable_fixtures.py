@@ -29,7 +29,7 @@ class Fixture(LlmFixture):
             return ok
         self.base.backend.commit=committing
         self.base.flags["denyPersistence"]=bool(self.flags.get("denyStorage"))
-        try: self.loop=DurableLlmLoop(self.base.store,self.base.gate,self,self.provider,{"postCompletion":settings.get("postCompletion","lockdown")})
+        try: self.loop=DurableLlmLoop(self.base.store,self.base.gate,self,self.provider,{"postCompletion":settings.get("postCompletion","lockdown")},observe=settings.get("observe"))
         except Exception:
             self.close()
             raise

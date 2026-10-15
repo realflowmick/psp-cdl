@@ -1,0 +1,658 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://psp-cdl.dev/schemas/studio/pipeline-0.1.schema.json",
+  "title": "PSP Studio pipeline configuration (pspp/1)",
+  "description": "Development tooling contract: the services a PSP runs on and how they are wired. Never signed and never model-visible; it asserts no security property.",
+  "type": "object",
+  "required": [
+    "name",
+    "psp",
+    "components"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$format": {
+      "const": "pspp/1",
+      "description": "Present in .pspp files only."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[^\\\\/:*?\"<>|\\u0000-\\u001f]+$",
+      "description": "Unique; the export file is <name>.pspp."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "psp": {
+      "anyOf": [
+        {
+          "type": "null",
+          "description": "Run without a PSP: no node allowlist, no covenants, psp-verify has nothing to check."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "document": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "title": "Document",
+              "description": "env:PSP_DOC (the variable holds a workspace path), a workspace path to a .psp or .pspx, or prompt:<name> for workspace prompts/<name>.md."
+            },
+            "signOnRetrieval": {
+              "title": "Sign on retrieval",
+              "description": "LLMProxy signs the document when it resolves it at bootstrap, with the vault key or a per-session key.",
+              "type": "string",
+              "enum": [
+                "ed25519",
+                "hmac-sha256"
+              ]
+            }
+          },
+          "required": [
+            "document"
+          ],
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "components": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}$"
+              },
+              "kind": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "ring",
+                  "loop",
+                  "aux",
+                  "terminal"
+                ]
+              },
+              "side": {
+                "type": "string",
+                "enum": [
+                  "request",
+                  "response"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "role"
+            ],
+            "additionalProperties": {}
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "llmproxy"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "LLMProxy: Both halves of the ring: verifies and registers on the request side, filters the final text on the response side.",
+              "properties": {
+                "role": {
+                  "const": "ring"
+                },
+                "vectorStore": {
+                  "title": "Vector store",
+                  "description": "Id of the vector-store component the response filters read.",
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}$"
+                },
+                "lockdown": {
+                  "title": "Lockdown",
+                  "description": "post-completion runs the durable loop, which refuses further turns once the plan completes (PSP §8.5 lockdown).",
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "post-completion"
+                  ]
+                },
+                "filters": {
+                  "title": "Filters",
+                  "description": "Ordered slots; array order is execution order.",
+                  "type": "object",
+                  "properties": {
+                    "request": {
+                      "maxItems": 32,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": {}
+                          }
+                        ]
+                      },
+                      "title": "Request filters"
+                    },
+                    "response": {
+                      "maxItems": 32,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": {}
+                          }
+                        ]
+                      },
+                      "title": "Response filters"
+                    }
+                  },
+                  "required": [
+                    "request",
+                    "response"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "model"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "Model: Receives only the registrations LLMProxy allowed and decides tool use with the covenant text in context.",
+              "properties": {
+                "role": {
+                  "const": "terminal"
+                },
+                "model": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "title": "Model",
+                  "description": "Provider model id."
+                },
+                "provider": {
+                  "title": "Provider",
+                  "description": "Inferred from the model id when absent. mock replays the script, for offline wiring checks.",
+                  "type": "string",
+                  "enum": [
+                    "anthropic",
+                    "openai",
+                    "mock"
+                  ]
+                },
+                "script": {
+                  "title": "Script",
+                  "description": "mock only: replies per turn, each a tool call or a final text.",
+                  "maxItems": 256,
+                  "type": "array",
+                  "items": {
+                    "maxItems": 32,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "tool"
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "arguments": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "name",
+                            "arguments"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "final"
+                            },
+                            "text": {
+                              "type": "string",
+                              "maxLength": 100000
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "text"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "required": [
+                "model"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "initiator"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "Initiator: Starts a turn from its trigger and, with a sink, receives the filtered reply.",
+              "properties": {
+                "role": {
+                  "const": "terminal"
+                },
+                "trigger": {
+                  "type": "string",
+                  "enum": [
+                    "chat",
+                    "file",
+                    "email",
+                    "webhook",
+                    "schedule"
+                  ],
+                  "title": "Trigger",
+                  "description": "What starts a turn."
+                },
+                "reply": {
+                  "title": "Reply",
+                  "description": "channel delivers the filtered reply through the trigger's own sink; none means an MCP tool produces the outcome and the ring is open.",
+                  "type": "string",
+                  "enum": [
+                    "channel",
+                    "none"
+                  ]
+                },
+                "watch": {
+                  "title": "Watch",
+                  "description": "file: workspace glob of files that start a turn, for example inbox/*.txt.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "output": {
+                  "title": "Output",
+                  "description": "file with reply channel: workspace folder the reply is written to.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "onDone": {
+                  "title": "On done",
+                  "description": "file: what happens to a queued file after its turn.",
+                  "type": "string",
+                  "enum": [
+                    "move",
+                    "delete",
+                    "keep"
+                  ]
+                },
+                "mailbox": {
+                  "title": "Mailbox",
+                  "description": "email: the address the trigger reads.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 320
+                },
+                "route": {
+                  "title": "Route",
+                  "description": "webhook: request path, starting with /.",
+                  "type": "string",
+                  "pattern": "^\\/[A-Za-z0-9/_.-]{0,255}$"
+                },
+                "auth": {
+                  "title": "Auth",
+                  "description": "webhook: how callers authenticate, for example env:HOOK_TOKEN.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "cron": {
+                  "title": "Cron",
+                  "description": "schedule: five-field cron expression, UTC.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "prompt": {
+                  "title": "Prompt",
+                  "description": "schedule: the message each run sends.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "trigger"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "mcpproxy"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "MCPProxy: Fronts one backend MCP server, pins its catalog and refuses on drift. No allowlisting or filtering.",
+              "properties": {
+                "role": {
+                  "const": "loop"
+                },
+                "caller": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}$",
+                  "title": "Caller",
+                  "description": "The model that calls this proxy (model_1 in the reference)."
+                },
+                "backend": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048,
+                  "title": "Backend",
+                  "description": "MCP server URL: https, or http on a loopback address."
+                },
+                "drift": {
+                  "title": "On drift",
+                  "description": "What happens when the backend's tool catalog differs from the captured baseline.",
+                  "type": "string",
+                  "enum": [
+                    "refuse",
+                    "warn"
+                  ]
+                },
+                "server": {
+                  "title": "Server name",
+                  "description": "The server segment of mcp://<server>/<tool> in node agents. Defaults to the backend URL's last path segment.",
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                },
+                "serverInfo": {
+                  "title": "Server info",
+                  "description": "Name and version the backend must report at initialize; MCPProxy pins them.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "version"
+                  ]
+                },
+                "auth": {
+                  "title": "Auth",
+                  "description": "env:NAME holding the bearer token. Credentials never enter the configuration.",
+                  "type": "string",
+                  "pattern": "^env:[A-Za-z_][A-Za-z0-9_]{0,127}$"
+                },
+                "tools": {
+                  "title": "Tool declarations",
+                  "description": "Host declarations per tool: read-only admission and CDL capabilities. These describe tools; they do not filter them.",
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                  },
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "readOnly": {
+                        "type": "boolean"
+                      },
+                      "capabilities": {
+                        "maxItems": 64,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": [
+                "caller",
+                "backend"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "vector-store"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "Vector Store: Protected-section fingerprints (PSP-EXFIL-0.1) read by Exfil Guard. Never stores plaintext.",
+              "properties": {
+                "role": {
+                  "const": "aux"
+                },
+                "engine": {
+                  "type": "string",
+                  "enum": [
+                    "sqlite-vec",
+                    "portable"
+                  ],
+                  "title": "Engine",
+                  "description": "sqlite-vec keeps a vec0 index; portable compares BLOB vectors in process."
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "title": "Path",
+                  "description": "SQLite file, relative to the pipeline's data folder."
+                },
+                "embedding": {
+                  "title": "Embedding",
+                  "description": "psp-exfil-hash-384-v1 runs anywhere; all-MiniLM-L6-v2 needs the pinned local ONNX model.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "dims": {
+                  "title": "Dimensions",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4096
+                }
+              },
+              "required": [
+                "engine",
+                "path"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "logger"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "Logger: Observe-only tap on the response half. Writes JSON Lines run records.",
+              "properties": {
+                "role": {
+                  "const": "aux"
+                },
+                "taps": {
+                  "title": "Taps",
+                  "description": "<llmproxy id>.response",
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}\\.response$"
+                },
+                "sink": {
+                  "title": "Sink",
+                  "description": "Folder for JSON Lines records, relative to the pipeline's data folder.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "redact": {
+                  "title": "Redact",
+                  "description": "covenant redacts records while a no-log covenant is in context.",
+                  "type": "string",
+                  "enum": [
+                    "covenant",
+                    "none"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "otel"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "description": "OTel: Observe-only OpenTelemetry tap. The studio has no exporter; runs report it as unsupported.",
+              "properties": {
+                "role": {
+                  "const": "aux"
+                },
+                "taps": {
+                  "title": "Taps",
+                  "description": "<llmproxy id>.response",
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}\\.response$"
+                },
+                "endpoint": {
+                  "title": "Endpoint",
+                  "description": "OTLP endpoint.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "filter": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": {}
+        }
+      ]
+    }
+  }
+}

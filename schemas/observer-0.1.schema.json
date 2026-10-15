@@ -1,0 +1,2261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://realflowcloud.org/psp/schemas/observer-0.1.json",
+  "title": "PSP Observe 0.1 development events",
+  "$comment": "CC0-1.0. Fire-and-forget telemetry emitted by the buffered loops and the dispatch gate. Events never carry credentials, principals, verification keys or policy resource contents; they are not audit evidence and assert no security property.",
+  "$defs": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "round": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "event": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/turn.start"
+        },
+        {
+          "$ref": "#/$defs/session.loaded"
+        },
+        {
+          "$ref": "#/$defs/prompt.loaded"
+        },
+        {
+          "$ref": "#/$defs/prompt.replaced"
+        },
+        {
+          "$ref": "#/$defs/tools.listed"
+        },
+        {
+          "$ref": "#/$defs/step.start"
+        },
+        {
+          "$ref": "#/$defs/prompt.assembled"
+        },
+        {
+          "$ref": "#/$defs/cdl.decision"
+        },
+        {
+          "$ref": "#/$defs/inference.start"
+        },
+        {
+          "$ref": "#/$defs/inference.end"
+        },
+        {
+          "$ref": "#/$defs/model.candidate"
+        },
+        {
+          "$ref": "#/$defs/dispatch.requested"
+        },
+        {
+          "$ref": "#/$defs/transcript.grew"
+        },
+        {
+          "$ref": "#/$defs/final.authorized"
+        },
+        {
+          "$ref": "#/$defs/turn.buffered"
+        },
+        {
+          "$ref": "#/$defs/turn.failed"
+        },
+        {
+          "$ref": "#/$defs/lockdown"
+        },
+        {
+          "$ref": "#/$defs/turn.planned"
+        },
+        {
+          "$ref": "#/$defs/turn.committed"
+        },
+        {
+          "$ref": "#/$defs/turn.released"
+        },
+        {
+          "$ref": "#/$defs/turn.recovered"
+        },
+        {
+          "$ref": "#/$defs/durable.failed"
+        },
+        {
+          "$ref": "#/$defs/refresh.due"
+        },
+        {
+          "$ref": "#/$defs/refresh.signal"
+        },
+        {
+          "$ref": "#/$defs/round.start"
+        },
+        {
+          "$ref": "#/$defs/service.proposed"
+        },
+        {
+          "$ref": "#/$defs/service.result"
+        },
+        {
+          "$ref": "#/$defs/checkpoint.waiting"
+        },
+        {
+          "$ref": "#/$defs/round.answer"
+        },
+        {
+          "$ref": "#/$defs/context.failed"
+        },
+        {
+          "$ref": "#/$defs/dispatch.enter"
+        },
+        {
+          "$ref": "#/$defs/dispatch.start"
+        },
+        {
+          "$ref": "#/$defs/dispatch.guard"
+        },
+        {
+          "$ref": "#/$defs/tool.invoke.start"
+        },
+        {
+          "$ref": "#/$defs/tool.invoke.end"
+        },
+        {
+          "$ref": "#/$defs/tool.output"
+        },
+        {
+          "$ref": "#/$defs/dispatch.released"
+        },
+        {
+          "$ref": "#/$defs/dispatch.failed"
+        }
+      ]
+    },
+    "turn.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "inputBytes",
+            "maxSteps",
+            "deadline",
+            "providerId",
+            "providerRevision"
+          ],
+          "properties": {
+            "inputBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "maxSteps": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "deadline": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "providerId": {
+              "type": "string"
+            },
+            "providerRevision": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "session.loaded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "session.loaded"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionVersion",
+            "nodeId",
+            "nodeVersion",
+            "policyVersion",
+            "authorityRevision",
+            "registryRevision",
+            "expires",
+            "stateBytes"
+          ],
+          "properties": {
+            "sessionVersion": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "nodeVersion": {
+              "type": "string"
+            },
+            "policyVersion": {
+              "type": "string"
+            },
+            "authorityRevision": {
+              "type": "string"
+            },
+            "registryRevision": {
+              "type": "string"
+            },
+            "expires": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "stateBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "prompt.loaded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "prompt.loaded"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "digest",
+            "textBytes",
+            "version",
+            "trustLevel",
+            "timestamp",
+            "expires"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "textBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "version": {
+              "type": "string"
+            },
+            "trustLevel": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "timestamp": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expires": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "prompt.replaced": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "prompt.replaced"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "digest",
+            "textBytes",
+            "version",
+            "trustLevel",
+            "timestamp",
+            "expires"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "textBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "version": {
+              "type": "string"
+            },
+            "trustLevel": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "timestamp": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "expires": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "tools.listed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "tools.listed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count",
+            "names"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "step.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "step.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step"
+          ],
+          "properties": {
+            "step": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "prompt.assembled": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "prompt.assembled"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "messageCount",
+            "bytes",
+            "toolCount",
+            "promptDigest"
+          ],
+          "properties": {
+            "messageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "toolCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "promptDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "cdl.decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy",
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "cdl.decision"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase",
+            "decision",
+            "reasonCodes",
+            "resourceCount"
+          ],
+          "properties": {
+            "phase": {
+              "enum": [
+                "inference",
+                "tool",
+                "release",
+                "dispatch",
+                "recovery"
+              ]
+            },
+            "decision": {
+              "enum": [
+                "allow",
+                "deny",
+                "unsupported"
+              ]
+            },
+            "reasonCodes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resourceCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "inference.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "inference.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bytes",
+            "messageCount"
+          ],
+          "properties": {
+            "bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "messageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "inference.end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "inference.end"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ok"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "model.candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "model.candidate"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "toolName",
+            "textBytes"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "tool",
+                "final",
+                "invalid"
+              ]
+            },
+            "toolName": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "textBytes": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.requested": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.requested"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step",
+            "toolName",
+            "argumentBytes"
+          ],
+          "properties": {
+            "step": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "toolName": {
+              "type": "string"
+            },
+            "argumentBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "transcript.grew": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "transcript.grew"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "messageCount",
+            "bytes",
+            "toolName",
+            "dataBytes",
+            "limit"
+          ],
+          "properties": {
+            "messageCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "toolName": {
+              "type": "string"
+            },
+            "dataBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "final.authorized": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "final.authorized"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step",
+            "outputDigest",
+            "textBytes"
+          ],
+          "properties": {
+            "step": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "outputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "textBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.buffered": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.buffered"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "steps",
+            "outputDigest"
+          ],
+          "properties": {
+            "steps": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "outputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.failed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "lockdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "lockdown"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "lockedAt",
+            "policy"
+          ],
+          "properties": {
+            "lockedAt": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "policy": {
+              "const": "lockdown"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.planned": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.planned"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stateBytes",
+            "retainedBytes",
+            "complete"
+          ],
+          "properties": {
+            "stateBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "retainedBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.committed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.committed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionVersion",
+            "status",
+            "stateBytes",
+            "retainedBytes",
+            "complete"
+          ],
+          "properties": {
+            "sessionVersion": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "status": {
+              "type": "string"
+            },
+            "stateBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "retainedBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.released": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.released"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionVersion"
+          ],
+          "properties": {
+            "sessionVersion": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "turn.recovered": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "turn.recovered"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionVersion",
+            "status"
+          ],
+          "properties": {
+            "sessionVersion": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "status": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "durable.failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "durable.failed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "refresh.due": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "refresh.due"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "trigger"
+          ],
+          "properties": {
+            "trigger": {
+              "enum": [
+                "expiration",
+                "interval"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "refresh.signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "refresh.signal"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "signal",
+            "trigger",
+            "previousVersion"
+          ],
+          "properties": {
+            "signal": {
+              "enum": [
+                "prompt_initialized",
+                "prompt_bound",
+                "prompt_refreshed",
+                "prompt_refresh_failed",
+                "prompt_refresh_rollback"
+              ]
+            },
+            "trigger": {
+              "type": "string"
+            },
+            "previousVersion": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "code": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "round.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "round.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "round",
+            "historyMessages",
+            "historyBytes",
+            "viewBytes"
+          ],
+          "properties": {
+            "round": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "historyMessages": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "historyBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "viewBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "service.proposed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "service.proposed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "round",
+            "operation",
+            "argumentBytes"
+          ],
+          "properties": {
+            "round": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "operation": {
+              "type": "string"
+            },
+            "argumentBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "service.result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "service.result"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "round",
+            "operation",
+            "event",
+            "code",
+            "resultBytes"
+          ],
+          "properties": {
+            "round": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "operation": {
+              "type": "string"
+            },
+            "event": {
+              "enum": [
+                "service-result",
+                "service-denied"
+              ]
+            },
+            "code": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "resultBytes": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "checkpoint.waiting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "checkpoint.waiting"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "round"
+          ],
+          "properties": {
+            "round": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "round.answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "round.answer"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rounds",
+            "outputDigest"
+          ],
+          "properties": {
+            "rounds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "outputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "context.failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "llmproxy"
+          ]
+        },
+        "type": {
+          "const": "context.failed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.enter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.enter"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operation",
+            "allowedCount",
+            "registeredCount"
+          ],
+          "properties": {
+            "operation": {
+              "enum": [
+                "listTools",
+                "callTool"
+              ]
+            },
+            "allowedCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "registeredCount": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "toolName",
+            "toolUri",
+            "toolRevision",
+            "inputDigest",
+            "argumentBytes"
+          ],
+          "properties": {
+            "toolName": {
+              "type": "string"
+            },
+            "toolUri": {
+              "type": "string"
+            },
+            "toolRevision": {
+              "type": "string"
+            },
+            "inputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "argumentBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.guard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.guard"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "present",
+            "ok"
+          ],
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "ok": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "tool.invoke.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "tool.invoke.start"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "toolName"
+          ],
+          "properties": {
+            "toolName": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "tool.invoke.end": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "tool.invoke.end"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ok"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "tool.output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "tool.output"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "outputBytes",
+            "outputDigest"
+          ],
+          "properties": {
+            "outputBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "outputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.released": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.released"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "toolName",
+            "outputDigest"
+          ],
+          "properties": {
+            "toolName": {
+              "type": "string"
+            },
+            "outputDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    },
+    "dispatch.failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "source",
+        "type",
+        "scope",
+        "data"
+      ],
+      "properties": {
+        "profile": {
+          "const": "PSP-OBSERVE-0.1"
+        },
+        "source": {
+          "enum": [
+            "mcpproxy"
+          ]
+        },
+        "type": {
+          "const": "dispatch.failed"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operation",
+            "code"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object",
+              "$comment": "Present only at inspect level; model-visible material only."
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/event"
+}

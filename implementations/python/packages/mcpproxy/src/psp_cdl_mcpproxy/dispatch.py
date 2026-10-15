@@ -8,6 +8,7 @@ from psp_cdl_cdl import aggregate_capabilities, evaluate_batch
 from psp_cdl_api_server.service import SecurityService, ServiceError, identifier
 from psp_cdl_api_server.persistence import OwnerCoordinator, StoreError, bounded, integer
 from .schema import check_schema, matches
+from .observe import make_emitter, byte_length, scope_of
 
 DISPATCH_PROFILE = "PSP-MCP-DISPATCH-0.1"
 
@@ -47,12 +48,16 @@ def affinity(node):
     return set(uris)
 
 
+def _fail(code): raise DispatchError(code)
+
+
 class McpDispatchGate:
     """Only an authenticated host may construct the registry and select the session."""
     def authenticate(self, token): return self._auth.authenticate(token)
-    def __init__(self, store, host, registry_revision, registrations):
+    def __init__(self, store, host, registry_revision, registrations, observe=None):
         if not isinstance(store.coordinator, OwnerCoordinator) or not identifier(registry_revision) or type(registrations) is not list or len(registrations) > 1024 or any(not callable(getattr(host, name, None)) for name in ("authenticate", "now", "snapshot", "policy")):
             raise DispatchError("INVALID_CONFIGURATION")
+        self._emit = make_emitter("mcpproxy", observe, _fail)
         self._store, self._host, self._revision = store, host, registry_revision
         self._coordinator, self._auth, self._tools = store.coordinator, SecurityService(host), {}
         self._registry_lock, self._active, self._used_revisions = Lock(), 0, {registry_revision}
@@ -116,33 +121,40 @@ class McpDispatchGate:
         return s
 
     def _within(self, token, session_id, scope, options, work, expected=None):
+        operation = "listTools" if scope == "tools:list" else "callTool"
         with self._registry_lock: self._active+=1
-        try:
-            p = self._principal(token, scope, expected)
-            actor = {k:p[k] for k in ("tenantId", "subjectId")}
-            self._check(options)
-            def locked():
-                session = self._store.execute(actor, {"action":"getSession", "sessionId":session_id})
-                if session["status"] != "running": raise DispatchError("INACTIVE_SESSION")
-                node = self._store.execute(actor, {"action":"getNode", "nodeId":session["nodeId"], "nodeVersion":session["nodeVersion"]})
-                authority = self._snapshot(p, session)
-                expires = min(authority["expires"], session["expiresAt"])
-                self._check(options, expires)
-                def fresh():
-                    self._principal(token, scope, p)
-                    if canonical_json(self._snapshot(p, session)) != canonical_json(authority): raise DispatchError("STALE_AUTHORITY")
-                    if canonical_json(self._store.execute(actor, {"action":"getSession", "sessionId":session_id})) != canonical_json(session): raise DispatchError("STALE_SESSION")
-                    self._check(options, expires)
-                return work(p, session, authority, affinity(node), fresh)
-            return self._coordinator.run(actor, locked)
-        except DispatchError: raise
-        except ServiceError as exc:
-            raise DispatchError(exc.code if exc.code in ("UNAUTHENTICATED", "FORBIDDEN") else "HOST_ERROR") from None
-        except StoreError as exc:
-            raise DispatchError(exc.code if exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY") else "HOST_ERROR") from None
-        except Exception: raise DispatchError("HOST_ERROR") from None
+        try: return self._boundary(lambda:self._locked(token, session_id, scope, options, work, expected, operation), operation, session_id)
         finally:
             with self._registry_lock: self._active-=1
+
+    def _boundary(self, work, operation, session_id):
+        try: return work()
+        except Exception as exc:
+            code = exc.code if isinstance(exc, DispatchError) or isinstance(exc, ServiceError) and exc.code in ("UNAUTHENTICATED", "FORBIDDEN") or isinstance(exc, StoreError) and exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY") else "HOST_ERROR"
+            self._emit("dispatch.failed", scope_of({"sessionId":session_id}), {"operation":operation, "code":code})
+            if isinstance(exc, DispatchError): raise
+            raise DispatchError(code) from None
+
+    def _locked(self, token, session_id, scope, options, work, expected, operation):
+        p = self._principal(token, scope, expected)
+        actor = {k:p[k] for k in ("tenantId", "subjectId")}
+        self._check(options)
+        def locked():
+            session = self._store.execute(actor, {"action":"getSession", "sessionId":session_id})
+            if session["status"] != "running": raise DispatchError("INACTIVE_SESSION")
+            node = self._store.execute(actor, {"action":"getNode", "nodeId":session["nodeId"], "nodeVersion":session["nodeVersion"]})
+            authority = self._snapshot(p, session)
+            expires = min(authority["expires"], session["expiresAt"])
+            self._check(options, expires)
+            def fresh():
+                self._principal(token, scope, p)
+                if canonical_json(self._snapshot(p, session)) != canonical_json(authority): raise DispatchError("STALE_AUTHORITY")
+                if canonical_json(self._store.execute(actor, {"action":"getSession", "sessionId":session_id})) != canonical_json(session): raise DispatchError("STALE_SESSION")
+                self._check(options, expires)
+            allowed = affinity(node)
+            self._emit("dispatch.enter", scope_of({"sessionId":session_id}), {"operation":operation, "allowedCount":len(allowed), "registeredCount":len(self._tools)})
+            return work(p, session, authority, allowed, fresh)
+        return self._coordinator.run(actor, locked)
 
     def list_tools(self, token, session_id, options, expected=None):
         options = dict(options) if type(options) is dict else {}
@@ -162,29 +174,40 @@ class McpDispatchGate:
             if tool is None or tool["uri"] not in allowed: raise DispatchError("TOOL_NOT_ALLOWED")
             if not tool["meta"]["readOnly"]: raise DispatchError("UNSUPPORTED_TOOL_MODE")
             if not matches(tool["meta"]["inputSchema"], r["arguments"]): raise DispatchError("INVALID_ARGUMENTS")
+            s = scope_of({"sessionId":session_id})
             binding = {"tenantId":p["tenantId"], "subjectId":p["subjectId"], "sessionId":session_id, "sessionVersion":session["version"], "nodeId":session["nodeId"], "nodeVersion":session["nodeVersion"], "epoch":self._store.epoch, "policyVersion":authority["policyVersion"], "authorityRevision":authority["revision"], "registryRevision":self._revision, "toolUri":tool["uri"], "toolRevision":tool["meta"]["revision"], "inputDigest":binding_digest(r["arguments"]), "deadline":options["deadline"]}
+            self._emit("dispatch.start", s, {"toolName":r["name"], "toolUri":tool["uri"], "toolRevision":tool["meta"]["revision"], "inputDigest":binding["inputDigest"], "argumentBytes":byte_length(r["arguments"])}, lambda:{"arguments":r["arguments"]})
             def decide(phase, data, bound, caps):
                 context = {**bound, "phase":phase}
                 policy = copy(callback(lambda:self._host.policy(copy(p), copy(context), copy(data), phase)), "INVALID_POLICY")
                 if type(policy) is not dict or policy.get("bindingDigest") != binding_digest(context) or type(policy.get("resources")) is not list or not policy["resources"]: raise DispatchError("INVALID_POLICY")
                 inputs = [{**v, "capabilities":capabilities([{"id":"registry", "capabilities":caps}, {"id":"resource", "capabilities":v.get("capabilities")}], True)} for v in policy["resources"]]
-                decision = evaluate_batch(inputs)["decision"]
-                if decision == "unsupported": raise DispatchError("UNSUPPORTED_POLICY")
-                if decision != "allow": raise DispatchError("POLICY_DENIED" if phase == "dispatch" else "OUTPUT_DENIED")
+                verdict = evaluate_batch(inputs)
+                self._emit("cdl.decision", s, {"phase":phase, "decision":verdict["decision"], "reasonCodes":list(verdict["reasonCodes"]), "resourceCount":len(inputs)})
+                if verdict["decision"] == "unsupported": raise DispatchError("UNSUPPORTED_POLICY")
+                if verdict["decision"] != "allow": raise DispatchError("POLICY_DENIED" if phase == "dispatch" else "OUTPUT_DENIED")
             decide("dispatch", r["arguments"], binding, tool["caps"])
-            if "authorizeDispatch" in options and callback(lambda:options["authorizeDispatch"](copy(session), list(tool["caps"]))) is not True:
-                raise DispatchError("HOST_DENIED")
+            if "authorizeDispatch" in options:
+                ok = callback(lambda:options["authorizeDispatch"](copy(session), list(tool["caps"]))) is True
+                self._emit("dispatch.guard", s, {"present":True, "ok":ok})
+                if not ok: raise DispatchError("HOST_DENIED")
+            else: self._emit("dispatch.guard", s, {"present":False, "ok":True})
             fresh()
             self._check(options, min(authority["expires"], session["expiresAt"]))
+            self._emit("tool.invoke.start", s, {"toolName":r["name"]})
             try: raw = tool["invoke"](copy(r["arguments"]), {"deadline":options["deadline"], "cancelled":options["cancelled"]})
             except Exception:
+                self._emit("tool.invoke.end", s, {"ok":False})
                 self._check(options, min(authority["expires"], session["expiresAt"]))
                 raise DispatchError("TOOL_FAILED") from None
+            self._emit("tool.invoke.end", s, {"ok":True})
             output = copy(raw, "INVALID_OUTPUT")
+            output_digest = binding_digest(output)
+            self._emit("tool.output", s, {"outputBytes":byte_length(output), "outputDigest":output_digest}, lambda:{"output":output})
             self._check(options, min(authority["expires"], session["expiresAt"]))
             if not matches(tool["meta"]["outputSchema"], output): raise DispatchError("INVALID_OUTPUT")
-            output_digest = binding_digest(output)
             decide("release", output, {**binding, "outputDigest":output_digest}, capabilities(authority["releaseSources"], authority["releaseComplete"]))
             fresh()
+            self._emit("dispatch.released", s, {"toolName":r["name"], "outputDigest":output_digest})
             return {"data":output, "provenance":{"profile":DISPATCH_PROFILE, "toolUri":tool["uri"], "toolRevision":tool["meta"]["revision"], "registryRevision":self._revision, "inputDigest":binding["inputDigest"], "outputDigest":output_digest, "trustLevel":5}}
         return self._within(token, session_id, "tools:call", options, work, expected)

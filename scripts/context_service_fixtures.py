@@ -22,7 +22,7 @@ def run_case(case, *, provider=None, configuration=None, capture=False):
     responses=[{'type':'final','text':p if type(p) is str else json.dumps(p,separators=(',',':'))} for p in case['proposals']]
     if flags.get('readFirst'):responses.insert(0,{'type':'tool','name':'echo.read','arguments':{'message':'synthetic read'}})
     if flags.get('resume'):responses.append({'type':'final','text':json.dumps({'type':'answer','text':'Resumed from the persisted state.'})})
-    f=Fixture({**flags,'responses':responses,'base':{'initialState':case['initialState']} if 'initialState' in case else {}})
+    f=Fixture({**flags,'responses':responses,'base':{**({'initialState':case['initialState']} if 'initialState' in case else {}),**({'observe':flags['observe']} if flags.get('observe') else {})}})
     base=f.base
     tokens={}
     code='OK'
@@ -92,7 +92,7 @@ def run_case(case, *, provider=None, configuration=None, capture=False):
                 event['code']=getattr(exc,'code','HOST_ERROR')
                 raise
         service.invoke=invoke_service
-        def make():return ContextLlmLoop(base.store,base.gate,host,wrapped,service,config)
+        def make():return ContextLlmLoop(base.store,base.gate,host,wrapped,service,config,observe=flags.get('observe'))
         result=make().run('test-owner',base.session['sessionId'],{'message':case.get('message','Please review my situation.')},{**f.options,'requestId':'context-turn','maxRounds':flags.get('maxRounds',4)})
         outputs.append(result)
         if flags.get('resume'):

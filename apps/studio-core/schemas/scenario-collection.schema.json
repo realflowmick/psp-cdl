@@ -1,0 +1,276 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://psp-cdl.dev/schemas/studio/scenario-collection-0.1.schema.json",
+  "title": "PSP Studio scenario collection (PSP-STUDIO-0.1)",
+  "description": "Development tooling contract. Scenarios configure the reference loops, dispatch gate and evaluation engines; they assert no security property.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "label", "createdAt", "updatedAt", "scenarios"],
+  "properties": {
+    "id": { "$ref": "#/definitions/identifier" },
+    "label": { "$ref": "#/definitions/label" },
+    "description": { "$ref": "#/definitions/text" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "scenarios": { "type": "array", "maxItems": 256, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "identifier": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "label": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "text": { "type": "string", "maxLength": 4000 },
+    "capability": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$" },
+    "capabilities": { "type": "array", "maxItems": 64, "items": { "$ref": "#/definitions/capability" } },
+    "record": { "type": "object" },
+    "language": { "type": "string", "enum": ["typescript", "python"] },
+    "policyResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classes", "covenants", "capabilities"],
+      "properties": {
+        "classes": { "$ref": "#/definitions/capabilities" },
+        "covenants": { "$ref": "#/definitions/capabilities" },
+        "capabilities": { "$ref": "#/definitions/capabilities" }
+      }
+    },
+    "policyOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "resource"],
+      "properties": {
+        "phase": { "type": "string", "enum": ["inference", "tool", "release", "dispatch", "recovery"] },
+        "turn": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "step": { "type": "integer", "minimum": 1, "maximum": 32 },
+        "resource": { "$ref": "#/definitions/policyResource" }
+      }
+    },
+    "scriptedReply": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "name", "arguments"],
+          "properties": {
+            "type": { "const": "tool" },
+            "name": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}\\.[A-Za-z0-9_-]{1,64}$" },
+            "arguments": { "$ref": "#/definitions/record" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "text"],
+          "properties": { "type": { "const": "final" }, "text": { "type": "string", "maxLength": 65536 } }
+        }
+      ]
+    },
+    "toolResponse": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["kind"], "properties": { "kind": { "const": "echo" } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind", "data"], "properties": { "kind": { "const": "static" }, "data": { "$ref": "#/definitions/record" } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind"], "properties": { "kind": { "const": "fail" } } }
+      ]
+    },
+    "syntheticTool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["server", "name", "inputSchema", "outputSchema", "response"],
+      "properties": {
+        "server": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+        "revision": { "$ref": "#/definitions/identifier" },
+        "inputSchema": { "$ref": "#/definitions/record" },
+        "outputSchema": { "$ref": "#/definitions/record" },
+        "capabilities": { "$ref": "#/definitions/capabilities" },
+        "response": { "$ref": "#/definitions/toolResponse" }
+      }
+    },
+    "liveProvider": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "script"],
+          "properties": {
+            "kind": { "const": "mock" },
+            "script": { "type": "array", "maxItems": 64, "items": { "type": "array", "maxItems": 33, "items": { "$ref": "#/definitions/scriptedReply" } } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "openai" },
+            "model": { "type": "string", "maxLength": 128 },
+            "maxOutputTokens": { "type": "integer", "minimum": 1, "maximum": 32768 },
+            "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 120000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "model"],
+          "properties": {
+            "kind": { "const": "anthropic" },
+            "model": { "type": "string", "maxLength": 128 },
+            "maxOutputTokens": { "type": "integer", "minimum": 1, "maximum": 32768 },
+            "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 120000 }
+          }
+        }
+      ]
+    },
+    "liveLoopScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "label", "application", "interpreter", "loop", "provider", "tools", "node", "initialState", "turns", "policy", "plan", "limits", "clock"],
+      "properties": {
+        "kind": { "const": "live-loop" },
+        "id": { "$ref": "#/definitions/identifier" },
+        "label": { "$ref": "#/definitions/label" },
+        "description": { "$ref": "#/definitions/text" },
+        "application": {
+          "oneOf": [
+            { "type": "object", "additionalProperties": false, "required": ["file"], "properties": { "file": { "type": "string", "minLength": 1, "maxLength": 512 } } },
+            { "type": "object", "additionalProperties": false, "required": ["source"], "properties": { "source": { "type": "string", "minLength": 1, "maxLength": 262144 } } }
+          ]
+        },
+        "interpreter": { "type": "string", "enum": ["psp-core-3.2-draft-0.1", "none"] },
+        "loop": { "type": "string", "enum": ["buffered", "durable", "refreshing", "context"] },
+        "provider": { "$ref": "#/definitions/liveProvider" },
+        "tools": { "type": "array", "maxItems": 64, "items": { "$ref": "#/definitions/syntheticTool" } },
+        "node": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["nodeId", "nodeVersion", "agents"],
+          "properties": {
+            "nodeId": { "$ref": "#/definitions/identifier" },
+            "nodeVersion": { "$ref": "#/definitions/identifier" },
+            "agents": { "type": "array", "maxItems": 64, "items": { "type": "string", "pattern": "^mcp://[A-Za-z0-9_-]{1,64}/[A-Za-z0-9_-]{1,64}$" } }
+          }
+        },
+        "initialState": { "$ref": "#/definitions/record" },
+        "turns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["message"],
+            "properties": { "message": { "type": "string", "minLength": 1, "maxLength": 65536 }, "requestId": { "$ref": "#/definitions/identifier" } }
+          }
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["default"],
+          "properties": {
+            "default": { "$ref": "#/definitions/policyResource" },
+            "overrides": { "type": "array", "maxItems": 64, "items": { "$ref": "#/definitions/policyOverride" } }
+          }
+        },
+        "releaseCapabilities": { "$ref": "#/definitions/capabilities" },
+        "providerCapabilities": { "$ref": "#/definitions/capabilities" },
+        "plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["statePolicy"],
+          "properties": {
+            "statePolicy": { "type": "string", "enum": ["accumulate", "replace", "model-state"] },
+            "completeOnTurn": { "type": ["integer", "null"], "minimum": 1, "maximum": 64 }
+          }
+        },
+        "refresh": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["policy", "ttl"],
+          "properties": {
+            "policy": { "type": "string", "enum": ["expiration", "interval", "interval|expiration"] },
+            "interval": { "type": "integer", "minimum": 1, "maximum": 64 },
+            "grace": { "type": "integer", "minimum": 0, "maximum": 86400 },
+            "ttl": { "type": "integer", "minimum": 1, "maximum": 86400 }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxSteps", "deadlineSeconds"],
+          "properties": {
+            "maxSteps": { "type": "integer", "minimum": 1, "maximum": 32 },
+            "maxRounds": { "type": "integer", "minimum": 1, "maximum": 16 },
+            "deadlineSeconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+          }
+        },
+        "clock": { "type": "string", "enum": ["wall", "virtual"] }
+      }
+    },
+    "campaignScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "label", "config"],
+      "properties": {
+        "kind": { "const": "campaign" },
+        "id": { "$ref": "#/definitions/identifier" },
+        "label": { "$ref": "#/definitions/label" },
+        "description": { "$ref": "#/definitions/text" },
+        "config": { "$ref": "#/definitions/record" },
+        "pairIds": { "type": "array", "maxItems": 256, "items": { "$ref": "#/definitions/identifier" } },
+        "live": { "type": "boolean" }
+      }
+    },
+    "jointScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "label", "language", "mode"],
+      "properties": {
+        "kind": { "const": "joint" },
+        "id": { "$ref": "#/definitions/identifier" },
+        "label": { "$ref": "#/definitions/label" },
+        "description": { "$ref": "#/definitions/text" },
+        "caseIds": { "type": "array", "maxItems": 256, "items": { "$ref": "#/definitions/identifier" } },
+        "language": { "$ref": "#/definitions/language" },
+        "mode": { "type": "string", "enum": ["rehearsal", "live"] }
+      }
+    },
+    "studyScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "label", "mode", "hosts", "peers", "conditions", "repeats"],
+      "properties": {
+        "kind": { "const": "study" },
+        "id": { "$ref": "#/definitions/identifier" },
+        "label": { "$ref": "#/definitions/label" },
+        "description": { "$ref": "#/definitions/text" },
+        "mode": { "type": "string", "enum": ["offline", "live"] },
+        "hosts": { "type": "array", "minItems": 1, "maxItems": 2, "items": { "$ref": "#/definitions/language" } },
+        "peers": { "type": "array", "minItems": 1, "maxItems": 2, "items": { "$ref": "#/definitions/language" } },
+        "conditions": { "type": "array", "minItems": 1, "maxItems": 16, "items": { "type": "string", "pattern": "^[a-z][a-z0-9+-]{0,63}$" } },
+        "caseIds": { "type": "array", "maxItems": 256, "items": { "$ref": "#/definitions/identifier" } },
+        "repeats": { "type": "integer", "minimum": 1, "maximum": 64 }
+      }
+    },
+    "heldoutScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "label", "mode", "plan", "corpus"],
+      "properties": {
+        "kind": { "const": "heldout" },
+        "id": { "$ref": "#/definitions/identifier" },
+        "label": { "$ref": "#/definitions/label" },
+        "description": { "$ref": "#/definitions/text" },
+        "mode": { "type": "string", "enum": ["rehearsal", "live"] },
+        "plan": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "corpus": { "type": "string", "minLength": 1, "maxLength": 512 }
+      }
+    },
+    "scenario": {
+      "oneOf": [
+        { "$ref": "#/definitions/liveLoopScenario" },
+        { "$ref": "#/definitions/campaignScenario" },
+        { "$ref": "#/definitions/jointScenario" },
+        { "$ref": "#/definitions/studyScenario" },
+        { "$ref": "#/definitions/heldoutScenario" }
+      ]
+    }
+  }
+}

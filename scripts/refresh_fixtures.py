@@ -21,7 +21,7 @@ class Fixture(DurableFixture):
             if ok and self.flags.get("failAfterPromptCommit") and any(w["body"].get("profile")=="PSP-PROMPT-REFRESH-0.1" for w in args[2]):raise RuntimeError("PRIVATE_ACK_DETAIL")
             return ok
         self.base.backend.commit=commit_with_ack
-        try:self.loop=RefreshingLlmLoop(self.base.store,self.base.gate,self,self.provider,{"postCompletion":"lockdown"})
+        try:self.loop=RefreshingLlmLoop(self.base.store,self.base.gate,self,self.provider,{"postCompletion":"lockdown"},observe=settings.get("observe"))
         except Exception:
             self.close()
             raise
@@ -60,7 +60,7 @@ def run_case(case):
         for step in case.get("steps",[{"action":"run"}]):
             f.flags.update(step.get("flags",{}));f.base.flags.update(step.get("baseFlags",{}))
             options={**f.options,**step.get("options",{})}
-            if step["action"]=="restart":f.loop=RefreshingLlmLoop(f.base.store,f.base.gate,f,f.provider,{"postCompletion":"lockdown"})
+            if step["action"]=="restart":f.loop=RefreshingLlmLoop(f.base.store,f.base.gate,f,f.provider,{"postCompletion":"lockdown"},observe=case.get("settings",{}).get("observe"))
             try:
                 value=f.loop.recover(step.get("token","test-owner"),f.base.session["sessionId"],step.get("requestId","turn-1"),options) if step["action"]=="recover" else f.loop.run(step.get("token","test-owner"),f.base.session["sessionId"],step.get("request",{"message":"Read synthetic data."}),options)
                 steps.append({"code":"OK","value":value})

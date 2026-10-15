@@ -3,8 +3,8 @@ import { canonicalJson, record, type Envelope } from "@psp-cdl/core";
 import { verifyEnvelope, type VerificationPolicy } from "@psp-cdl/core/crypto";
 import { aggregateCapabilities, evaluateBatch, type PolicyInput } from "@psp-cdl/cdl";
 import { SecurityService, ServiceError, identifier, type Principal } from "@psp-cdl/api-server";
-import { WorkflowStore, OwnerCoordinator, StoreError, bounded, integer,type OwnerReservation } from "@psp-cdl/api-server/persistence";
-import { McpDispatchGate, DispatchError, bindingDigest, type CapabilitySource } from "@psp-cdl/mcpproxy";
+import { WorkflowStore, OwnerCoordinator, StoreError, bounded, integer, MAX_STATE_BYTES, type OwnerReservation } from "@psp-cdl/api-server/persistence";
+import { McpDispatchGate, DispatchError, bindingDigest, makeEmitter, byteLength, textBytes, scopeOf, type CapabilitySource, type Emit, type ObserveOptions } from "@psp-cdl/mcpproxy";
 
 export const LLM_LOOP_PROFILE="PSP-LLM-LOOP-0.1";
 export class LoopError extends Error {
@@ -45,6 +45,18 @@ export function promptContext(binding:Record<string,unknown>):Record<string,stri
     "authority-revision":"authorityRevision","provider-id":"providerId","provider-revision":"providerRevision","registry-revision":"registryRevision"};
   return Object.fromEntries(Object.entries(fields).map(([attribute,field])=>[attribute,String(binding[field])]));
 }
+/** Observable prompt metadata: digest and sizes only; the text travels only at inspect level. */
+export function describePrompt(prompt:Envelope):Record<string,unknown> {
+  const s=prompt.signature;
+  return {digest:bindingDigest(prompt),textBytes:textBytes(prompt.data as string),version:s.version,trustLevel:s.trustLevel??2,timestamp:s.timestamp,expires:s.expires};
+}
+/** Stable failure code for any error escaping the loop; identical mapping in both languages. */
+export function loopCode(e:unknown):string {
+  if(e instanceof LoopError||e instanceof DispatchError) return e.code;
+  if(e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)) return e.code;
+  if(e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY"].includes(e.code)) return e.code;
+  return "HOST_ERROR";
+}
 
 /** Provider/tool transport and boundary enforcement. PSP execution belongs to the LLM context. */
 export class BufferedLlmLoop {
@@ -52,11 +64,14 @@ export class BufferedLlmLoop {
   protected readonly coordinator:OwnerCoordinator;
   protected readonly provider:ProviderRegistration;
   private readonly providerCaps:string[];
-  constructor(protected readonly store:WorkflowStore,protected readonly gate:McpDispatchGate,protected readonly host:LoopHost,provider:ProviderRegistration) {
+  protected readonly observe:ObserveOptions|undefined;
+  protected readonly emit:Emit;
+  constructor(protected readonly store:WorkflowStore,protected readonly gate:McpDispatchGate,protected readonly host:LoopHost,provider:ProviderRegistration,observe?:ObserveOptions) {
     if(!(store.coordinator instanceof OwnerCoordinator)||!(gate instanceof McpDispatchGate)||!gate.usesStore(store)||
       [host.authenticate,host.now,host.snapshot,host.prompt,host.verification,host.policy,host.authorizeFinal].some(f=>typeof f!=="function")||!record(provider)) fail("INVALID_CONFIGURATION");
     const {invoke,...metadata}=provider, meta=copy(metadata,"INVALID_CONFIGURATION");
     if(Object.keys(meta).sort().join(",")!=="complete,id,revision,sources"||!identifier(meta.id)||!identifier(meta.revision)||typeof invoke!=="function") fail("INVALID_CONFIGURATION");
+    this.emit=makeEmitter("llmproxy",observe,fail);this.observe=observe;
     this.provider={...meta,invoke};this.providerCaps=caps(meta.sources,meta.complete);
     this.coordinator=store.coordinator!;
     this.auth=new SecurityService({authenticate:t=>host.authenticate(t),now:()=>host.now(),resolve:()=>null});
@@ -105,9 +120,10 @@ export class BufferedLlmLoop {
       if(!record(r)) return fail("INVALID_POLICY");
       return {...r,capabilities:caps([{id:"recipient",capabilities:recipientCaps},{id:"path",capabilities:r.capabilities}],true)};
     });
-    const decision=evaluateBatch(inputs).decision;
-    if(decision==="unsupported") fail("UNSUPPORTED_POLICY");
-    if(decision!=="allow") fail(phase==="release"?"OUTPUT_DENIED":"POLICY_DENIED");
+    const verdict=evaluateBatch(inputs);
+    this.emit("cdl.decision",scopeOf(binding),{phase,decision:verdict.decision,reasonCodes:verdict.reasonCodes,resourceCount:inputs.length});
+    if(verdict.decision==="unsupported") fail("UNSUPPORTED_POLICY");
+    if(verdict.decision!=="allow") fail(phase==="release"?"OUTPUT_DENIED":"POLICY_DENIED");
     return context;
   }
   async run(token:unknown,sessionId:string,request:unknown,options:LoopOptions):Promise<Record<string,unknown>> {
@@ -116,8 +132,9 @@ export class BufferedLlmLoop {
       if(!record(input)||Object.keys(input).join(",")!=="message"||typeof input.message!=="string"||!identifier(sessionId)||
         !options||!integer(options.deadline)||typeof options.cancelled!=="function"||!integer(options.maxSteps)||options.maxSteps<1||options.maxSteps>32) fail("INVALID_REQUEST");
       options={deadline:options.deadline,cancelled:options.cancelled,maxSteps:options.maxSteps};
-      const p=await this.principal(token),actor={tenantId:p.tenantId,subjectId:p.subjectId};
+      const p=await this.principal(token),actor={tenantId:p.tenantId,subjectId:p.subjectId},turn=scopeOf({sessionId});
       this.check(options);
+      this.emit("turn.start",turn,{inputBytes:textBytes(input.message),maxSteps:options.maxSteps,deadline:options.deadline,providerId:this.provider.id,providerRevision:this.provider.revision},()=>({message:input.message}));
       const initial=await this.coordinator.runReserved(actor,async reservation=>{
         const session=await this.store.execute(actor,{action:"getSession",sessionId});
         if(session.status!=="running") fail("INACTIVE_SESSION");
@@ -131,6 +148,8 @@ export class BufferedLlmLoop {
       });
       const {session,authority,binding}=initial,expires=Math.min(authority.expires,session.expiresAt as number);
       let prompt=initial.prompt;
+      this.emit("session.loaded",turn,{sessionVersion:session.version,nodeId:session.nodeId,nodeVersion:session.nodeVersion,policyVersion:authority.policyVersion,authorityRevision:authority.revision,registryRevision:authority.registryRevision,expires,stateBytes:byteLength(session.state)},()=>({state:session.state}));
+      this.emit("prompt.loaded",turn,describePrompt(prompt),()=>({text:prompt.data}));
       const fresh=async(checkPrompt=true)=>{
         this.check(options,expires);
         await this.principal(token,p);
@@ -140,24 +159,33 @@ export class BufferedLlmLoop {
         this.check(options,expires);
       };
       const tools=await this.gate.listTools(token,sessionId,options,p);
+      this.emit("tools.listed",turn,{count:tools.length,names:tools.map(t=>t.name)});
       const messages:Record<string,unknown>[]=[{role:"system",content:prompt.data},...copy(await this.contextMessages()),{role:"user",content:input.message}];
       for(let step=1;step<=options.maxSteps;step++) {
         let stepBinding:Record<string,unknown>;
+        const at=scopeOf({sessionId,step});
+        this.emit("step.start",at,{step});
         const result=await this.coordinator.runReserved(actor,async reservation=>{
           await fresh(false);
+          const before=bindingDigest(prompt);
           prompt=await this.inferencePrompt(p,binding,prompt,options,reservation);
+          if(bindingDigest(prompt)!==before)this.emit("prompt.replaced",at,describePrompt(prompt),()=>({text:prompt.data}));
           messages[0]={role:"system",content:prompt.data};
           stepBinding={...binding,step,promptDigest:bindingDigest(prompt)};
           await fresh();
           const providerRequest=copy({messages,tools});
+          this.emit("prompt.assembled",at,{messageCount:messages.length,bytes:byteLength(providerRequest),toolCount:tools.length,promptDigest:stepBinding.promptDigest},()=>({messages}));
           await this.decide(p,stepBinding,{request:providerRequest},"inference",this.providerCaps);
           await fresh();
+          this.emit("inference.start",at,{bytes:byteLength(providerRequest),messageCount:messages.length});
           let raw:unknown;
           try {raw=await this.provider.invoke(copy(providerRequest),{deadline:options.deadline,cancelled:options.cancelled});}
-          catch {this.check(options,expires);return fail("PROVIDER_FAILED");}
+          catch {this.emit("inference.end",at,{ok:false});this.check(options,expires);return fail("PROVIDER_FAILED");}
+          this.emit("inference.end",at,{ok:true});
           this.check(options,expires);
           const candidate=copy(raw,"INVALID_RESPONSE");
           if(!record(candidate)) fail("INVALID_RESPONSE");
+          this.emit("model.candidate",at,{type:candidate.type==="tool"?"tool":candidate.type==="final"?"final":"invalid",toolName:typeof candidate.name==="string"?candidate.name:null,textBytes:typeof candidate.text==="string"?textBytes(candidate.text):null},()=>({candidate}));
           if(candidate.type==="tool") {
             if(Object.keys(candidate).sort().join(",")!=="arguments,name,type"||typeof candidate.name!=="string"||!record(candidate.arguments)) fail("INVALID_RESPONSE");
             if(!tools.some(t=>t.name===candidate.name)) fail("TOOL_NOT_ALLOWED");
@@ -168,12 +196,15 @@ export class BufferedLlmLoop {
           const data=copy({request:providerRequest,candidate});
           const context=await this.decide(p,stepBinding,data,"release",caps(authority.releaseSources,authority.releaseComplete));
           if(await callback(()=>this.host.authorizeFinal(copy(p),copy(context),copy(data)))!==true) fail("COMPLETION_DENIED");
+          const outputDigest=bindingDigest({text:candidate.text});
+          this.emit("final.authorized",at,{step,outputDigest,textBytes:textBytes(candidate.text)},()=>({text:candidate.text}));
           await fresh();
           return {output:{text:candidate.text,provenance:{profile:LLM_LOOP_PROFILE,providerId:this.provider.id,providerRevision:this.provider.revision,
-            outputDigest:bindingDigest({text:candidate.text}),trustLevel:5,steps:step}}};
+            outputDigest,trustLevel:5,steps:step}}};
         });
-        if(result.output) return result.output;
+        if(result.output) {this.emit("turn.buffered",turn,{steps:step,outputDigest:result.output.provenance.outputDigest});return result.output;}
         const candidate=result.candidate!;
+        this.emit("dispatch.requested",at,{step,toolName:candidate.name,argumentBytes:byteLength(candidate.arguments)},()=>({arguments:candidate.arguments}));
         let guardError:unknown;
         const output=await this.gate.callTool(token,sessionId,{name:candidate.name,arguments:candidate.arguments},{...options,
           authorizeDispatch:async(current,recipientCaps)=>{
@@ -188,15 +219,15 @@ export class BufferedLlmLoop {
         // A refresh must not make a result produced under an expired prompt usable.
         await this.coordinator.run(actor,()=>fresh());
         messages.push({role:"assistant",call:{name:candidate.name,arguments:candidate.arguments}},{role:"tool",name:candidate.name,data:output.data});
+        this.emit("transcript.grew",at,{messageCount:messages.length,bytes:byteLength({messages,tools}),toolName:candidate.name,dataBytes:byteLength(output.data),limit:MAX_STATE_BYTES},()=>({data:output.data}));
         copy({messages,tools}); // Bound the accumulated transcript before its next use.
       }
       return fail("STEP_LIMIT");
     }catch(e) {
+      const code=loopCode(e);
+      this.emit("turn.failed",scopeOf({sessionId}),{code});
       if(e instanceof LoopError) throw e;
-      if(e instanceof DispatchError) return fail(e.code);
-      if(e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)) return fail(e.code);
-      if(e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY"].includes(e.code)) return fail(e.code);
-      return fail("HOST_ERROR");
+      return fail(code);
     }
   }
 }

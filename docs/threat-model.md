@@ -14,7 +14,7 @@ Required assumptions to test or state: trustworthy key/capability provisioning; 
 | Session/tenant substitution | Auth bound to immutable session context | Cross-tenant read/write |
 | Replay/rollback/expired signature | Time, version and replay state | Stale authorization used |
 | Tool discovery/use race | Bind checked tool/policy version to dispatch | Different tool or policy executes |
-| Output disclosure | Server, proxy, and display checks | Restricted canary appears at an egress boundary |
+| Output disclosure | Server, proxy, and display checks; optional [exfiltration fingerprints](exfiltration.md) as a heuristic signal | Restricted canary appears at an egress boundary |
 | Proxy bypass / topology downgrade | Deployment mediation and topology policy | Calls evade the gate |
 | Prompt refresh or state-store outage | Explicit fail-closed policy | Side effect after authoritative state is lost |
 | Model instruction failure | Host controls; semantic compliance measured separately | Model disobedience is reported as a hard guarantee |

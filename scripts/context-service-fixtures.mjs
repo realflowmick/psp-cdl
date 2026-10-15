@@ -16,7 +16,7 @@ export async function runCase(c, options={}) {
   const flags={...c.flags},responses=c.proposals.map(p=>({type:'final',text:typeof p==='string'?p:JSON.stringify(p)}));
   if(flags.readFirst)responses.unshift({type:'tool',name:'echo.read',arguments:{message:'synthetic read'}});
   if(flags.resume)responses.push({type:'final',text:JSON.stringify({type:'answer',text:'Resumed from the persisted state.'})});
-  const f=await fixture({...flags,responses,base:c.initialState?{initialState:c.initialState}:{}}),tokens=new Map();
+  const f=await fixture({...flags,responses,base:{...(c.initialState?{initialState:c.initialState}:{}),...(flags.observe?{observe:flags.observe}:{})}}),tokens=new Map();
   const config=options.configuration??configuration,trace=[],services=[],outputs=[];
   let code='OK',result,recoveryCode=null;
   const inner=options.provider??f.provider;
@@ -60,7 +60,7 @@ export async function runCase(c, options={}) {
       try {const result=await invoke(operation,...args);event.result=structuredClone(result);return result;}
       catch(e){event.code=e.code??'HOST_ERROR';throw e;}
     };
-    make=()=>new ContextLlmLoop(f.store,f.gate,host,provider,service,config);
+    make=()=>new ContextLlmLoop(f.store,f.gate,host,provider,service,config,flags.observe);
     result=await make().run('test-owner',f.session.sessionId,{message:c.message??'Please review my situation.'},{...f.options,requestId:'context-turn',maxRounds:flags.maxRounds??4});
     outputs.push(result);
     if(flags.resume) {

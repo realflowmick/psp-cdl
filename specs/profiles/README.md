@@ -41,4 +41,10 @@ the invocation. Published RFC baselines remain unchanged.
 
 [LLM Redirect 0.1](PSP-LLM-REDIRECT-0.1.md) is an opt-in draft for atomic source completion and same-owner target-session creation, host-approved CDL transfer and historical receipt recovery. It does not combine redirect with prompt refresh or scoped continuation.
 
+[Exfiltration Fingerprint 0.1](PSP-EXFIL-0.1.md) is an opt-in draft for host-side
+checks of outbound text against keyed lexical fingerprints and optional local
+embeddings of protected SYSTEM and CONTEXT content. It produces heuristic §28
+signals for host policy; it does not release or block output and makes no
+detection-rate claim.
+
 [LLM Scoped Continuation 0.1](PSP-LLM-SCOPED-0.1.md) is an opt-in draft for signed SYSTEM replacement, deterministic host ingress/egress boundaries, accumulated threat state and durable hard-violation receipts after workflow completion. Tools and combined completion/refresh modes are unsupported.

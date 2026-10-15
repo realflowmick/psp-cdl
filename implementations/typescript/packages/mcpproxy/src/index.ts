@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 export * from "./dispatch.js";
+export * from "./observe.js";
 export const manifest = Object.freeze({
   "id": "mcpproxy",
   "status": "experimental",
@@ -7,7 +8,7 @@ export const manifest = Object.freeze({
     "psp": "3.2.0",
     "cdl": "1.5"
   },
-  "implementedFeatures": ["host-mcp-dispatch-gate-0.1","mcp-stdio-mediation-0.1","mcp-http-mediation-0.1", "mcp-revision-0.1"]
+  "implementedFeatures": ["host-mcp-dispatch-gate-0.1","mcp-stdio-mediation-0.1","mcp-http-mediation-0.1", "mcp-revision-0.1", "dispatch-observer-0.1"]
 } as const);
 Object.freeze(manifest.specifications); Object.freeze(manifest.implementedFeatures);
 

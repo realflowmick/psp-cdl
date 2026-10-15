@@ -44,6 +44,8 @@ subprocess.run([sys.executable,"scripts/check-mediation-parity.py"],cwd=ROOT,che
 subprocess.run([sys.executable,"-u","scripts/check-http-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"-u","scripts/check-revision-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-llm-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-observer-parity.py"],cwd=ROOT,check=True)
+subprocess.run([sys.executable,"scripts/check-exfiltration-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-context-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-context-service-parity.py"],cwd=ROOT,check=True)
 subprocess.run([sys.executable,"scripts/check-interpreter-parity.py"],cwd=ROOT,check=True)

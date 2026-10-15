@@ -1,0 +1,73 @@
+{
+  "$format": "pspp/1",
+  "name": "evaluator-ring",
+  "description": "Intake review with CRM tools and exfiltration guards",
+  "psp": {
+    "document": "env:PSP_DOC",
+    "signOnRetrieval": "ed25519"
+  },
+  "components": [
+    {
+      "id": "llmproxy_1",
+      "kind": "llmproxy",
+      "role": "ring",
+      "vectorStore": "protected_vectors",
+      "lockdown": "post-completion",
+      "filters": {
+        "request": [
+          "psp-verify",
+          "agents-registration",
+          "covenant-pruning"
+        ],
+        "response": [
+          {
+            "kind": "exfil-guard",
+            "threshold": 0.15
+          },
+          "covenant-gate",
+          {
+            "kind": "data-use-check",
+            "scope": "context"
+          }
+        ]
+      }
+    },
+    {
+      "id": "model_1",
+      "kind": "model",
+      "role": "terminal",
+      "model": "claude-sonnet-4-6"
+    },
+    {
+      "id": "initiator_1",
+      "kind": "initiator",
+      "role": "terminal",
+      "trigger": "chat"
+    },
+    {
+      "id": "mcpproxy_1",
+      "kind": "mcpproxy",
+      "role": "loop",
+      "caller": "model_1",
+      "backend": "https://mcp.internal/crm",
+      "drift": "refuse"
+    },
+    {
+      "id": "protected_vectors",
+      "kind": "vector-store",
+      "role": "aux",
+      "engine": "sqlite-vec",
+      "path": "./data/protected.db",
+      "embedding": "all-MiniLM-L6-v2",
+      "dims": 384
+    },
+    {
+      "id": "log_1",
+      "kind": "logger",
+      "role": "aux",
+      "taps": "llmproxy_1.response",
+      "sink": "./runs/",
+      "redact": "covenant"
+    }
+  ]
+}

@@ -34,7 +34,7 @@ class Fixture:
                 self.calls += 1
                 return {"message":"other"}
             registrations = [registration, registration] if f.get("duplicate") else [registration, {**registration, "server":"other", "invoke":other}]
-            self.gate = McpDispatchGate(self.store, self, "registry-1", registrations)
+            self.gate = McpDispatchGate(self.store, self, "registry-1", registrations, observe=f.get("observe"))
             self.options = {"deadline":1800, "cancelled":lambda:bool(self.flags.get("cancelled"))}
         except Exception:
             self.close()

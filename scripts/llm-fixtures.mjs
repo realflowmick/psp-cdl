@@ -59,7 +59,7 @@ export async function fixture(settings={}) {
       return structuredClone(responses[Math.min(requests.length-1,responses.length-1)]);
     }};
   try {
-    const loop=new BufferedLlmLoop(f.store,f.gate,host,provider);
+    const loop=new BufferedLlmLoop(f.store,f.gate,host,provider,settings.observe);
     return {...f,loop,loopHost:host,provider,flags,baseFlags:f.flags,requests,phases,options:{...f.options,maxSteps:settings.maxSteps??4},stats:()=>({providerCalls:requests.length,toolCalls:f.stats().calls,busy})};
   }catch(e){f.close();throw e;}
 }

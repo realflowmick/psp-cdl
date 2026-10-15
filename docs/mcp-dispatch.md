@@ -6,6 +6,8 @@ This is a library API for an application host. The opt-in [MCP stdio adapter](mc
 
 ## Setup and calls
 
+An optional fifth constructor argument attaches the [development observer](observer.md), which reports gate decisions without affecting them.
+
 Construct `OwnerCoordinator` from `@psp-cdl/api-server/persistence` or `psp_cdl_api_server.persistence`. Pass it as `coordinator` when constructing **every** `WorkflowStore` that can mutate the same owner state, then construct the gate:
 
 ```ts
