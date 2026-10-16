@@ -84,7 +84,7 @@ export function ProviderTab({ s, onChange }: { s: LiveLoopScenario; onChange: Ch
       <Section title="Model provider">
         <FormGrid>
           <Field label="Provider">
-            <Select value={p.kind} onChange={setKind} options={[{ value: "mock", label: "Mock: scripted replies, offline" }, { value: "openai", label: "OpenAI: live model calls" }, { value: "anthropic", label: "Anthropic (not supported by the live loop)" }]} />
+            <Select value={p.kind} onChange={setKind} options={[{ value: "mock", label: "Mock: scripted replies, offline" }, { value: "openai", label: "OpenAI: live model calls" }, { value: "anthropic", label: "Anthropic: live model calls" }]} />
           </Field>
           {p.kind === "openai" && <Field label="Model" hint="The OpenAI adapter pins its own model; this value is informational."><TextInput value={p.model ?? ""} onChange={v => onChange({ ...s, provider: opt(p, "model", v) })} /></Field>}
           {p.kind === "anthropic" && <Field label="Model"><TextInput value={p.model} onChange={v => onChange({ ...s, provider: { ...p, model: v } })} /></Field>}
@@ -95,7 +95,7 @@ export function ProviderTab({ s, onChange }: { s: LiveLoopScenario; onChange: Ch
         </FormGrid>
         {p.kind === "mock" && <Notice kind="info">Scripted replies are edited per turn. Open a turn on the Turns tab to change what the mock model answers.</Notice>}
         {p.kind === "openai" && <Notice kind="info">Live runs read the OpenAI key from Secrets and must be admitted with the digest that Prepare returns.</Notice>}
-        {p.kind === "anthropic" && <Notice kind="warn">The live loop has no TypeScript Anthropic adapter, so prepare reports UNSUPPORTED_PROVIDER. Campaign scenarios drive Anthropic models from Python.</Notice>}
+        {p.kind === "anthropic" && <Notice kind="info">Live runs read anthropic.apiKey from Secrets and must be admitted with the digest that Prepare returns. The studio's Anthropic adapter is development tooling, not a reference component.</Notice>}
       </Section>
       <Section title="Recipient capabilities" description="CDL capabilities of the parties that receive data. The inference phase evaluates policy against the provider; the release phase against the operator.">
         <FormGrid>

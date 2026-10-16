@@ -263,7 +263,7 @@ test('file trigger: queue, reply in output, onDone move; Covenant Gate withholds
   }finally{await s.close();}
 });
 
-test('no PSP, unsupported providers, invalid pipelines, SSE turns and vector status',async()=>{
+test('no PSP, a missing provider key, invalid pipelines, SSE turns and vector status',async()=>{
   const s=await start();
   try{
     const plain={name:'plain',psp:null,components:[
@@ -283,13 +283,44 @@ test('no PSP, unsupported providers, invalid pipelines, SSE turns and vector sta
     v=await s.api(`/api/pipelines/vectors/nope?pipeline=${id}`);assert.equal(v.status,404);
 
     const claude=(await s.json('POST','/api/pipelines',{...plain,name:'claude',components:plain.components.map(c=>c.id==='model_1'?{id:'model_1',kind:'model',role:'terminal',model:'claude-sonnet-4-6'}:c)})).body.id;
-    const csid=(await s.json('POST',`/api/pipelines/${claude}/session`,{})).body.sessionId;
-    const t=await s.json('POST',`/api/pipelines/${claude}/session/${csid}/turn`,{text:'hi'});
-    assert.equal(t.body.error.code,'UNSUPPORTED_PROVIDER');assert.equal(t.body.delivery,'withheld');
+    const c=await s.json('POST',`/api/pipelines/${claude}/session`,{});
+    assert.equal(c.status,422);assert.equal(c.body.error.code,'CREDENTIAL_MISSING');assert.match(c.body.error.message,/anthropic\.apiKey/);
 
     const broken=(await s.json('POST','/api/pipelines',{...plain,name:'broken',components:plain.components.filter(c=>c.kind!=='model')})).body.id;
     const b=await s.json('POST',`/api/pipelines/${broken}/session`,{});
     assert.equal(b.status,422);assert.equal(b.body.error.code,'PIPELINE_INVALID');assert.match(b.body.error.message,/exactly one Model/);
     assert.deepEqual(readdirSync(join(s.data)).filter(f=>f.endsWith('.sqlite')).sort(),['mcpproxy-state.sqlite','studio.sqlite']);
+  }finally{await s.close();}
+});
+
+test('an Anthropic model answers pipeline turns through the studio adapter, and a failed call says why',async()=>{
+  const KEY='sk-ant-synthetic-pipeline-0000',calls=[],replies=[];
+  const fetch=async(url,init)=>{
+    calls.push({url,headers:init.headers,body:JSON.parse(new TextDecoder().decode(init.body))});
+    const [status,body]=replies.shift();
+    return new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
+  };
+  const s=await start({fetch});
+  try{
+    const id=(await s.json('POST','/api/pipelines',{name:'claude',psp:null,components:[
+      {id:'llmproxy_1',kind:'llmproxy',role:'ring',filters:{request:[],response:[]}},
+      {id:'model_1',kind:'model',role:'terminal',model:'claude-sonnet-4-6'},
+      {id:'initiator_1',kind:'initiator',role:'terminal',trigger:'chat'}]})).body.id;
+    assert.equal((await s.json('PUT','/api/secrets/anthropic.apiKey',{value:KEY})).status,200);
+    const sid=(await s.json('POST',`/api/pipelines/${id}/session`,{})).body.sessionId;
+    assert.equal(calls.length,0,'starting a session calls no model');
+
+    replies.push([200,{type:'message',role:'assistant',model:'claude-sonnet-4-6',stop_reason:'end_turn',content:[{type:'text',text:'Hello from the scripted API.'}],usage:{input_tokens:30,output_tokens:7}}]);
+    let t=await s.json('POST',`/api/pipelines/${id}/session/${sid}/turn`,{text:'hi'});
+    assert.equal(t.body.error,undefined);assert.equal(t.body.reply,'Hello from the scripted API.');assert.equal(t.body.delivery,'delivered');
+    assert.equal(calls[0].url,'https://api.anthropic.com/v1/messages');assert.equal(calls[0].headers['x-api-key'],KEY);
+    assert.equal(calls[0].body.model,'claude-sonnet-4-6');assert.match(calls[0].body.system,/No PSP document/);
+    assert.deepEqual(calls[0].body.messages,[{role:'user',content:[{type:'text',text:'hi'}]}]);
+
+    replies.push([529,{type:'error',error:{type:'overloaded_error',message:'Overloaded'}}]);
+    t=await s.json('POST',`/api/pipelines/${id}/session/${sid}/turn`,{text:'again'});
+    assert.equal(t.body.error.code,'PROVIDER_FAILED');assert.equal(t.body.delivery,'withheld');
+    assert.equal(t.body.error.message,'Anthropic returned HTTP 529: overloaded_error: Overloaded.');
+    assert.doesNotMatch(JSON.stringify(t.body),new RegExp(KEY));
   }finally{await s.close();}
 });

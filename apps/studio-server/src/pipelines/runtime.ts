@@ -31,6 +31,7 @@ import {
   type RegistrationPreview, type ScriptedReply, type TraceEntry, type ValidationEnv
 } from "@psp-cdl/studio-core";
 import { StudioError } from "../http/router.js";
+import { createAnthropicProvider, describeAnthropicFailure } from "../engines/live-loop/anthropic.js";
 import { buildHarness, OPERATOR_TOKEN, type Harness, type SigningMaterial } from "../engines/live-loop/harness.js";
 import type { EngineServices } from "../engines/types.js";
 import { BaselineStore, catalogTools, connectBackend, toolRevision } from "./backends.js";
@@ -66,8 +67,8 @@ interface LiveSession {
   registrations: RegistrationPreview; warnings: string[]; turn: number; loops: number; decisions: number; busy: boolean;
   /** Per-turn buffers filled by observers and callbacks. */
   trace: TraceEntry[]; calls: CallRecord[]; finalVerdicts: PipelineRunRecord["responseFilters"] | null; onTrace?: ((entry: TraceEntry) => void) | undefined;
-  /** Read by the mock provider: the current turn number and message. */
-  box: { turn: number; message: string };
+  /** Read by the mock provider: the current turn number and message. Failure is the Anthropic provider's last error, described. */
+  box: { turn: number; message: string; failure: string | null };
 }
 
 /** Resolves a configuration path (vector store, logger sink) inside the pipeline's data folder. */
@@ -236,7 +237,7 @@ export class PipelineRuntime {
     const scenario: LiveLoopScenario = {
       kind: "live-loop", id: "pipeline", label: config.name, application: { source }, interpreter,
       loop: proxy.lockdown === "post-completion" ? "durable" : "buffered",
-      provider: kind === "openai" ? { kind: "openai", model: String(model!.model) } : { kind: "mock", script: [] },
+      provider: kind === "openai" ? { kind: "openai", model: String(model!.model) } : kind === "anthropic" ? { kind: "anthropic", model: String(model!.model) } : { kind: "mock", script: [] },
       tools: [], node: { nodeId: entry?.id ?? "pipeline", nodeVersion: entry?.version ?? "v1", agents },
       initialState: {}, turns: [],
       policy: {
@@ -286,7 +287,7 @@ export class PipelineRuntime {
     let harness: Harness;
     try {
       harness = await buildHarness(scenario, this.options.services, {
-        dir, runId: `pipeline-${pipelineId.slice(-12)}`, observe: { observer, level: "digest" }, emit: () => {}, cancelled: () => false, live: kind === "openai",
+        dir, runId: `pipeline-${pipelineId.slice(-12)}`, observe: { observer, level: "digest" }, emit: () => {}, cancelled: () => false, live: kind !== "mock",
         registrations, ...(provider ? { provider } : {}), authorizeFinal, signing: this.signing(config.psp?.signOnRetrieval ?? (this.options.services.vault.signingKey()?.algorithm ?? "hmac-sha256"))
       });
     } catch (e) {
@@ -403,7 +404,7 @@ export class PipelineRuntime {
     const { message, summary } = this.message(s.config, input ?? {});
     s.busy = true; s.lastUsed = Date.now(); s.onTrace = onTrace;
     s.trace = []; s.calls = []; s.finalVerdicts = null; s.turn++;
-    s.box.turn = s.turn; s.box.message = message;
+    s.box.turn = s.turn; s.box.message = message; s.box.failure = null;
     const { initiator } = terminals(s.config);
     const proxy = primaryProxy(s.config)!;
     const reply = replyMode(initiator);
@@ -412,7 +413,6 @@ export class PipelineRuntime {
     try {
       this.trace(s, "initiator", `${String(initiator!.trigger)} → ${summary}`);
       this.trace(s, "llmproxy.request", `prompt signed and bound to session ${s.id.slice(0, 8)}; ${s.registrations.allowed.length} registration(s)`);
-      if (s.providerKind === "anthropic") throw Object.assign(new Error("The reference loop has no TypeScript Anthropic adapter."), { code: "UNSUPPORTED_PROVIDER" });
       const { harness } = s;
       const current = await harness.store.execute(harness.actor, { action: "getSession", sessionId: s.id });
       const controls = { deadline: harness.clock.now() + TURN_SECONDS, cancelled: () => false, maxSteps: 8 };
@@ -422,7 +422,8 @@ export class PipelineRuntime {
       text = typeof result.text === "string" ? result.text : "";
     } catch (e) {
       const code = (e as { code?: string }).code ?? "TURN_FAILED";
-      error = { code, ...(e instanceof LockdownError ? { message: "The session is locked after completion." } : (e as Error).message && (e as Error).message !== code ? { message: (e as Error).message } : {}) };
+      // The loop reports every provider exception as PROVIDER_FAILED; the Anthropic adapter's described failure says why.
+      error = { code, ...(e instanceof LockdownError ? { message: "The session is locked after completion." } : s.box.failure ? { message: s.box.failure } : (e as Error).message && (e as Error).message !== code ? { message: (e as Error).message } : {}) };
       this.trace(s, "llmproxy.response", `turn ended: ${code}`);
     } finally { s.busy = false; s.onTrace = undefined; }
 

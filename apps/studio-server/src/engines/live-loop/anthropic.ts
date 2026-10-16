@@ -50,7 +50,7 @@ type Block = Record<string, unknown>;
 interface Message { role: "user" | "assistant"; content: Block[] }
 
 /** Loop request → Messages API body. Tool names go out as `psp_tool_<i>`; the loop's names stay host-side. */
-export function encodeAnthropicRequest(input: unknown, model: string, limits: AnthropicLimits, transcript = false): { body: Uint8Array; names: string[] } {
+export function encodeAnthropicRequest(input: unknown, model: string, limits: AnthropicLimits, transcript = false): { body: Uint8Array<ArrayBuffer>; names: string[] } {
   const value = copy(input, "INVALID_REQUEST");
   if (!exact(value, ["messages", "tools"]) || !Array.isArray(value.messages) || !Array.isArray(value.tools) || value.messages.length < 2 || value.tools.length > 128) fail("INVALID_REQUEST");
   const tools = [...value.tools].sort((a, b) => String(a?.name) < String(b?.name) ? -1 : String(a?.name) > String(b?.name) ? 1 : 0);
@@ -91,7 +91,7 @@ export function encodeAnthropicRequest(input: unknown, model: string, limits: An
     model, system, messages, max_tokens: limits.maxOutputTokens, stream: false, thinking: { type: "disabled" },
     ...(wireTools.length ? { tools: wireTools, tool_choice: { type: "auto", disable_parallel_tool_use: true } } : {})
   };
-  let bytes: Uint8Array;
+  let bytes: Uint8Array<ArrayBuffer>;
   try { bytes = Buffer.from(canonicalJson(request), "utf8"); } catch { return fail("REQUEST_TOO_LARGE"); }
   if (bytes.length > limits.maxRequestBytes) fail("REQUEST_TOO_LARGE");
   return { body: bytes, names };
@@ -145,8 +145,11 @@ async function readBounded(response: Response, max: number): Promise<Uint8Array 
   return Buffer.concat(chunks);
 }
 
-/** Host-owned closure. Construction never performs network I/O; the key is only ever sent in a header. */
-export function createAnthropicProvider(config: AnthropicConfig): ProviderRegistration & { readonly model: string } {
+/**
+ * Host-owned closure. Construction never performs network I/O; the key is only ever sent in a header.
+ * The registration carries exactly the loop's metadata keys (the loop refuses any other); the revision names the model.
+ */
+export function createAnthropicProvider(config: AnthropicConfig): ProviderRegistration {
   if (!record(config) || typeof config.now !== "function" || typeof config.apiKey !== "string" || !/^[\x21-\x7e]{1,4096}$/.test(config.apiKey)) fail("INVALID_CONFIGURATION");
   if (typeof config.model !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,99}$/.test(config.model)) fail("INVALID_CONFIGURATION", undefined, "The model id must be letters, digits, dots, colons or dashes.");
   const limits: AnthropicLimits = copy(config.limits, "INVALID_CONFIGURATION"), sources: CapabilitySource[] = copy(config.sources, "INVALID_CONFIGURATION");
@@ -158,7 +161,7 @@ export function createAnthropicProvider(config: AnthropicConfig): ProviderRegist
   const doFetch = config.fetch ?? globalThis.fetch;
   let calls = 0, spent = 0, busy = false;
   return {
-    id: transcript ? "anthropic-messages-context" : "anthropic-messages", revision: `messages-${ANTHROPIC_VERSION}-${model}`, sources, complete: true, model,
+    id: transcript ? "anthropic-messages-context" : "anthropic-messages", revision: `messages-${ANTHROPIC_VERSION}-${model}`, sources, complete: true,
     invoke: async (input, options) => {
       if (busy) fail("PROVIDER_BUSY");
       busy = true;
@@ -228,5 +231,6 @@ export function describeAnthropicFailure(f: AnthropicFailure): string {
   const head = f.status !== undefined ? `Anthropic returned HTTP ${f.status}` : `Anthropic call failed (${f.code})`;
   const hint = f.code === "KEY_REJECTED" ? " Check anthropic.apiKey on the Secrets page."
     : f.code === "MODEL_NOT_FOUND" ? " Check the model id." : "";
-  return `${head}${f.detail ? `: ${f.detail}` : "."}${hint}`;
+  const line = f.detail ? `${head}: ${f.detail}` : head;
+  return `${/[.!?]$/.test(line) ? line : `${line}.`}${hint}`;
 }

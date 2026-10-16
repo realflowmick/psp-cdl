@@ -170,7 +170,7 @@ export function scenarioChecks(s: Scenario): string[] {
   }
   const checks: string[] = [];
   const names = new Set(s.tools.map(toolName)), atNode = new Set(s.node.agents);
-  if (s.provider.kind === "anthropic") checks.push("The live loop has no TypeScript Anthropic adapter; prepare reports UNSUPPORTED_PROVIDER.");
+  if (s.provider.kind === "anthropic" && !s.provider.model.trim()) checks.push("The Anthropic adapter needs a model id; prepare reports INVALID_CONFIGURATION without one.");
   if (s.provider.kind === "mock") {
     s.turns.forEach((_, i) => {
       const replies = scriptFor(s, i), n = i + 1;

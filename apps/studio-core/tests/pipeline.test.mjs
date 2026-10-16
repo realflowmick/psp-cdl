@@ -101,7 +101,7 @@ test('splicing a ring component places it on the edge it was dropped on',()=>{
 test('a new pipeline is an empty ring without a PSP',()=>{
   const config=newPipeline('fresh');
   assert.deepEqual(ringOrder(config),['initiator_1','llmproxy_1.request','model_1','llmproxy_1.response','initiator_1']);
-  assert.deepEqual(codes(validatePipeline(config)).sort(),['NO_PSP','UNSUPPORTED_PROVIDER']);
+  assert.deepEqual(codes(validatePipeline(config)).sort(),['NO_PSP']);
   assert.equal(validatePipeline(config).find(p=>p.code==='NO_PSP').message,'Runs without a PSP — no node allowlist, no covenants, psp-verify skipped.');
 });
 

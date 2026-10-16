@@ -138,7 +138,6 @@ export function validatePipeline(config: PipelineConfig, env: ValidationEnv = {}
   if (model) {
     const provider = inferProvider(String(model.model ?? ""), model.provider);
     if (!provider) add({ id: "model:provider", severity: "error", code: "UNKNOWN_PROVIDER", message: `The provider for ${String(model.model)} cannot be inferred; set provider.`, target: { componentId: model.id } });
-    else if (provider === "anthropic") add({ id: "model:anthropic", severity: "warn", code: "UNSUPPORTED_PROVIDER", message: "The reference loop has no TypeScript Anthropic adapter, so turns end with UNSUPPORTED_PROVIDER. Use openai, or mock for offline wiring checks.", target: { componentId: model.id } });
   }
   if (initiator) {
     const t = String(initiator.trigger), reply = replyMode(initiator), at = { componentId: initiator.id };

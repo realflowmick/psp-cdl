@@ -9,6 +9,7 @@ export { CollectionStore, COLLECTION_SCHEMA, checkScenario } from "./scenarios/s
 export { RunManager, type RunInput, type RunHandle, type Executor } from "./runs/manager.js";
 export { RealtimeHub, SOCKET_PATH } from "./realtime/hub.js";
 export { LiveLoopEngine, admissionDigest } from "./engines/live-loop/index.js";
+export { createAnthropicProvider, describeAnthropicFailure, encodeAnthropicRequest, decodeAnthropicReply, AnthropicError, ANTHROPIC_MESSAGES_URL, ANTHROPIC_VERSION, type AnthropicConfig, type AnthropicFailure, type AnthropicLimits, type AnthropicUsage } from "./engines/live-loop/anthropic.js";
 export { buildHarness, makeClock, resolveApplication, OPERATOR_TOKEN, type Harness } from "./engines/live-loop/harness.js";
 export { PythonEngine, uvLauncher, runStep, jsonlWatcher, jsonArrayWatcher, directoryWatcher, type Launcher, type PythonScenario } from "./engines/python.js";
 export { EngineError, type Engine, type EngineContext, type EngineServices, type PrepareContext } from "./engines/types.js";

@@ -49,7 +49,7 @@ the shared schema. Each scenario names an engine through its `kind`:
 - `live-loop` runs the TypeScript reference loops in-process: `buffered`,
   `durable`, `refreshing` or `context`. The scenario supplies the application
   text (a workspace file or inline source), synthetic read-only tools, a mock
-  script or a live OpenAI provider, the node affinity, the CDL policy per phase,
+  script or a live OpenAI or Anthropic provider, the node affinity, the CDL policy per phase,
   the turn messages, and the turn plan (`accumulate`, `replace` or
   `model-state`). The interpreter candidates from `specs/systemprompts` are
   prepended when `interpreter` is `psp-core-3.2-draft-0.1`.
@@ -269,7 +269,7 @@ counterpart, and runs report those explicitly:
 | `lockdown: post-completion` | Runs `DurableLlmLoop` with `postCompletion: "lockdown"`; otherwise `BufferedLlmLoop`. |
 | MCPProxy | `HttpMcpClient` with `serverInfo` pinned and a bearer token from `auth: env:NAME` (the reference client always sends one). The first run captures a catalog baseline in `<data>/mcpproxy-state.sqlite`, never in the configuration. At session start a different catalog refuses calls (or warns, with `drift: warn`), and a change mid-session fails with the client's `DISCOVERY_CHANGED`. Re-baselining is explicit and logged. The proxy does not inject covenants or augment results, and has no allowlist. |
 | Tool admission | The reference gate dispatches read-only tools only. Read-only admission and capabilities come from the configuration's `tools` declarations, else the `readOnlyHint` and tool-level `x-cdl-capabilities` (CDL §5.1) recorded in the baseline. Side-effecting tools such as `send_mail` are reported as not read-only. A tool whose schema the gate refuses is excluded and reported, not fatal. |
-| Model | `openai` uses the vault key through the live adapter. `mock` replays `script`, or echoes. `anthropic` has no TypeScript adapter, so turns end with `UNSUPPORTED_PROVIDER`. |
+| Model | `openai` uses the vault key through the reference live adapter. `anthropic` uses `anthropic.apiKey` through the studio's Messages adapter: the session start fails with `CREDENTIAL_MISSING` without a key, each session allows 256 calls and 2,000,000 tokens, and a failed call ends the turn with `PROVIDER_FAILED` and the provider's reason. `mock` replays `script`, or echoes. |
 | Logger | JSON Lines under the pipeline's data folder. The input and reply are replaced by their SHA-256 while a covenant in context conflicts with `logs-data` (`no-log`). |
 | OTel | No exporter; reported as `unsupported`. |
 
@@ -332,8 +332,10 @@ messages; `run` messages carry record updates for every run.
   simulates the triggers and the run record says what was not done.
 - Pipeline runs report `data-use-check` as unsupported and cannot dispatch tools that
   are not read-only; neither exists in the reference.
-- It has no TypeScript Anthropic adapter for live loops; an `anthropic` provider
-  on a live-loop scenario fails `prepare` with `UNSUPPORTED_PROVIDER`. The
+- Live loops and pipelines call Anthropic through a studio adapter
+  (`apps/studio-server/src/engines/live-loop/anthropic.ts`), not a reference
+  LLMProxy adapter. It has no conformance profile or shared vectors, and its tests
+  use a mocked `fetch`; it has not been exercised against the live API here. The
   campaign engine drives Anthropic models from Python. The authoring assistant
   calls Anthropic and OpenAI directly, only to write PSP text.
 - The assistant's output is a proposal, not a reviewed or tested application;

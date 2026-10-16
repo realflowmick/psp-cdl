@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Mock providers and synthetic tools only; no network, no credentials.
+// Mock providers, a scripted Anthropic fetch and synthetic tools only; no network, synthetic keys.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync} from 'node:fs';
@@ -10,6 +10,7 @@ import {defaultLiveLoopScenario} from '@psp-cdl/studio-core';
 import {LiveLoopEngine,Vault,Workspace,admissionDigest} from '../dist/index.js';
 
 const repoRoot=resolve(fileURLToPath(new URL('../../../',import.meta.url)));
+const KEY='sk-ant-synthetic-live-0000';
 function fixture(){
   const data=mkdtempSync(join(tmpdir(),'psp-studio-live-'));
   const vault=new Vault(join(data,'vault'));
@@ -123,7 +124,7 @@ test('prepare previews the harness and reports unsupported or unadmitted live co
     assert.deepEqual(prepared.preview.tools,['echo.read']);assert.equal(prepared.preview.turns,3);
     assert.ok(prepared.preview.nodes.some(n=>n.nodeId==='help'));
     assert.ok(prepared.warnings.some(w=>/ephemeral/.test(w)));
-    await assert.rejects(engine.prepare({...defaultLiveLoopScenario('a'),provider:{kind:'anthropic',model:'claude'}},{...f.services,inspectAllowed:false}),{code:'UNSUPPORTED_PROVIDER'});
+    await assert.rejects(engine.prepare({...defaultLiveLoopScenario('a'),provider:{kind:'anthropic',model:'claude-test-1'}},{...f.services,inspectAllowed:false}),{code:'CREDENTIAL_MISSING'});
     await assert.rejects(engine.prepare({...defaultLiveLoopScenario('o'),provider:{kind:'openai'}},{...f.services,inspectAllowed:false}),{code:'CREDENTIAL_MISSING'});
     f.vault.set('openai.apiKey','sk-synthetic-not-a-real-key');
     const live={...defaultLiveLoopScenario('o'),provider:{kind:'openai'},clock:'virtual'};
@@ -147,5 +148,56 @@ test('cancellation stops the run between turns',async()=>{
     f.controller.abort();
     const result=await new LiveLoopEngine().run(defaultLiveLoopScenario(),f.context());
     assert.equal(result.status,'cancelled');assert.equal(result.summary.turns.length,0);
+  }finally{f.close();}
+});
+/** A scripted Messages API: each call takes the next [status, body] pair. */
+function messagesApi(responses){
+  const calls=[];
+  const fetch=async(url,init)=>{
+    calls.push({url,headers:init.headers,body:JSON.parse(new TextDecoder().decode(init.body))});
+    const [status,body]=responses.shift();
+    return new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
+  };
+  return {fetch,calls};
+}
+const anthropicScenario=()=>({...defaultLiveLoopScenario('anthropic'),provider:{kind:'anthropic',model:'claude-test-1'},turns:[{message:'Please review my situation.'}],plan:{statePolicy:'replace'}});
+
+test('an admitted Anthropic scenario runs through the durable loop against a scripted Messages API',async()=>{
+  const f=fixture();
+  const api=messagesApi([
+    [200,{type:'message',role:'assistant',model:'claude-test-1',stop_reason:'tool_use',content:[{type:'tool_use',id:'toolu_1',name:'psp_tool_0',input:{message:'customer record'}}],usage:{input_tokens:40,output_tokens:12}}],
+    [200,{type:'message',role:'assistant',model:'claude-test-1',stop_reason:'end_turn',content:[{type:'text',text:'Reviewed the record.'}],usage:{input_tokens:60,output_tokens:8}}]]);
+  try{
+    const engine=new LiveLoopEngine(),scenario=anthropicScenario();
+    f.vault.set('anthropic.apiKey',KEY);
+    const prepared=await engine.prepare(scenario,{...f.services,fetch:api.fetch,inspectAllowed:false});
+    assert.equal(api.calls.length,0,'prepare calls no model');
+    assert.equal(prepared.preview.provider.id,'anthropic-messages');assert.equal(prepared.preview.provider.live,true);assert.equal(prepared.preview.clock,'wall');
+    assert.equal(prepared.admissionDigest,admissionDigest(scenario));
+    await assert.rejects(engine.run(scenario,f.context(false,{fetch:api.fetch})),{code:'NOT_ADMITTED'});
+    const result=await engine.run(scenario,f.context(false,{fetch:api.fetch,admissionDigest:prepared.admissionDigest}));
+    assert.deepEqual(result.summary.turns.map(t=>[t.code,t.text]),[['OK','Reviewed the record.']]);
+    assert.equal(result.summary.providerCalls,2);assert.equal(result.summary.toolCalls,1);
+    assert.equal(api.calls[0].headers['x-api-key'],KEY);
+    assert.deepEqual(api.calls[0].body.tools.map(t=>t.description),['echo.read']);
+    assert.equal(api.calls[1].body.messages.at(-1).content[0].type,'tool_result');
+    assert.deepEqual(f.events.filter(e=>e.type==='provider.usage').map(e=>e.data.inputTokens),[40,60]);
+    assert.doesNotMatch(JSON.stringify(f.events),new RegExp(KEY));
+  }finally{f.close();}
+});
+
+test('a rejected Anthropic key ends the turn with PROVIDER_FAILED and a described provider.error event',async()=>{
+  const f=fixture();
+  const api=messagesApi([[401,{type:'error',error:{type:'authentication_error',message:'invalid x-api-key'}}]]);
+  try{
+    const engine=new LiveLoopEngine(),scenario=anthropicScenario();
+    f.vault.set('anthropic.apiKey',KEY);
+    const {admissionDigest:digest}=await engine.prepare(scenario,{...f.services,fetch:api.fetch,inspectAllowed:false});
+    const result=await engine.run(scenario,f.context(false,{fetch:api.fetch,admissionDigest:digest}));
+    assert.deepEqual(result.summary.turns.map(t=>t.code),['PROVIDER_FAILED']);
+    const error=f.events.find(e=>e.type==='provider.error');
+    assert.equal(error.data.code,'KEY_REJECTED');assert.equal(error.data.status,401);
+    assert.match(error.data.message,/HTTP 401: authentication_error: invalid x-api-key\. Check anthropic\.apiKey/);
+    assert.doesNotMatch(JSON.stringify(f.events),new RegExp(KEY));
   }finally{f.close();}
 });
