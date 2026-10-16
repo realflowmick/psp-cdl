@@ -5,6 +5,7 @@ from psp_cdl_core import canonical_version
 from psp_cdl_api_server.service import SecurityService, ServiceError
 from psp_cdl_api_server.persistence import StoreError, integer, valid_prompt_state, compare_prompt_versions, PROMPT_REFRESH_PROFILE
 from psp_cdl_mcpproxy import binding_digest
+from psp_cdl_mcpproxy.observe import scope_of
 from .loop import BufferedLlmLoop, LoopError, copy
 from .durable import DurableLlmLoop, call, actor
 
@@ -39,8 +40,8 @@ def pinned(store,p,b,prompt):
     if r is None or r["state"]["version"]!=d["version"] or r["state"]["digest"]!=d["digest"]:raise LoopError("STALE_PROMPT")
 
 class RefreshBuffer(BufferedLlmLoop):
-    def __init__(self,store,gate,host,provider,refresh_host,on_prompt,token,options):
-        super().__init__(store,gate,host,provider)
+    def __init__(self,store,gate,host,provider,refresh_host,on_prompt,token,options,observe=None):
+        super().__init__(store,gate,host,provider,observe=observe)
         self.refresh_host,self.on_prompt,self.token,self.options=refresh_host,on_prompt,token,options
         self.current,self.revision=None,0
     def _prompt_attributes(self):return ATTRIBUTES
@@ -61,6 +62,7 @@ class RefreshBuffer(BufferedLlmLoop):
         if "interval" in state["policies"] and state["turnCount"]>=state["interval"]:return "interval"
         return None
     def audit(self,p,b,signal,details):
+        self._emit("refresh.signal",scope_of(b),{"signal":signal,**details})
         try:ok=self.refresh_host.audit_refresh(copy(p),copy({"profile":PROMPT_REFRESH_PROFILE,"signal":signal,"binding":b,"at":self._host.now(),**details}))
         except Exception:raise LoopError("AUDIT_FAILED") from None
         if ok is not True:raise LoopError("AUDIT_FAILED")
@@ -104,6 +106,7 @@ class RefreshBuffer(BufferedLlmLoop):
         self.current=saved(self._store,p,b);self.revision=self.current["revision"] if self.current else 0
         if self.current and self.current["sessionVersion"]!=b["sessionVersion"]:raise LoopError("STALE_PROMPT")
         trigger=self.due(self.current["state"],self._host.now()) if self.current else None
+        if trigger:self._emit("refresh.due",scope_of(b),{"trigger":trigger})
         if self.current is None or trigger:return self.install(p,b,reservation,trigger)
         prompt=copy(call(lambda:self._host.prompt(copy(p),copy({**b,"refresh":{"current_version":self.current["state"]["version"],"trigger":"binding","turn_count":self.current["state"]["turnCount"]}}))),"INVALID_REFRESH")
         self._verify(p,b,prompt)
@@ -114,15 +117,16 @@ class RefreshBuffer(BufferedLlmLoop):
         current=saved(self._store,p,b)
         if current is None or current["revision"]!=self.revision or current["sessionVersion"]!=b["sessionVersion"]:raise LoopError("STALE_PROMPT")
         trigger=self.due({**current["state"],"expires":min(current["state"]["expires"],prompt["signature"]["expires"])},self._host.now())
+        if trigger:self._emit("refresh.due",scope_of(b),{"trigger":trigger})
         return self.install(p,b,reservation,trigger) if trigger else prompt
 
 class RefreshingLlmLoop(DurableLlmLoop):
-    def __init__(self,store,gate,host,provider,configuration=None):
-        super().__init__(store,gate,host,provider,configuration)
+    def __init__(self,store,gate,host,provider,configuration=None,observe=None):
+        super().__init__(store,gate,host,provider,configuration,observe=observe)
         if not store.prompt_refresh or any(not callable(getattr(host,k,None)) for k in ("refresh","authorize_refresh","audit_refresh")):raise LoopError("INVALID_CONFIGURATION")
     def _prompt_attributes(self):return ATTRIBUTES
     def _verify(self,p,b,prompt):
         super()._verify(p,b,prompt)
         pinned(self._store,p,b,prompt)
-    def _make_buffered(self,host,on_prompt,token,session,options):return RefreshBuffer(self._store,self._gate,host,self._provider,self._host,on_prompt,token,options)
+    def _make_buffered(self,host,on_prompt,token,session,options):return RefreshBuffer(self._store,self._gate,host,self._provider,self._host,on_prompt,token,options,observe=self._observe)
     def _turn_command(self,command,buffered):return {**command,"action":"commitRefreshedTurn","refreshRevision":buffered.revision}

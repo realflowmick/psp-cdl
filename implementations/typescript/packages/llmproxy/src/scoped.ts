@@ -3,7 +3,7 @@ import {record,type Envelope} from "@psp-cdl/core";
 import {aggregateCapabilities} from "@psp-cdl/cdl";
 import {identifier,type Principal} from "@psp-cdl/api-server";
 import {WorkflowStore,StoreError,bounded,integer,validScope,validScopedCompletion,validThreatPolicy,SCOPED_PROFILE} from "@psp-cdl/api-server/persistence";
-import {McpDispatchGate,bindingDigest} from "@psp-cdl/mcpproxy";
+import {McpDispatchGate,bindingDigest,scopeOf,type ObserveOptions} from "@psp-cdl/mcpproxy";
 import {DurableLlmLoop,type DurableHost,type DurableOptions} from "./durable.js";
 import {LoopError,promptContext,type ProviderRegistration} from "./loop.js";
 
@@ -33,8 +33,8 @@ export function scopedPromptContext(binding:Record<string,unknown>):Record<strin
 export class ScopedLlmLoop extends DurableLlmLoop {
   private readonly definition:ScopeConfiguration;
   protected override get completionPolicy():string{return "scoped";}
-  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly scopedHost:ScopedHost,provider:ProviderRegistration,configuration:{postCompletion:"scoped";scope:ScopeConfiguration}) {
-    super(store,gate,scopedHost,provider,{postCompletion:"lockdown"});
+  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly scopedHost:ScopedHost,provider:ProviderRegistration,configuration:{postCompletion:"scoped";scope:ScopeConfiguration},observe?:ObserveOptions) {
+    super(store,gate,scopedHost,provider,{postCompletion:"lockdown"},observe);
     if(!store.scopedTurns||[scopedHost.applicationThreat,scopedHost.scopedPrompt,scopedHost.scopeBoundary,scopedHost.planScopedTurn].some(f=>typeof f!=="function"))fail("INVALID_CONFIGURATION");
     const config=copy(configuration,"UNSUPPORTED_POST_COMPLETION");
     if(!exact(config,"postCompletion,scope")||config.postCompletion!=="scoped"||!exact(config.scope,"id,system,threatPolicy,version")||!identifier(config.scope.id)||!identifier(config.scope.version)||typeof config.scope.system!=="string"||!config.scope.system.length||config.scope.threatPolicy!==null&&!validThreatPolicy(config.scope.threatPolicy))fail("UNSUPPORTED_POST_COMPLETION");
@@ -124,6 +124,6 @@ export class ScopedLlmLoop extends DurableLlmLoop {
       return this.coordinator.run(owner,async()=>{
         await fresh(receipt.sessionVersion);await this.decide(p,{...binding,committedVersion:receipt.sessionVersion},copy({...data,retained}),"release",aggregateCapabilities(authority.releaseSources,authority.releaseComplete));await fresh(receipt.sessionVersion);return this.present(receipt,false);
       });
-    });
+    },scopeOf({sessionId,requestId:(options as DurableOptions|undefined)?.requestId}));
   }
 }

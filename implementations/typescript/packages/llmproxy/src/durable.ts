@@ -3,7 +3,7 @@ import {canonicalJson,record,type Envelope} from "@psp-cdl/core";
 import {aggregateCapabilities,evaluateBatch,type PolicyInput} from "@psp-cdl/cdl";
 import {SecurityService,ServiceError,identifier,type Principal} from "@psp-cdl/api-server";
 import {WorkflowStore,StoreError,bounded,integer,type AccessContext} from "@psp-cdl/api-server/persistence";
-import {McpDispatchGate,bindingDigest} from "@psp-cdl/mcpproxy";
+import {McpDispatchGate,bindingDigest,byteLength,scopeOf,type ObserveOptions,type ObserveScope} from "@psp-cdl/mcpproxy";
 import {BufferedLlmLoop,LoopError,type LoopHost,type LoopOptions,type ProviderRegistration} from "./loop.js";
 
 export const DURABLE_LOOP_PROFILE="PSP-LLM-DURABLE-0.1";
@@ -34,10 +34,10 @@ export class DurableLlmLoop extends BufferedLlmLoop {
   protected async authorizeCommit(p:Principal,_binding:Record<string,unknown>,context:AccessContext,_options:DurableOptions):Promise<void> {
     if(await call(()=>this.durableHost.authorizeTransition(copy(p),copy(context)))!==true)fail("TRANSITION_DENIED");
   }
-  protected makeBuffered(host:LoopHost,_onPrompt:(prompt:Envelope)=>void,_token:unknown,_session:Record<string,unknown>,_options:DurableOptions):BufferedLlmLoop {return new BufferedLlmLoop(this.store,this.gate,host,this.provider);}
+  protected makeBuffered(host:LoopHost,_onPrompt:(prompt:Envelope)=>void,_token:unknown,_session:Record<string,unknown>,_options:DurableOptions):BufferedLlmLoop {return new BufferedLlmLoop(this.store,this.gate,host,this.provider,this.observe);}
   protected turnCommand(command:Record<string,unknown>,_buffered:BufferedLlmLoop):Record<string,unknown> {return command;}
-  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly durableHost:DurableHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"}) {
-    super(store,gate,durableHost,provider);
+  constructor(store:WorkflowStore,gate:McpDispatchGate,private readonly durableHost:DurableHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"},observe?:ObserveOptions) {
+    super(store,gate,durableHost,provider,observe);
     if(!store.durableTurns||[durableHost.planTurn,durableHost.authorizeTransition,durableHost.audit,durableHost.authorizeRecovery,durableHost.recoveryPolicy].some(f=>typeof f!=="function")) fail("INVALID_CONFIGURATION");
     if(!record(configuration)||Object.keys(configuration).join(",")!=="postCompletion"||configuration.postCompletion!=="lockdown") fail("UNSUPPORTED_POST_COMPLETION");
   }
@@ -48,12 +48,13 @@ export class DurableLlmLoop extends BufferedLlmLoop {
     if(scope==="sessions:write"&&!p.scopes.includes("models:invoke")) fail("FORBIDDEN");
     return p;
   }
-  protected async boundary<T>(fn:()=>Promise<T>):Promise<T> {
+  protected async boundary<T>(fn:()=>Promise<T>,scope:ObserveScope={}):Promise<T> {
     try{return await fn();}catch(e){
+      const code=e instanceof LoopError?e.code:e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)?e.code:
+        e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY","STATE_CONFLICT","IDEMPOTENCY_CONFLICT","PERSISTENCE_DENIED","AUTHORIZATION_DENIED","INVALID_STATE","INVALID_TRANSITION","STORE_BUSY"].includes(e.code)?e.code:"HOST_ERROR";
+      this.emit("durable.failed",scope,{code});
       if(e instanceof LoopError) throw e;
-      if(e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)) return fail(e.code);
-      if(e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY","STATE_CONFLICT","IDEMPOTENCY_CONFLICT","PERSISTENCE_DENIED","AUTHORIZATION_DENIED","INVALID_STATE","INVALID_TRANSITION","STORE_BUSY"].includes(e.code)) return fail(e.code);
-      return fail("HOST_ERROR");
+      return fail(code);
     }
   }
   protected controls(options:RecoveryOptions):RecoveryOptions {
@@ -76,6 +77,7 @@ export class DurableLlmLoop extends BufferedLlmLoop {
           const lockedAt=s.llmCompletion.lockedAt;
           if(!integer(lockedAt)||lockedAt>253402300799) fail("INVALID_STATE");
           if(await call(()=>this.durableHost.audit(copy(p),{signal:"post_completion_override_attempt",sessionId,inputDigest,at:this.host.now()}),"AUDIT_FAILED")!==true) fail("AUDIT_FAILED");
+          this.emit("lockdown",scopeOf({sessionId,requestId:options.requestId}),{lockedAt,policy:"lockdown"});
           throw new LockdownError({error:"session_locked",code:"PSP_POST_COMPLETION_LOCKDOWN",message:"This session has concluded. No further interaction is permitted.",session_id:sessionId,locked_at:new Date((lockedAt as number)*1000).toISOString().replace(".000Z","Z"),policy:"lockdown"});
         }
         if(s.status!=="running") fail("INACTIVE_SESSION");
@@ -98,7 +100,9 @@ export class DurableLlmLoop extends BufferedLlmLoop {
             if(await call(()=>this.host.authorizeFinal(copy(live),copy(b),copy(d)))!==true) return false;
             const proposed=copy(await call(()=>this.durableHost.planTurn(copy(live),copy({...b,requestId:options.requestId,postCompletion:this.completionPolicy}),copy(d))),"INVALID_PLAN");
             if(!record(proposed)||Object.keys(proposed).sort().join(",")!=="complete,retained,state"||!record(proposed.state)||!record(proposed.retained)||typeof proposed.complete!=="boolean") fail("INVALID_PLAN");
-            plan=proposed as unknown as TurnPlan;binding=copy(b);data=copy(d);return true;
+            plan=proposed as unknown as TurnPlan;binding=copy(b);data=copy(d);
+            this.emit("turn.planned",scopeOf({sessionId,requestId:options.requestId}),{stateBytes:byteLength(plan.state),retainedBytes:byteLength(plan.retained),complete:plan.complete},()=>({state:plan!.state,retained:plan!.retained}));
+            return true;
           }catch(e){planError=e;return false;}
         }
       };
@@ -124,13 +128,15 @@ export class DurableLlmLoop extends BufferedLlmLoop {
           await fresh();return true;
         }catch(e){guardError=e;return false;}
       }).catch(e=>{throw guardError??e;});
+      this.emit("turn.committed",scopeOf({sessionId,requestId:options.requestId}),{sessionVersion:receipt.sessionVersion,status:receipt.status,stateBytes:byteLength(plan.state),retainedBytes:byteLength(plan.retained),complete:plan.complete},()=>({state:plan!.state,retained:plan!.retained,output}));
       return this.coordinator.run(owner,async()=>{
         await fresh(receipt.sessionVersion);
         await this.decide(p,{...binding,committedVersion:receipt.sessionVersion},data!,"release",aggregateCapabilities(authority.releaseSources,authority.releaseComplete));
         await fresh(receipt.sessionVersion);
+        this.emit("turn.released",scopeOf({sessionId,requestId:options.requestId}),{sessionVersion:receipt.sessionVersion});
         return this.present(receipt,false);
       });
-    });
+    },scopeOf({sessionId,requestId:(options as DurableOptions|undefined)?.requestId}));
   }
   async recover(token:unknown,sessionId:string,requestId:string,options:RecoveryOptions):Promise<Record<string,unknown>> {
     return this.boundary(async()=>{
@@ -155,11 +161,14 @@ export class DurableLlmLoop extends BufferedLlmLoop {
         if(!record(policy)||Object.keys(policy).sort().join(",")!=="bindingDigest,resources"||policy.bindingDigest!==bindingDigest(context)||!Array.isArray(policy.resources)||!policy.resources.length) fail("INVALID_POLICY");
         const capabilities=aggregateCapabilities(authority.releaseSources,authority.releaseComplete);
         const resources=policy.resources.map((r:PolicyInput)=>{if(!record(r))return fail("INVALID_POLICY");return {...r,capabilities:aggregateCapabilities([{id:"recipient",capabilities},{id:"path",capabilities:r.capabilities}],true)};});
-        const decision=evaluateBatch(resources).decision;
-        if(decision==="unsupported") fail("UNSUPPORTED_POLICY");
-        if(decision!=="allow") fail("OUTPUT_DENIED");
-        await fresh();return this.present(receipt,true);
+        const verdict=evaluateBatch(resources),at=scopeOf({sessionId,requestId});
+        this.emit("cdl.decision",at,{phase:"recovery",decision:verdict.decision,reasonCodes:verdict.reasonCodes,resourceCount:resources.length});
+        if(verdict.decision==="unsupported") fail("UNSUPPORTED_POLICY");
+        if(verdict.decision!=="allow") fail("OUTPUT_DENIED");
+        await fresh();
+        this.emit("turn.recovered",at,{sessionVersion:receipt.sessionVersion,status:receipt.status});
+        return this.present(receipt,true);
       });
-    });
+    },scopeOf({sessionId,requestId}));
   }
 }

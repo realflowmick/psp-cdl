@@ -37,7 +37,7 @@ export async function fixture(settings={}) {
   };
   const invoke=f.provider.invoke;
   const provider={...f.provider,invoke:async(...args)=>{const result=await invoke(...args);if(f.flags.afterProviderTime)f.baseFlags.now=f.flags.afterProviderTime;return result;}};
-  try{return {...f,host,provider,refreshRequests,refreshEvents,loop:new RefreshingLlmLoop(f.store,f.gate,host,provider,{postCompletion:'lockdown'})};}
+  try{return {...f,host,provider,refreshRequests,refreshEvents,loop:new RefreshingLlmLoop(f.store,f.gate,host,provider,{postCompletion:'lockdown'},settings.observe)};}
   catch(e){f.close();throw e;}
 }
 export async function runCase(c){
@@ -47,7 +47,7 @@ export async function runCase(c){
     for(const step of c.steps??[{action:'run'}]){
       Object.assign(f.flags,step.flags??{});Object.assign(f.baseFlags,step.baseFlags??{});
       const options={...f.options,...step.options};
-      if(step.action==='restart')f.loop=new RefreshingLlmLoop(f.store,f.gate,f.host,f.provider,{postCompletion:'lockdown'});
+      if(step.action==='restart')f.loop=new RefreshingLlmLoop(f.store,f.gate,f.host,f.provider,{postCompletion:'lockdown'},c.settings?.observe);
       try{const value=step.action==='recover'?await f.loop.recover(step.token??'test-owner',f.session.sessionId,step.requestId??'turn-1',options):await f.loop.run(step.token??'test-owner',f.session.sessionId,step.request??{message:'Read synthetic data.'},options);steps.push({code:'OK',value});}
       catch(e){steps.push({code:e.code??'UNEXPECTED_ERROR'});}
     }

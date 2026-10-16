@@ -10,8 +10,8 @@ from .loop import LoopError, copy
 class RedirectingLlmLoop(DurableLlmLoop):
     _completion_policy = "redirect"
 
-    def __init__(self,store,gate,host,provider,configuration=None):
-        super().__init__(store,gate,host,provider,{"postCompletion":"lockdown"})
+    def __init__(self,store,gate,host,provider,configuration=None,observe=None):
+        super().__init__(store,gate,host,provider,{"postCompletion":"lockdown"},observe=observe)
         if not store.redirect_turns or any(not callable(getattr(host,k,None)) for k in ("resolve_redirect","redirect_policy")): raise LoopError("INVALID_CONFIGURATION")
         if type(configuration) is not dict or set(configuration)!={"postCompletion","target"} or configuration["postCompletion"]!="redirect" or not valid_redirect_target(configuration["target"]): raise LoopError("UNSUPPORTED_POST_COMPLETION")
         self._target=configuration["target"]

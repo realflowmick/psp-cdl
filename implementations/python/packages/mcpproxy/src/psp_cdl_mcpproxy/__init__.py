@@ -2,6 +2,7 @@
 """Experimental host-embedded MCP dispatch gate; complete mediation is pending."""
 from copy import deepcopy
 from .dispatch import McpDispatchGate, DispatchError, DISPATCH_PROFILE, binding_digest
+from .observe import OBSERVE_PROFILE, make_emitter, byte_length, text_bytes, scope_of
 
 _MANIFEST = {
     "id": "mcpproxy",
@@ -10,7 +11,7 @@ _MANIFEST = {
         "psp": "3.2.0",
         "cdl": "1.5"
     },
-    "implementedFeatures": ["host-mcp-dispatch-gate-0.1", "mcp-stdio-mediation-0.1","mcp-http-mediation-0.1", "mcp-revision-0.1"]
+    "implementedFeatures": ["host-mcp-dispatch-gate-0.1", "mcp-stdio-mediation-0.1","mcp-http-mediation-0.1", "mcp-revision-0.1", "dispatch-observer-0.1"]
 }
 
 

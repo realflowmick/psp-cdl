@@ -2,7 +2,7 @@
 import {canonicalVersion,type Envelope} from "@psp-cdl/core";
 import {SecurityService,ServiceError,type Principal} from "@psp-cdl/api-server";
 import {WorkflowStore,StoreError,bounded,integer,validPromptState,comparePromptVersions,PROMPT_REFRESH_PROFILE,type OwnerReservation} from "@psp-cdl/api-server/persistence";
-import {McpDispatchGate,bindingDigest} from "@psp-cdl/mcpproxy";
+import {McpDispatchGate,bindingDigest,scopeOf,type ObserveOptions} from "@psp-cdl/mcpproxy";
 import {BufferedLlmLoop,LoopError,type LoopHost,type LoopOptions,type ProviderRegistration} from "./loop.js";
 import {DurableLlmLoop,type DurableHost,type DurableOptions} from "./durable.js";
 export {PROMPT_REFRESH_PROFILE,comparePromptVersions};
@@ -38,7 +38,7 @@ class RefreshBuffer extends BufferedLlmLoop {
   revision=0;
   private current:State|null=null;
   constructor(store:WorkflowStore,gate:McpDispatchGate,host:LoopHost,provider:ProviderRegistration,
-    private refreshHost:RefreshHost,private onPrompt:(p:Envelope)=>void,private token:unknown,private options:DurableOptions){super(store,gate,host,provider);}
+    private refreshHost:RefreshHost,private onPrompt:(p:Envelope)=>void,private token:unknown,private options:DurableOptions,observe?:ObserveOptions){super(store,gate,host,provider,observe);}
   protected override promptAttributes():string[]{return attributes;}
   protected override async verify(p:Principal,b:Record<string,unknown>,prompt:Envelope):Promise<void>{await super.verify(p,b,prompt);await pinned(this.store,p,b,prompt);}
   private async ensure(p:Principal,b:Record<string,unknown>):Promise<void>{
@@ -56,6 +56,7 @@ class RefreshBuffer extends BufferedLlmLoop {
     return null;
   }
   private async audit(p:Principal,b:Record<string,unknown>,signal:string,details:State):Promise<void>{
+    this.emit("refresh.signal",scopeOf(b),{signal,...details});
     let ok;try{ok=await this.refreshHost.auditRefresh(copy(p),copy({profile:PROMPT_REFRESH_PROFILE,signal,binding:b,at:this.host.now(),...details}));}catch{fail("AUDIT_FAILED");}
     if(ok!==true)fail("AUDIT_FAILED");
   }
@@ -92,6 +93,7 @@ class RefreshBuffer extends BufferedLlmLoop {
     this.current=await saved(this.store,p,b);this.revision=this.current?.revision??0;
     if(this.current&&this.current.sessionVersion!==b.sessionVersion)fail("STALE_PROMPT");
     const trigger=this.current?this.due(this.current.state,this.host.now()):null;
+    if(trigger)this.emit("refresh.due",scopeOf(b),{trigger});
     if(!this.current||trigger)return this.install(p,b,reservation,trigger);
     const prompt=copy(await call(()=>this.host.prompt(copy(p),copy({...b,refresh:{current_version:this.current!.state.version,trigger:"binding",turn_count:this.current!.state.turnCount}})))) as Envelope;
     await this.verify(p,b,prompt);
@@ -102,19 +104,20 @@ class RefreshBuffer extends BufferedLlmLoop {
     const current=await saved(this.store,p,b);
     if(!current||current.revision!==this.revision||current.sessionVersion!==b.sessionVersion)fail("STALE_PROMPT");
     const trigger=this.due({...current!.state,expires:Math.min(current!.state.expires,prompt.signature.expires)},this.host.now());
+    if(trigger)this.emit("refresh.due",scopeOf(b),{trigger});
     return trigger?this.install(p,b,reservation,trigger):prompt;
   }
 }
 /** Boundary-triggered refresh; the signing/compatibility authority is exclusively host-owned. */
 export class RefreshingLlmLoop extends DurableLlmLoop {
-  constructor(store:WorkflowStore,gate:McpDispatchGate,private refreshHost:RefreshHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"}){
-    super(store,gate,refreshHost,provider,configuration);
+  constructor(store:WorkflowStore,gate:McpDispatchGate,private refreshHost:RefreshHost,provider:ProviderRegistration,configuration:{postCompletion:"lockdown"},observe?:ObserveOptions){
+    super(store,gate,refreshHost,provider,configuration,observe);
     if(!store.promptRefresh||[refreshHost.refresh,refreshHost.authorizeRefresh,refreshHost.auditRefresh].some(f=>typeof f!=="function"))fail("INVALID_CONFIGURATION");
   }
   protected override promptAttributes():string[]{return attributes;}
   protected override async verify(p:Principal,b:Record<string,unknown>,prompt:Envelope):Promise<void>{await super.verify(p,b,prompt);await pinned(this.store,p,b,prompt);}
   protected override makeBuffered(host:LoopHost,onPrompt:(prompt:Envelope)=>void,token:unknown,_session:Record<string,unknown>,options:DurableOptions):BufferedLlmLoop {
-    return new RefreshBuffer(this.store,this.gate,host,this.provider,this.refreshHost,onPrompt,token,options);
+    return new RefreshBuffer(this.store,this.gate,host,this.provider,this.refreshHost,onPrompt,token,options,this.observe);
   }
   protected override turnCommand(command:Record<string,unknown>,buffered:BufferedLlmLoop):Record<string,unknown>{return {...command,action:"commitRefreshedTurn",refreshRevision:(buffered as RefreshBuffer).revision};}
 }

@@ -7,6 +7,7 @@ from psp_cdl_cdl import aggregate_capabilities, evaluate_batch
 from psp_cdl_api_server.service import ServiceError, identifier
 from psp_cdl_api_server.persistence import StoreError, integer
 from psp_cdl_mcpproxy import binding_digest
+from psp_cdl_mcpproxy.observe import byte_length, scope_of
 from .loop import BufferedLlmLoop, LoopError, copy
 
 DURABLE_LOOP_PROFILE = "PSP-LLM-DURABLE-0.1"
@@ -32,10 +33,10 @@ class DurableLlmLoop(BufferedLlmLoop):
     def _prepare_commit(self,p,binding,command,options): return command
     def _authorize_commit(self,p,binding,context,options):
         if call(lambda:self._host.authorize_transition(copy(p),copy(context))) is not True: raise LoopError("TRANSITION_DENIED")
-    def _make_buffered(self,host,on_prompt,token,session,options): return BufferedLlmLoop(self._store,self._gate,host,self._provider)
+    def _make_buffered(self,host,on_prompt,token,session,options): return BufferedLlmLoop(self._store,self._gate,host,self._provider,observe=self._observe)
     def _turn_command(self,command,buffered): return command
-    def __init__(self, store, gate, host, provider, configuration=None):
-        super().__init__(store, gate, host, provider)
+    def __init__(self, store, gate, host, provider, configuration=None, observe=None):
+        super().__init__(store, gate, host, provider, observe=observe)
         if not store.durable_turns or any(not callable(getattr(host, k, None)) for k in ("plan_turn", "authorize_transition", "audit", "authorize_recovery", "recovery_policy")):
             raise LoopError("INVALID_CONFIGURATION")
         if type(configuration) is not dict or set(configuration) != {"postCompletion"} or configuration["postCompletion"] != "lockdown":
@@ -47,14 +48,17 @@ class DurableLlmLoop(BufferedLlmLoop):
         if scope == "sessions:write" and "models:invoke" not in p["scopes"]: raise LoopError("FORBIDDEN")
         return p
 
-    @staticmethod
-    def _boundary(fn):
+    def _boundary(self, fn, scope=None):
         try: return fn()
-        except LoopError: raise
-        except ServiceError as exc: raise LoopError(exc.code if exc.code in ("UNAUTHENTICATED", "FORBIDDEN") else "HOST_ERROR") from None
-        except StoreError as exc:
-            raise LoopError(exc.code if exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY", "STATE_CONFLICT", "IDEMPOTENCY_CONFLICT", "PERSISTENCE_DENIED", "AUTHORIZATION_DENIED", "INVALID_STATE", "INVALID_TRANSITION", "STORE_BUSY") else "HOST_ERROR") from None
-        except Exception: raise LoopError("HOST_ERROR") from None
+        except Exception as exc:
+            code = exc.code if isinstance(exc, LoopError) or isinstance(exc, ServiceError) and exc.code in ("UNAUTHENTICATED", "FORBIDDEN") or isinstance(exc, StoreError) and exc.code in ("NOT_FOUND", "EXPIRED", "STATE_BUSY", "STATE_CONFLICT", "IDEMPOTENCY_CONFLICT", "PERSISTENCE_DENIED", "AUTHORIZATION_DENIED", "INVALID_STATE", "INVALID_TRANSITION", "STORE_BUSY") else "HOST_ERROR"
+            self._emit("durable.failed", scope or {}, {"code":code})
+            if isinstance(exc, LoopError): raise
+            raise LoopError(code) from None
+
+    @staticmethod
+    def _turn_scope(session_id, options):
+        return scope_of({"sessionId":session_id, "requestId":options.get("requestId") if type(options) is dict else None})
 
     @staticmethod
     def _controls(options):
@@ -66,7 +70,7 @@ class DurableLlmLoop(BufferedLlmLoop):
         return {**copy(receipt["output"]), "receipt":{"profile":DURABLE_LOOP_PROFILE, "requestId":receipt["requestId"], "sessionVersion":receipt["sessionVersion"], "status":receipt["status"], "recovered":recovered}}
 
     def run(self, token, session_id, request, options):
-        return self._boundary(lambda:self._run_turn(token, session_id, request, options))
+        return self._boundary(lambda:self._run_turn(token, session_id, request, options), self._turn_scope(session_id, options))
 
     def _run_turn(self, token, session_id, request, options):
         value, controls = copy(request), self._controls(options)
@@ -83,6 +87,7 @@ class DurableLlmLoop(BufferedLlmLoop):
                 locked_at = completion.get("lockedAt")
                 if not integer(locked_at) or locked_at > 253402300799: raise LoopError("INVALID_STATE")
                 if call(lambda:self._host.audit(copy(p), {"signal":"post_completion_override_attempt", "sessionId":session_id, "inputDigest":input_digest, "at":self._host.now()}), "AUDIT_FAILED") is not True: raise LoopError("AUDIT_FAILED")
+                self._emit("lockdown", scope_of({"sessionId":session_id, "requestId":options["requestId"]}), {"lockedAt":locked_at, "policy":"lockdown"})
                 stamp = datetime.fromtimestamp(locked_at, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                 raise LockdownError({"error":"session_locked", "code":"PSP_POST_COMPLETION_LOCKDOWN", "message":"This session has concluded. No further interaction is permitted.", "session_id":session_id, "locked_at":stamp, "policy":"lockdown"})
             if session["status"] != "running": raise LoopError("INACTIVE_SESSION")
@@ -117,6 +122,7 @@ class DurableLlmLoop(BufferedLlmLoop):
                 plan = copy(call(lambda:self._host.plan_turn(copy(live), copy({**binding, "requestId":options["requestId"], "postCompletion":self._completion_policy}), copy(data))), "INVALID_PLAN")
                 if type(plan) is not dict or set(plan) != {"state", "retained", "complete"} or type(plan["state"]) is not dict or type(plan["retained"]) is not dict or type(plan["complete"]) is not bool: raise LoopError("INVALID_PLAN")
                 captured.update(plan=plan, binding=copy(binding), data=copy(data))
+                self._emit("turn.planned", scope_of({"sessionId":session_id, "requestId":options["requestId"]}), {"stateBytes":byte_length(plan["state"]), "retainedBytes":byte_length(plan["retained"]), "complete":plan["complete"]}, lambda:{"state":plan["state"], "retained":plan["retained"]})
                 return True
             except Exception as exc:
                 plan_error.append(exc)
@@ -156,15 +162,17 @@ class DurableLlmLoop(BufferedLlmLoop):
         except Exception:
             if guard_error: raise guard_error[0]
             raise
+        self._emit("turn.committed", scope_of({"sessionId":session_id, "requestId":options["requestId"]}), {"sessionVersion":receipt["sessionVersion"], "status":receipt["status"], "stateBytes":byte_length(plan["state"]), "retainedBytes":byte_length(plan["retained"]), "complete":plan["complete"]}, lambda:{"state":plan["state"], "retained":plan["retained"], "output":output})
         def release():
             fresh(receipt["sessionVersion"])
             self._decide(p, {**binding, "committedVersion":receipt["sessionVersion"]}, data, "release", aggregate_capabilities(authority["releaseSources"], authority["releaseComplete"]))
             fresh(receipt["sessionVersion"])
+            self._emit("turn.released", scope_of({"sessionId":session_id, "requestId":options["requestId"]}), {"sessionVersion":receipt["sessionVersion"]})
             return self._present(receipt, False)
         return self._coordinator.run(owner, release)
 
     def recover(self, token, session_id, request_id, options):
-        return self._boundary(lambda:self._recover(token, session_id, request_id, options))
+        return self._boundary(lambda:self._recover(token, session_id, request_id, options), scope_of({"sessionId":session_id, "requestId":request_id}))
 
     def _recover(self, token, session_id, request_id, options):
         controls = self._controls(options)
@@ -193,9 +201,11 @@ class DurableLlmLoop(BufferedLlmLoop):
             for resource in policy["resources"]:
                 if type(resource) is not dict: raise LoopError("INVALID_POLICY")
                 resources.append({**resource, "capabilities":aggregate_capabilities([{"id":"recipient", "capabilities":capabilities}, {"id":"path", "capabilities":resource.get("capabilities")}], True)})
-            decision = evaluate_batch(resources)["decision"]
-            if decision == "unsupported": raise LoopError("UNSUPPORTED_POLICY")
-            if decision != "allow": raise LoopError("OUTPUT_DENIED")
+            verdict, at = evaluate_batch(resources), scope_of({"sessionId":session_id, "requestId":request_id})
+            self._emit("cdl.decision", at, {"phase":"recovery", "decision":verdict["decision"], "reasonCodes":list(verdict["reasonCodes"]), "resourceCount":len(resources)})
+            if verdict["decision"] == "unsupported": raise LoopError("UNSUPPORTED_POLICY")
+            if verdict["decision"] != "allow": raise LoopError("OUTPUT_DENIED")
             fresh()
+            self._emit("turn.recovered", at, {"sessionVersion":receipt["sessionVersion"], "status":receipt["status"]})
             return self._present(receipt, True)
         return self._coordinator.run(owner, release)

@@ -28,6 +28,7 @@ These snippets assume seconds. The host supplies clock units and controls.
 Python callbacks are synchronous; TypeScript callbacks may return promises.
 Importing the package opens no listener or database and looks up no credentials.
 The credential needs `models:invoke`, `tools:list`, and `tools:call` for tool use.
+An optional trailing `observe` argument attaches the [development observer](observer.md); it never changes outcomes.
 The session selector and controls come from authenticated host routing.
 
 ## PSP execution ownership

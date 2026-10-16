@@ -15,8 +15,8 @@ def scoped_prompt_context(binding):
 
 class ScopedLlmLoop(DurableLlmLoop):
     _completion_policy="scoped"
-    def __init__(self,store,gate,host,provider,configuration=None):
-        super().__init__(store,gate,host,provider,{"postCompletion":"lockdown"})
+    def __init__(self,store,gate,host,provider,configuration=None,observe=None):
+        super().__init__(store,gate,host,provider,{"postCompletion":"lockdown"},observe=observe)
         if not store.scoped_turns or any(not callable(getattr(host,k,None)) for k in ("application_threat","scoped_prompt","scope_boundary","plan_scoped_turn")):raise LoopError("INVALID_CONFIGURATION")
         config=copy(configuration,"UNSUPPORTED_POST_COMPLETION")
         if not exact(config,"postCompletion,scope") or config["postCompletion"]!="scoped" or not exact(config["scope"],"id,system,threatPolicy,version"):raise LoopError("UNSUPPORTED_POST_COMPLETION")
@@ -45,7 +45,7 @@ class ScopedLlmLoop(DurableLlmLoop):
         if type(receipt.get("scoped")) is dict and receipt["scoped"].get("outcome")=="violation":raise LoopError("PSP_POST_COMPLETION_VIOLATION")
         return {**DurableLlmLoop._present(receipt,recovered),**({"scoped":copy(receipt["scoped"])} if "scoped" in receipt else {})}
 
-    def run(self,token,session_id,request,options):return self._boundary(lambda:self._run_scoped(token,session_id,request,options))
+    def run(self,token,session_id,request,options):return self._boundary(lambda:self._run_scoped(token,session_id,request,options),self._turn_scope(session_id,options))
 
     def _run_scoped(self,token,session_id,request,options):
         value,controls=copy(request),self._controls(options)

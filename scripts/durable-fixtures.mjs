@@ -45,7 +45,7 @@ export async function fixture(settings={}) {
   };
   f.baseFlags.denyPersistence=!!f.flags.denyStorage;
   try {
-    const loop=new DurableLlmLoop(f.store,f.gate,host,f.provider,{postCompletion:settings.postCompletion??'lockdown'});
+    const loop=new DurableLlmLoop(f.store,f.gate,host,f.provider,{postCompletion:settings.postCompletion??'lockdown'},settings.observe);
     return {...f,loop,host,events,commands,options:{...f.options,requestId:'turn-1',expectedVersion:1}};
   }catch(e){f.close();throw e;}
 }

@@ -136,6 +136,13 @@ Revision checks and retained replay tombstones prevent stale commits/receipts
 from reviving purged sessions; disk erasure and distributed fencing remain host
 or future integration work.
 
+The opt-in [exfiltration fingerprint store](exfiltration.md) is a separate
+`api-server` submodule for probabilistic threat assessment. It keeps HMAC-keyed
+shingles and optional embeddings of protected sections, never their text, and
+returns heuristic signals. Hosts decide release and accumulation; deterministic
+parsing, signature and CDL policy code do not depend on it. Embeddings run locally,
+and the optional sqlite-vec extension path comes from host configuration.
+
 The opt-in [security tools service](security-tools.md) composes strict scans,
 signature verification, host-owned encryption grants and deterministic CDL
 plaintext release. It optionally delegates workflow/lifecycle operations after

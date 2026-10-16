@@ -5,6 +5,7 @@ import { aggregateCapabilities, evaluateBatch, type PolicyInput } from "@psp-cdl
 import { SecurityService, ServiceError, identifier, type Principal } from "@psp-cdl/api-server";
 import { WorkflowStore, OwnerCoordinator, StoreError, bounded, integer, type Actor } from "@psp-cdl/api-server/persistence";
 import { checkSchema, matches } from "./schema.js";
+import { makeEmitter, byteLength, scopeOf, type Emit, type ObserveOptions } from "./observe.js";
 
 export const DISPATCH_PROFILE="PSP-MCP-DISPATCH-0.1";
 export class DispatchError extends Error {
@@ -60,9 +61,11 @@ export class McpDispatchGate {
   private readonly usedRevisions=new Set<string>();
   private readonly auth:SecurityService;
   private readonly coordinator:OwnerCoordinator;
-  constructor(private readonly store:WorkflowStore, private readonly host:DispatchHost, private currentRevision:string, registrations:ToolRegistration[]) {
+  private readonly emit:Emit;
+  constructor(private readonly store:WorkflowStore, private readonly host:DispatchHost, private currentRevision:string, registrations:ToolRegistration[], observe?:ObserveOptions) {
     const registryRevision=currentRevision;
     if(!(store.coordinator instanceof OwnerCoordinator)||!identifier(registryRevision)||!Array.isArray(registrations)||registrations.length>1024||[host.authenticate,host.now,host.snapshot,host.policy].some(v=>typeof v!=="function")) fail("INVALID_CONFIGURATION");
+    this.emit=makeEmitter("mcpproxy",observe,fail);
     this.coordinator=store.coordinator!;
     this.auth=new SecurityService({authenticate:t=>host.authenticate(t),now:()=>host.now(),resolve:()=>null});
     this.usedRevisions.add(registryRevision);
@@ -113,15 +116,17 @@ export class McpDispatchGate {
     capabilities(s.releaseSources as CapabilitySource[],s.releaseComplete as boolean);
     return s as unknown as AuthoritySnapshot;
   }
-  private async boundary<T>(work:()=>Promise<T>):Promise<T> {
+  private async boundary<T>(work:()=>Promise<T>,operation:string,sessionId:unknown):Promise<T> {
     try {return await work();} catch(e) {
+      const code=e instanceof DispatchError?e.code:e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)?e.code:
+        e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY"].includes(e.code)?e.code:"HOST_ERROR";
+      this.emit("dispatch.failed",scopeOf({sessionId}),{operation,code});
       if(e instanceof DispatchError) throw e;
-      if(e instanceof ServiceError&&["UNAUTHENTICATED","FORBIDDEN"].includes(e.code)) fail(e.code);
-      if(e instanceof StoreError&&["NOT_FOUND","EXPIRED","STATE_BUSY"].includes(e.code)) fail(e.code);
-      return fail("HOST_ERROR");
+      return fail(code);
     }
   }
   private async within<T>(token:unknown,sessionId:string,scope:string,options:CallOptions,work:(p:Principal,s:Record<string,unknown>,a:AuthoritySnapshot,allowed:Set<string>,fresh:()=>Promise<void>)=>Promise<T>,expected?:Principal):Promise<T> {
+    const operation=scope==="tools:list"?"listTools":"callTool";
     this.active++;
     try {return await this.boundary(async()=>{
       const p=await this.principal(token,scope,expected), actor:Actor={tenantId:p.tenantId,subjectId:p.subjectId};
@@ -139,9 +144,11 @@ export class McpDispatchGate {
           if(canonicalJson(await this.store.execute(actor,{action:"getSession",sessionId}))!==canonicalJson(session)) fail("STALE_SESSION");
           this.check(options,expires);
         };
-        return work(p,session,authority,affinity(node),fresh);
+        const allowed=affinity(node);
+        this.emit("dispatch.enter",scopeOf({sessionId}),{operation,allowedCount:allowed.size,registeredCount:this.tools.size});
+        return work(p,session,authority,allowed,fresh);
       });
-    });}finally{this.active--;}
+    },operation,sessionId);}finally{this.active--;}
   }
   async listTools(token:unknown,sessionId:string,options:CallOptions,expected?:Principal):Promise<Record<string,unknown>[]> {
     options={deadline:options?.deadline,cancelled:options?.cancelled};
@@ -160,30 +167,40 @@ export class McpDispatchGate {
       if(!tool||!allowed.has(tool.uri)) return fail("TOOL_NOT_ALLOWED");
       if(!tool.meta.readOnly) fail("UNSUPPORTED_TOOL_MODE");
       if(!matches(tool.meta.inputSchema,r.arguments)) fail("INVALID_ARGUMENTS");
+      const s=scopeOf({sessionId});
       const binding={tenantId:p.tenantId,subjectId:p.subjectId,sessionId,sessionVersion:session.version,nodeId:session.nodeId,nodeVersion:session.nodeVersion,epoch:this.store.epoch,policyVersion:authority.policyVersion,authorityRevision:authority.revision,registryRevision:this.registryRevision,toolUri:tool.uri,toolRevision:tool.meta.revision,inputDigest:bindingDigest(r.arguments),deadline:options.deadline};
+      this.emit("dispatch.start",s,{toolName:r.name,toolUri:tool.uri,toolRevision:tool.meta.revision,inputDigest:binding.inputDigest,argumentBytes:byteLength(r.arguments)},()=>({arguments:r.arguments}));
       const decide=async(phase:"dispatch"|"release",data:Record<string,unknown>,bound:Record<string,unknown>,caps:string[])=>{
         const context={...bound,phase}, digest=bindingDigest(context);
         const policy=copy(await callback(()=>this.host.policy(copy(p),copy(context),copy(data),phase)),"INVALID_POLICY");
         if(!record(policy)||policy.bindingDigest!==digest||!Array.isArray(policy.resources)||!policy.resources.length) fail("INVALID_POLICY");
         const inputs=(policy.resources as PolicyInput[]).map(v=>({...v,capabilities:capabilities([{id:"registry",capabilities:caps},{id:"resource",capabilities:v.capabilities}],true)}));
-        const decision=evaluateBatch(inputs).decision;
-        if(decision==="unsupported") fail("UNSUPPORTED_POLICY");
-        if(decision!=="allow") fail(phase==="dispatch"?"POLICY_DENIED":"OUTPUT_DENIED");
+        const verdict=evaluateBatch(inputs);
+        this.emit("cdl.decision",s,{phase,decision:verdict.decision,reasonCodes:verdict.reasonCodes,resourceCount:inputs.length});
+        if(verdict.decision==="unsupported") fail("UNSUPPORTED_POLICY");
+        if(verdict.decision!=="allow") fail(phase==="dispatch"?"POLICY_DENIED":"OUTPUT_DENIED");
       };
       await decide("dispatch",r.arguments as Record<string,unknown>,binding,tool.caps);
-      if(options.authorizeDispatch&&await callback(()=>options.authorizeDispatch!(copy(session),[...tool.caps]))!==true) fail("HOST_DENIED");
+      if(options.authorizeDispatch) {
+        const ok=await callback(()=>options.authorizeDispatch!(copy(session),[...tool.caps]))===true;
+        this.emit("dispatch.guard",s,{present:true,ok});
+        if(!ok) fail("HOST_DENIED");
+      } else this.emit("dispatch.guard",s,{present:false,ok:true});
       await fresh();
       this.check(options,Math.min(authority.expires,session.expiresAt as number));
+      this.emit("tool.invoke.start",s,{toolName:r.name});
       // No await between final check and entering the pinned endpoint callback.
       let raw:unknown;
       try {raw=await tool.invoke(copy(r.arguments),{deadline:options.deadline,cancelled:options.cancelled});}
-      catch {this.check(options,Math.min(authority.expires,session.expiresAt as number));return fail("TOOL_FAILED");}
-      const output=copy(raw,"INVALID_OUTPUT");
+      catch {this.emit("tool.invoke.end",s,{ok:false});this.check(options,Math.min(authority.expires,session.expiresAt as number));return fail("TOOL_FAILED");}
+      this.emit("tool.invoke.end",s,{ok:true});
+      const output=copy(raw,"INVALID_OUTPUT"), outputDigest=bindingDigest(output);
+      this.emit("tool.output",s,{outputBytes:byteLength(output),outputDigest},()=>({output}));
       this.check(options,Math.min(authority.expires,session.expiresAt as number));
       if(!matches(tool.meta.outputSchema,output)) fail("INVALID_OUTPUT");
-      const outputDigest=bindingDigest(output);
       await decide("release",output,{...binding,outputDigest},capabilities(authority.releaseSources,authority.releaseComplete));
       await fresh();
+      this.emit("dispatch.released",s,{toolName:r.name,outputDigest});
       return {data:output,provenance:{profile:DISPATCH_PROFILE,toolUri:tool.uri,toolRevision:tool.meta.revision,registryRevision:this.registryRevision,inputDigest:binding.inputDigest,outputDigest,trustLevel:5}};
     },expected);
   }

@@ -1,0 +1,9 @@
+PSP Studio browser app
+Copyright 2026 RealflowCloud, Inc. and contributors
+
+Licensed under the Apache License, Version 2.0. See the repository LICENSE file.
+
+The built bundle includes third-party packages under their own licenses, among
+them React and React DOM (MIT), React Flow from xyflow (MIT), jsondiffpatch (MIT), socket.io-client
+(MIT), zustand (MIT), classcat (MIT) and d3 modules (ISC). Each package's
+license text ships with the package.

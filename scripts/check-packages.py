@@ -94,6 +94,10 @@ import {SqliteBackend} from '@psp-cdl/api-server/sqlite';
 import {WorkflowService} from '@psp-cdl/api-server/workflow';
 import {SessionOperations} from '@psp-cdl/api-server/operations';
 assert.equal(typeof WorkflowService,'function');assert.equal(typeof SessionOperations,'function');
+import {ExfiltrationStore,HashingEmbedder} from '@psp-cdl/api-server/exfiltration';
+const exfil=new ExfiltrationStore(resolve('consumer-exfil.sqlite'),{key:new Uint8Array(32).fill(5),embedder:new HashingEmbedder()});
+await exfil.protect({application:'consumer',sectionType:'system',text:'Synthetic protected instructions for the installed package check.'});
+assert.equal((await exfil.assess({application:'consumer',text:'Synthetic protected instructions for the installed package check.'})).disposition,'leak');exfil.close();
 for(const pkg of ['core','cdl','test-harness','api-server','mcp-server','mcpproxy','llmproxy']) assert(fileURLToPath(import.meta.resolve('@psp-cdl/'+pkg)).startsWith(resolve('node_modules')+sep));
 const service=new SecurityService({authenticate:()=>null,resolve:()=>{throw new Error('must not resolve');},now:()=>1});
 await assert.rejects(()=>service.invoke('evaluate',{operation_id:'op'},'invalid'),{code:'UNAUTHENTICATED'});
@@ -269,6 +273,11 @@ from psp_cdl_api_server.sqlite import SqliteBackend
 from psp_cdl_api_server.workflow import WorkflowService
 from psp_cdl_api_server.operations import SessionOperations
 assert callable(WorkflowService) and callable(SessionOperations)
+from psp_cdl_api_server.exfiltration import ExfiltrationStore, HashingEmbedder
+exfil=ExfiltrationStore(str(Path('python-consumer-exfil.sqlite').resolve()),bytes([5])*32,embedder=HashingEmbedder())
+exfil.protect({'application':'consumer','sectionType':'system','text':'Synthetic protected instructions for the installed package check.'})
+assert exfil.assess({'application':'consumer','text':'Synthetic protected instructions for the installed package check.'})['disposition']=='leak'
+exfil.close()
 for module in (core,crypto,cdl,harness,api,mcp,proxy,llm):
     assert Path(module.__file__).resolve().is_relative_to(target), module.__file__
 source='${psp type=context}hello 🧪${/psp}'
